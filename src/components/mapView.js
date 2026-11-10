@@ -1,5 +1,5 @@
 // The main map and the blue-dot style pin for the user.
-import { HAI_PHONG, TILE_URL, SATELLITE_TILE_URL } from "../data/config.js";
+import { HAI_PHONG, TILE_URL, SATELLITE_TILE_URL, STREET_STYLE_URL } from "../data/config.js";
 import { state } from "../data/state.js";
 import { onMeMove, watchMe } from "../data/location.js";
 import { toast } from "./toast.js";
@@ -10,7 +10,7 @@ export const meIcon = L.divIcon({ className: "", html: '<div class="pinicon"></d
 let meMarker = null, followed = false, base = null, baseName = "street";
 
 const BASES = {
-  street: { url: TILE_URL, credit: "© OpenStreetMap contributors" },
+  street: { url: TILE_URL, credit: "© OpenFreeMap © OpenMapTiles Data from OpenStreetMap" },
   satellite: { url: SATELLITE_TILE_URL, credit: "Imagery © Esri" }
 };
 
@@ -18,7 +18,9 @@ export const currentBase = () => baseName;
 export function setBaseLayer(name) {
   if (base) map.removeLayer(base);
   baseName = name;
-  base = L.tileLayer(BASES[name].url, { maxZoom: 19, attribution: BASES[name].credit }).addTo(map);
+  // Street uses the free vector map (shows buildings); fall back to plain tiles if it did not load.
+  const vector = name === "street" && L.maplibreGL;
+  base = (vector ? L.maplibreGL({ style: STREET_STYLE_URL, attribution: BASES.street.credit }) : L.tileLayer(BASES[name].url, { maxZoom: 19, attribution: BASES[name].credit })).addTo(map);
   base.bringToBack();
   map.getContainer().classList.toggle("street", name === "street");
 }
