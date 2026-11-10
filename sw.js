@@ -1,5 +1,5 @@
 // Saves app files and map pictures on the phone so repeat visits open instantly.
-const APP = "app-v2", TILES = "tiles-v1", MAX_TILES = 400;
+const APP = "app-v3", TILES = "tiles-v1", MAX_TILES = 400;
 const isTile = u => /tile\.openstreetmap\.org|arcgisonline\.com|unpkg\.com/.test(u.hostname);
 
 self.addEventListener("install", () => self.skipWaiting());
@@ -19,9 +19,16 @@ async function fastThenFresh(req, cacheName, opts) {
   return saved || fresh;
 }
 
+// App files: ask the internet first so updates show at once, use the saved copy only when offline.
+async function freshThenSaved(req, cacheName) {
+  const cache = await caches.open(cacheName);
+  try { const r = await fetch(req, { cache: "no-cache" }); if (r.ok) cache.put(req, r.clone()); return r; }
+  catch (e) { return (await cache.match(req, { ignoreSearch: req.mode === "navigate" })) || Response.error(); }
+}
+
 self.addEventListener("fetch", e => {
   const req = e.request, url = new URL(req.url);
   if (req.method !== "GET" || url.pathname.startsWith("/api/")) return;
   if (isTile(url)) return e.respondWith(fastThenFresh(req, TILES).catch(() => Response.error()));
-  if (url.origin === location.origin) e.respondWith(fastThenFresh(req, APP, { ignoreSearch: req.mode === "navigate" }).catch(() => Response.error()));
+  if (url.origin === location.origin) e.respondWith(freshThenSaved(req, APP).catch(() => Response.error()));
 });
