@@ -1,4 +1,4 @@
-<title>Hometown Map</title>
+<title>Mamping</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
 /* Layout: one-screen phone app, map-first, bottom sheets. One accent (orange). */
@@ -88,7 +88,7 @@ function render(){
 }
 function home(){
  app.innerHTML=`<div class="screen"><div class="mapwrap">${mapSVG({pin:true})}</div>
- <div class="top pad"><h1>Hometown Map</h1><div class="row" style="flex:none"><button class="round" id="lb" aria-label="My videos">▤</button><button class="round" id="hp" aria-label="Help">?</button></div></div>
+ <div class="top pad"><h1>Mamping</h1><div class="row" style="flex:none"><button class="round" id="lb" aria-label="My videos">▤</button><button class="round" id="hp" aria-label="Help">?</button></div></div>
  <div class="dock pad"><button class="big primary" id="tk">● Take Video</button><div class="row"><button class="big ghost" id="nb" style="min-height:52px">Nearby</button><button class="big ghost" id="mp" style="min-height:52px">Browse map</button></div></div></div>`;
  bindMap(id=>{S.sel=id;go("map")});
  $("#tk").onclick=()=>go("record");$("#nb").onclick=()=>go("nearby");$("#mp").onclick=()=>{S.sel=null;go("map")};$("#hp").onclick=()=>go("help");$("#lb").onclick=()=>go("lib");

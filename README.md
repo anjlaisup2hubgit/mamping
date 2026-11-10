@@ -1,4 +1,4 @@
-# Hometown Map
+# Mamping
 
 ## Download
 Copy the project to your computer with `git clone https://github.com/anjlaisup2hubgit/mapping.git`.
