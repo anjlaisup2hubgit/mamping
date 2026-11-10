@@ -1,9 +1,10 @@
 // Saves app files and map pictures on the phone so repeat visits open instantly.
-const APP = "app-v1", TILES = "tiles-v1", MAX_TILES = 400;
+const APP = "app-v2", TILES = "tiles-v1", MAX_TILES = 400;
 const isTile = u => /tile\.openstreetmap\.org|arcgisonline\.com|unpkg\.com/.test(u.hostname);
 
 self.addEventListener("install", () => self.skipWaiting());
-self.addEventListener("activate", e => e.waitUntil(self.clients.claim()));
+// Delete old saved app files so new styles show at once.
+self.addEventListener("activate", e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith("app-") && k !== APP).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 
 async function trim(cache) {
   const keys = await cache.keys();
