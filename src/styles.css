@@ -50,6 +50,8 @@ input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--surf)
 .navb{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--mid)}
 .navb.on{color:var(--ink);background:var(--bg)}
 .navcam{position:absolute;left:50%;top:-22px;transform:translateX(-50%);width:68px;height:68px;border-radius:50%;background:var(--acc);color:var(--onacc);border:5px solid var(--bg);display:flex;align-items:center;justify-content:center}
+.round{color:var(--ink)}
+.round svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
 .nav svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
 .search{position:absolute;top:max(12px,env(safe-area-inset-top));left:max(16px,env(safe-area-inset-left));right:max(16px,env(safe-area-inset-right));z-index:600}
 .search input{box-shadow:0 2px 8px #0003;border-radius:14px;padding:14px 16px}
