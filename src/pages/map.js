@@ -8,13 +8,13 @@ import { bottomNav, bindNav } from "../components/bottomNav.js";
 import { searchBar, bindSearch } from "../components/searchBar.js";
 import { showLayers } from "../components/layersSheet.js";
 
-const side = (id, label, icon) => `<button class="round" id="${id}" aria-label="${label}">${icon}</button>`;
+const side = (id, label, icon) => `<button class="round" id="${id}" aria-label="${label}" title="${label}">${icon}</button>`;
 
 export const map = {
   full: false,
   open(el) {
     el.innerHTML = searchBar() + `<div class="side">
-      ${side("layersB", "Map layers", icons.layers)}${side("goMe", "My location", icons.locate)}${side("openNear", "Nearby", icons.list)}${side("findMiss", "Find missing buildings", icons.scan)}${side("openHelp", "Help", icons.help)}</div>` + bottomNav("map");
+      ${side("layersB", "Map layers", icons.layers)}${side("goMe", "My location", icons.locate)}${side("openNear", "Nearby", icons.list)}${side("findMiss", "Find missing buildings", icons.scan)}${side("openHelp", "Help", icons.help)}${side("openSettings", "Settings", icons.settings)}</div>` + bottomNav("map");
     bindNav(el);
     bindSearch();
     $("#layersB").onclick = showLayers;
@@ -22,5 +22,6 @@ export const map = {
     $("#openNear").onclick = () => go("nearby");
     $("#findMiss").onclick = findMissing;
     $("#openHelp").onclick = () => go("help");
+    $("#openSettings").onclick = () => go("settings");
   }
 };
