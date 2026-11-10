@@ -68,3 +68,11 @@ input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--surf)
 .guide{position:absolute;left:8%;right:8%;top:50%;border-top:3px dashed #fff9;pointer-events:none}
 .opt{display:flex;justify-content:space-between;width:100%;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surf)}
 .opt.on{border-color:var(--acc);outline:2px solid var(--acc)}
+
+/* instant hover labels (only on devices with a mouse) */
+@media (hover:hover){
+.round,.navb{position:relative}
+[data-tip]:hover::after{content:attr(data-tip);position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);background:var(--ink);color:var(--bg);padding:6px 10px;border-radius:8px;font-size:13px;white-space:nowrap;pointer-events:none;z-index:4000}
+.nav [data-tip]:hover::after{right:auto;left:50%;top:auto;bottom:calc(100% + 10px);transform:translateX(-50%)}
+.head [data-tip]:hover::after{right:auto;left:calc(100% + 8px)}
+}
