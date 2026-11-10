@@ -60,7 +60,7 @@ input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--surf)
   <div class="top pad"><h1>Hometown Map</h1>
     <div class="row"><button class="round" id="goHP" aria-label="Go to Hai Phong">HP</button><button class="round" id="goMe" aria-label="My location">◎</button><button class="round" id="openLib" aria-label="My videos">▤</button><button class="round" id="openHelp" aria-label="Help">?</button></div></div>
   <div class="dock pad"><button class="big primary" id="take">● Take Video</button>
-    <div class="row"><button class="big ghost" id="openNear" style="min-height:52px">Nearby</button></div></div>
+    <div class="row"><button class="big ghost" id="openNear" style="min-height:52px">Nearby</button><button class="big ghost" id="findMiss" style="min-height:52px">Find missing</button></div></div>
 </div>
 
 <div class="sheet pad" id="bsheet"></div>
@@ -98,7 +98,14 @@ input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--surf)
 "use strict";
 /* ---------- config ---------- */
 const HAI_PHONG=[20.8449,106.6881];          // city centre
-const UPLOAD_URL="";                          // set to your server's endpoint to enable Upload now
+let ai=null;                                  // AI result for the current clip
+const post=async(u,b)=>{const r=await fetch(u,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)});if(!r.ok)throw new Error(r.status);return r.json()};
+function grabFrames(blob,secs,n=3){return new Promise((ok,no)=>{const v=document.createElement("video");v.muted=true;v.playsInline=true;v.preload="auto";v.src=URL.createObjectURL(blob);const out=[];let i=0;
+  const seek=()=>{v.currentTime=Math.max(.1,secs*(i+1)/(n+1))};
+  v.onloadeddata=seek;
+  v.onseeked=()=>{const c=document.createElement("canvas"),k=640/Math.max(v.videoWidth,1);c.width=640;c.height=Math.round(v.videoHeight*k)||360;c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+    out.push(c.toDataURL("image/jpeg",.6).split(",")[1]);i++;if(i<n)seek();else{URL.revokeObjectURL(v.src);ok(out)}};
+  v.onerror=()=>no(new Error("video"))})}
 const OVERPASS="https://overpass-api.de/api/interpreter";
 const $=s=>document.querySelector(s);
 const toast=t=>{const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3000)};
@@ -180,7 +187,7 @@ function select(id){
   const h=heightOf(b);
   const share=location.href.split("#")[0]+"#b"+id;
   $("#bsheet").innerHTML=`<div><h2>${esc(b.name||"Unnamed building")}</h2><p class="mid" style="margin:4px 0 0">${h?h+" m":"Height unknown"}${b.levels?" · "+b.levels+" floors":""}${b.addr?" · "+esc(b.addr):""}</p></div>
-   ${cs.length?cs.map(c=>`<div class="note"><span class="tag">${c.sent?"Shared":"Private"}</span> ${esc(c.comment||"Video "+c.secs+"s")} <span class="mid">· ${esc(c.at)}</span></div>`).join(""):`<p class="mid" style="margin:0">No contributions yet.</p>`}
+   ${cs.length?cs.map(c=>`<div class="note"><span class="tag">${c.sent?"Shared":"Private"}</span> ${esc(c.comment||"Video "+c.secs+"s")} <span class="mid">· ${esc(c.at)}</span>${c.videoUrl?`<video src="${esc(c.videoUrl)}" controls playsinline preload="none" style="width:100%;border-radius:10px;margin-top:8px"></video>`:""}</div>`).join(""):`<p class="mid" style="margin:0">No contributions yet.</p>`}
    <div class="row"><button class="big primary" id="shareB" style="min-height:48px">Share</button><button class="big ghost" id="closeB" style="min-height:48px">Close</button></div>`;
   $("#bsheet").classList.add("on");
   $("#shareB").onclick=async()=>{try{await navigator.clipboard.writeText(share);toast("Link copied")}catch(e){toast(share)}};
@@ -239,14 +246,21 @@ $("#toScan").onclick=async()=>{
   const p=clip.track[Math.floor(clip.track.length/2)]||{lat:map.getCenter().lat,lng:map.getCenter().lng};
   map.setView([p.lat,p.lng],18);await loadBuildings();
   $("#pb").style.width="70%";$("#st").textContent="Matching to OpenStreetMap";
-  const m=nearestBuilding(p.lat,p.lng);matchB=m&&m.d<60?m.b:null;
-  setTimeout(()=>{$("#pb").style.width="100%";setTimeout(openReview,400)},500);
+  const m=nearestBuilding(p.lat,p.lng);matchB=m&&m.d<60?m.b:null;ai=null;
+  try{
+    $("#st").textContent="AI is reading the video";
+    const frames=await grabFrames(clip.blob,clip.secs);
+    const cands=[...buildings.values()].map(b=>({id:b.id,name:b.name,height:heightOf(b),dist:Math.round(dist(p.lat,p.lng,b.center[0],b.center[1]))})).sort((a,b)=>a.dist-b.dist).slice(0,15);
+    ai=await post("/api/analyze",{frames,candidates:cands,lat:p.lat,lng:p.lng});
+    if(ai.buildingId&&buildings.has(ai.buildingId)&&ai.confidence>=.4)matchB=buildings.get(ai.buildingId);
+  }catch(e){toast("AI is unavailable. Using your location instead.")}
+  $("#pb").style.width="100%";setTimeout(openReview,400);
 };
 function openReview(){
-  const b=matchB;const h=b?heightOf(b):null;
-  $("#revBody").innerHTML=`<div class="row" style="align-items:center">${b?'<span class="tag">Matched by location</span>':'<span class="tag">No building found nearby</span>'}</div>
-  <div><label for="rn">Building name</label><input type="text" id="rn" value="${esc(b?.name||"")}" placeholder="Add a name"></div>
-  <div class="row"><div style="flex:1"><label for="rh">Height (m)</label><input type="text" id="rh" inputmode="decimal" value="${h??""}" placeholder="Estimate"></div><div style="flex:1"><label for="rf">Floors</label><input type="text" id="rf" inputmode="numeric" value="${b?.levels??""}"></div></div>
+  const b=matchB;const h=ai?.heightM||(b?heightOf(b):null);const fl=ai?.floors||b?.levels;
+  $("#revBody").innerHTML=`<div class="row" style="align-items:center">${b?`<span class="tag">${ai?"Matched by AI · "+Math.round((ai.confidence||0)*100)+"%":"Matched by location"}</span>`:'<span class="tag">No building found nearby</span>'}</div>${ai?.note?`<p class="mid" style="margin:0">${esc(ai.note)}</p>`:""}
+  <div><label for="rn">Building name</label><input type="text" id="rn" value="${esc(ai?.name||b?.name||"")}" placeholder="Add a name"></div>
+  <div class="row"><div style="flex:1"><label for="rh">Height (m)</label><input type="text" id="rh" inputmode="decimal" value="${h??""}" placeholder="Estimate"></div><div style="flex:1"><label for="rf">Floors</label><input type="text" id="rf" inputmode="numeric" value="${fl??""}"></div></div>
   <div><label for="rc">Add comment</label><input type="text" id="rc" placeholder="New café!"></div>
   <label class="big ghost" style="margin:0;color:var(--ink);font-size:16px;min-height:52px"><input type="file" id="rp" accept="image/*" hidden><span id="rpl">+ Add photo</span></label>`;
   $("#rp").onchange=e=>{const f=e.target.files[0];if(f){clip.photo=f;$("#rpl").textContent="Photo added ✓"}};
@@ -258,8 +272,15 @@ async function commit(send){
   clip.comment=$("#rc").value.trim();clip.levels=parseFloat($("#rf").value)||null;
   clip.lat=clip.track[0]?.lat;clip.lng=clip.track[0]?.lng;
   if(send){
-    if(!UPLOAD_URL){toast("No server connected yet. Kept on this phone.")}
-    else{try{const fd=new FormData();fd.append("meta",JSON.stringify({...clip,blob:undefined,photo:undefined}));fd.append("video",clip.blob);if(clip.photo)fd.append("photo",clip.photo);const r=await fetch(UPLOAD_URL,{method:"POST",body:fd});if(!r.ok)throw 0;clip.sent=true;toast("Sent to map")}catch(e){toast("Upload failed. Kept on this phone.")}}
+    try{
+      toast("Uploading…");
+      const {upload}=await import("https://esm.sh/@vercel/blob@0.27.0/client");
+      const up=async(f,n)=>(await upload("media/"+clip.id+"-"+n,f,{access:"public",handleUploadUrl:"/api/upload-token"})).url;
+      const videoUrl=await up(clip.blob,"video."+(clip.blob.type.includes("mp4")?"mp4":"webm"));
+      const photoUrl=clip.photo?await up(clip.photo,"photo.jpg"):null;
+      const rec=await post("/api/contribute",{lat:clip.lat,lng:clip.lng,buildingId:clip.buildingId,name:clip.name,height:clip.height,levels:clip.levels,comment:clip.comment,secs:clip.secs,videoUrl,photoUrl});
+      clip.sent=true;clip.remoteId=rec.id;toast("Sent to map")
+    }catch(e){toast("Upload failed. Kept on this phone.")}
   }else toast("Saved on this phone only");
   await DB.put(clip);await loadContribs();refresh();
   if(matchB){home();map.setView(matchB.center,18);select(matchB.id)}else home();
@@ -267,10 +288,43 @@ async function commit(send){
 $("#uploadNow").onclick=()=>commit(true);
 $("#keepOff").onclick=()=>commit(false);
 
+/* ---------- missing buildings from satellite ---------- */
+const Z=19,TS=256;
+const tx=(lng)=>(lng+180)/360*2**Z, ty=(lat)=>(1-Math.log(Math.tan(lat*Math.PI/180)+1/Math.cos(lat*Math.PI/180))/Math.PI)/2*2**Z;
+const t2lng=x=>x/2**Z*360-180, t2lat=y=>Math.atan(Math.sinh(Math.PI*(1-2*y/2**Z)))*180/Math.PI;
+const sugg=L.layerGroup().addTo(map);
+function loadImg(u){return new Promise((ok,no)=>{const i=new Image();i.crossOrigin="anonymous";i.onload=()=>ok(i);i.onerror=no;i.src=u})}
+$("#findMiss").onclick=async()=>{
+  const c=map.getCenter(),cx=Math.floor(tx(c.lng)),cy=Math.floor(ty(c.lat));
+  toast("Reading satellite image…");sugg.clearLayers();
+  try{
+    const cv=document.createElement("canvas");cv.width=cv.height=TS*3;const g=cv.getContext("2d");
+    await Promise.all([0,1,2].flatMap(dx=>[0,1,2].map(async dy=>{const im=await loadImg(`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${Z}/${cy-1+dy}/${cx-1+dx}`);g.drawImage(im,dx*TS,dy*TS)})));
+    const img=cv.toDataURL("image/jpeg",.7).split(",")[1];
+    await loadBuildings();
+    const r=await post("/api/outline",{image:img});let n=0;
+    for(const b of r.buildings||[]){
+      const ll=b.points.map(([px,py])=>[t2lat(cy-1+py/TS),t2lng(cx-1+px/TS)]);
+      const ctr=mid(ll);
+      if([...buildings.values()].some(o=>inside(ctr,o.coords)||dist(ctr[0],ctr[1],o.center[0],o.center[1])<6))continue;
+      n++;
+      L.polygon(ll,{color:"#E8470F",weight:2,dashArray:"6 6",fillColor:"#E8470F",fillOpacity:.15}).addTo(sugg).on("click",e=>{L.DomEvent.stopPropagation(e);suggest(ll,ctr,b.confidence)});
+    }
+    toast(n?n+" missing building"+(n>1?"s":"")+" found. Tap one.":"No missing buildings found here.");
+  }catch(e){toast("Could not read the satellite image.")}
+};
+function suggest(ll,ctr,conf){
+  $("#bsheet").innerHTML=`<div><h2>Missing building</h2><p class="mid" style="margin:4px 0 0">AI outline · ${Math.round((conf||0)*100)}% sure</p></div><div><label for="sn">Name</label><input type="text" id="sn" placeholder="What is it?"></div><div class="row"><button class="big primary" id="subO" style="min-height:48px">Submit outline</button><button class="big ghost" id="clsO" style="min-height:48px">Close</button></div>`;
+  $("#bsheet").classList.add("on");$("#clsO").onclick=()=>$("#bsheet").classList.remove("on");
+  $("#subO").onclick=async()=>{try{await post("/api/contribute",{kind:"outline",lat:ctr[0],lng:ctr[1],name:$("#sn").value,polygon:ll});toast("Outline submitted");$("#bsheet").classList.remove("on")}catch(e){toast("Could not submit")}};
+}
+
 /* ---------- lists ---------- */
-async function loadContribs(){try{contribs=await DB.all()}catch(e){contribs=[]}}
+let shared=[];
+async function loadShared(){const c=me?{lat:me.lat,lng:me.lng}:map.getCenter();try{const r=await fetch(`/api/contributions?lat=${c.lat}&lng=${c.lng}&r=1609`);if(r.ok)shared=await r.json()}catch(e){}}
+async function loadContribs(){let l=[];try{l=await DB.all()}catch(e){}const mine=new Set(l.map(x=>x.remoteId).filter(Boolean));contribs=[...l,...shared.filter(x=>x.kind!=="outline"&&!mine.has(x.id)).map(x=>({...x,sent:true,secs:x.secs||0,at:new Date(x.at).toLocaleString()}))]}
 $("#openNear").onclick=async()=>{
-  await loadContribs();const c=map.getCenter(),ref=me?[me.lat,me.lng]:[c.lat,c.lng];
+  await loadShared();await loadContribs();const c=map.getCenter(),ref=me?[me.lat,me.lng]:[c.lat,c.lng];
   const by={};contribs.filter(x=>x.buildingId&&x.lat!=null&&dist(ref[0],ref[1],x.lat,x.lng)<=1609).forEach(x=>(by[x.buildingId]||(by[x.buildingId]=[])).push(x));
   const ids=Object.keys(by);
   $("#nearBody").innerHTML=ids.length?ids.map(id=>{const b=buildings.get(+id),n=by[id];const d=dist(ref[0],ref[1],n[0].lat,n[0].lng)/1609;return `<button class="item" data-id="${id}"><b>${esc(b?.name||n[0].name||"Building")}</b><br><span class="mid">${d.toFixed(2)} mi · ${n.length} video${n.length>1?"s":""}</span></button>`}).join(""):`<p class="mid">No contributions within one mile yet. Record a video to add the first.</p>`;
@@ -286,7 +340,7 @@ $("#openLib").onclick=async()=>{
 /* ---------- start ---------- */
 (async()=>{
   try{await DB.open();await loadContribs()}catch(e){}
-  home();loadBuildings();
+  home();loadBuildings();loadShared().then(loadContribs).then(refresh);
   const m=location.hash.match(/^#b(\d+)$/);
   if(m){const id=+m[1];fetch(OVERPASS,{method:"POST",body:"data="+encodeURIComponent(`[out:json];way(${id});out geom tags;`)}).then(r=>r.json()).then(async j=>{const w=j.elements[0];if(w?.geometry){map.setView([w.geometry[0].lat,w.geometry[0].lon],18);await loadBuildings();select(id)}}).catch(()=>{})}
 })();
