@@ -9,7 +9,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 #map{position:absolute;inset:0}
 .street .leaflet-tile-pane{filter:grayscale(1) contrast(.9) brightness(1.03)}
-@media (prefers-color-scheme:dark){.street .leaflet-tile-pane{filter:grayscale(1) invert(1) contrast(.8) brightness(.9)}}
+@media (prefers-color-scheme:dark){.street .leaflet-tile-pane{filter:grayscale(1) invert(1) contrast(1.7) brightness(.85)}}
 #page{position:absolute;inset:0;z-index:500;pointer-events:none;display:flex;flex-direction:column}
 #page>*{pointer-events:auto}
 #page.full{z-index:1000;background:var(--bg);pointer-events:auto}
