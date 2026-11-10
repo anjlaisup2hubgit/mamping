@@ -4,6 +4,8 @@ import { startMap, viewCenter } from "./components/mapView.js";
 import { startBuildingLayer, loadBuildings, refreshStyles } from "./components/buildingLayer.js";
 import { initSheet, showBuilding, openFromLink } from "./components/buildingSheet.js";
 import { openStore } from "./data/store.js";
+import { finishLogin } from "./data/osmAuth.js";
+import { toast } from "./components/toast.js";
 import { loadShared, loadContribs } from "./data/contributions.js";
 import { home } from "./pages/home.js";
 import { camera } from "./pages/camera.js";
@@ -21,6 +23,7 @@ initSheet();
 go("map");
 
 (async () => {
+  try { if (await finishLogin()) toast("OpenStreetMap connected"); } catch (e) { toast("OpenStreetMap login failed"); }
   try { await openStore(); } catch (e) { /* no phone storage */ }
   await loadContribs();
   loadBuildings();

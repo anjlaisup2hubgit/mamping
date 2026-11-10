@@ -11,6 +11,8 @@ import { centerOn } from "../components/mapView.js";
 import { refreshStyles } from "../components/buildingLayer.js";
 import { showBuilding } from "../components/buildingSheet.js";
 import { toast } from "../components/toast.js";
+import { osmConfirm, osmAllowed } from "../components/osmConfirm.js";
+import { addMissingTags } from "../data/osmEdit.js";
 
 const number = id => parseFloat($(id).value.replace(",", ".")) || null;
 
@@ -24,7 +26,7 @@ function form() {
     <div class="row"><div style="flex:1"><label for="rh">Height (m)</label><input type="text" id="rh" inputmode="decimal" value="${h ?? ""}" placeholder="Estimate"></div><div style="flex:1"><label for="rf">Floors</label><input type="text" id="rf" inputmode="numeric" value="${floors ?? ""}"></div></div>
     <div><label for="rc">Add comment</label><input type="text" id="rc" placeholder="New café!"></div>
     <label class="big ghost" style="margin:0;color:var(--ink);font-size:16px;min-height:52px"><input type="file" id="rp" accept="image/*" hidden><span id="rpl">+ Add photo</span></label></div>
-    <div class="pad" style="padding-top:8px;padding-bottom:max(18px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;max-width:520px;width:100%;margin:0 auto"><button class="big primary" id="uploadNow">Upload now</button><button class="big ghost" id="keepOff" style="min-height:48px">Keep offline</button></div>`;
+    <div class="pad" style="padding-top:8px;padding-bottom:max(18px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;max-width:520px;width:100%;margin:0 auto">${state.match ? osmConfirm() + '<button class="big ghost" id="toOsm" style="min-height:48px">Add details to OpenStreetMap</button>' : ""}<button class="big primary" id="uploadNow">Upload now</button><button class="big ghost" id="keepOff" style="min-height:48px">Keep offline</button></div>`;
 }
 
 function readForm(clip) {
@@ -35,6 +37,15 @@ function readForm(clip) {
   clip.comment = $("#rc").value.trim();
   clip.lat = clip.track[0]?.lat;
   clip.lng = clip.track[0]?.lng;
+}
+
+async function sendToOsm() {
+  if (!osmAllowed()) return;
+  const wanted = { name: $("#rn").value.trim(), height: number("#rh"), "building:levels": number("#rf") };
+  try {
+    const added = await addMissingTags(state.match.id, wanted, "Add building details from a street video");
+    toast(added.length ? "Added to OpenStreetMap: " + added.join(", ") : "OpenStreetMap already has these details.");
+  } catch (e) { toast("Could not reach OpenStreetMap: " + e.message); }
 }
 
 async function finish(send) {
@@ -63,6 +74,7 @@ export const review = {
       const f = e.target.files[0];
       if (f) { state.clip.photo = f; $("#rpl").textContent = "Photo added ✓"; }
     };
+    if ($("#toOsm")) $("#toOsm").onclick = sendToOsm;
     $("#uploadNow").onclick = () => finish(true);
     $("#keepOff").onclick = () => finish(false);
   }
