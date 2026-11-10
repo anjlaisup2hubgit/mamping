@@ -19,7 +19,6 @@ Copy the project to your computer with `git clone https://github.com/anjlaisup2h
 ```
 mapping/
 ├── index.html      The page that holds the whole app.
-├── sw.js           Lets the app open even with no internet.
 ├── CLAUDE.md       The rules for keeping the project tidy.
 ├── src/
 │   ├── main.js     Starts the app.

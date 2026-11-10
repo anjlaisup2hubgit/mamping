@@ -19,7 +19,9 @@ register({
   scan: later("scan", "scan"), review: later("review", "review"), nearby: later("nearby", "nearby"),
   help: later("help", "help"), settings: later("settings", "settings")
 });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {}); // works offline next time
+// Remove the old saved copies so nothing is cached anymore.
+if ("serviceWorker" in navigator) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister()));
+if (window.caches) caches.keys().then(ks => ks.forEach(k => caches.delete(k)));
 startMap();
 startBuildingLayer(showBuilding);
 initSheet();
