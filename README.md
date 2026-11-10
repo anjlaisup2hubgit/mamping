@@ -1,4 +1,4 @@
-# Hometown Map
+# Mamping
 
 Record a video of a building. The app tracks your GPS, matches the building to OpenStreetMap, and shares it on a map.
 

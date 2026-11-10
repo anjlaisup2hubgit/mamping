@@ -3,7 +3,7 @@ let db = null;
 
 export function openStore() {
   return new Promise((ok, no) => {
-    const r = indexedDB.open("hometown", 1);
+    const r = indexedDB.open("mamping", 1);
     r.onupgradeneeded = () => r.result.createObjectStore("clips", { keyPath: "id" });
     r.onsuccess = () => { db = r.result; ok(); };
     r.onerror = () => no(r.error);

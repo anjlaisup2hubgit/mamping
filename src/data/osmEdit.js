@@ -13,7 +13,7 @@ async function call(method, path, body) {
 }
 
 async function withChangeset(comment, source, work) {
-  const tags = { created_by: "Hometown Map", comment, source };
+  const tags = { created_by: "Mamping", comment, source };
   const xml = `<osm><changeset>${Object.entries(tags).map(([k, v]) => `<tag k="${k}" v="${x(v)}"/>`).join("")}</changeset></osm>`;
   const id = (await call("PUT", "changeset/create", xml)).trim();
   try { return await work(id); } finally { await call("PUT", `changeset/${id}/close`).catch(() => {}); }
@@ -45,7 +45,7 @@ export function createBuilding(corners, tags, comment) {
     const refs = [...corners.map((_, i) => -(i + 1)), -1].map(r => `<nd ref="${r}"/>`).join("");
     const all = { building: "yes", ...tags };
     const t = Object.entries(all).filter(([, v]) => v).map(([k, v]) => `<tag k="${x(k)}" v="${x(v)}"/>`).join("");
-    const change = `<osmChange version="0.6" generator="Hometown Map"><create>${nodes}<way id="-100" changeset="${cs}">${refs}${t}</way></create></osmChange>`;
+    const change = `<osmChange version="0.6" generator="Mamping"><create>${nodes}<way id="-100" changeset="${cs}">${refs}${t}</way></create></osmChange>`;
     await call("POST", `changeset/${cs}/upload`, change);
     return true;
   });
