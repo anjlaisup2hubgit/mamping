@@ -10,7 +10,7 @@ export const meIcon = L.divIcon({ className: "", html: '<div class="pinicon"></d
 let meMarker = null, followed = false, base = null, baseName = "street";
 
 const BASES = {
-  street: { url: TILE_URL, credit: "© OpenStreetMap contributors © CARTO" },
+  street: { url: TILE_URL, credit: "© OpenStreetMap contributors" },
   satellite: { url: SATELLITE_TILE_URL, credit: "Imagery © Esri" }
 };
 
