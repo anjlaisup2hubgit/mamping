@@ -11,14 +11,14 @@ import { saved } from "./pages/saved.js";
 import { scan } from "./pages/scan.js";
 import { review } from "./pages/review.js";
 import { nearby } from "./pages/nearby.js";
-import { library } from "./pages/library.js";
+import { map as mapPage } from "./pages/map.js";
 import { help } from "./pages/help.js";
 
-register({ home, camera, saved, scan, review, nearby, library, help });
+register({ home, map: mapPage, camera, saved, scan, review, nearby, help });
 startMap();
 startBuildingLayer(showBuilding);
 initSheet();
-go("home");
+go("map");
 
 (async () => {
   try { await openStore(); } catch (e) { /* no phone storage */ }

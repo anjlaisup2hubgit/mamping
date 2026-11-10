@@ -4,6 +4,6 @@ import { go } from "./router.js";
 export const header = title =>
   `<div class="head pad"><button class="round" data-back aria-label="Back">←</button><h2>${title}</h2><span style="width:44px"></span></div>`;
 
-export function bindBack(el, to = "home") {
+export function bindBack(el, to = "map") {
   el.querySelectorAll("[data-back]").forEach(b => { b.onclick = () => go(to); });
 }

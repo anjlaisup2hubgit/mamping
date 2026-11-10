@@ -24,7 +24,7 @@ export const nearby = {
     $("#list").innerHTML = groups.length ? groups.map(row).join("") : '<p class="mid">No contributions within one mile yet. Record a video to add the first.</p>';
     $("#list").querySelectorAll(".item").forEach(e => {
       e.onclick = () => {
-        go("home");
+        go("map");
         const b = state.buildings.get(+e.dataset.id);
         if (b) { centerOn(b.center); showBuilding(b.id); }
       };

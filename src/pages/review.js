@@ -51,7 +51,7 @@ async function finish(send) {
   await saveClip(clip);
   await loadContribs();
   refreshStyles();
-  go("home");
+  go("map");
   if (state.match) { centerOn(state.match.center); showBuilding(state.match.id); }
 }
 

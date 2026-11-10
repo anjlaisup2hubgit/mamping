@@ -39,3 +39,8 @@ export function loadBuildings() {
   pending = run().finally(() => { pending = null; });
   return pending;
 }
+
+export function setBuildingsVisible(on) {
+  if (on) layer.addTo(map); else map.removeLayer(layer);
+}
+export const buildingsVisible = () => map.hasLayer(layer);
