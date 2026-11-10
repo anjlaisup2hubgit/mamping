@@ -30,14 +30,12 @@ export const camera = {
     el.classList.add("cam");
     el.innerHTML = `<video id="v" muted playsinline></video>
       <div class="top pad"><span class="chip" id="gpsChip">GPS searching</span><span class="chip" id="tm">0:00</span></div>
-      <button class="round" id="camBack" aria-label="Close" style="position:absolute;left:16px;top:72px;background:#000a;color:#fff;border:0">✕</button><div class="guide"></div>
+      <button class="round" id="camBack" aria-label="Close" data-tip="Close" style="position:absolute;left:16px;top:72px;background:#000a;color:#fff;border:0">✕</button><div class="guide"></div>
       <div id="mini"></div>
-      <div class="dock pad" style="align-items:center;flex-direction:row;justify-content:center"><button class="rec" id="recBtn" aria-label="Start or stop recording"><i></i></button></div>
-      <button id="stopbtn" aria-label="Stop"></button>`;
+      <div class="dock pad" style="align-items:center;flex-direction:row;justify-content:center"><button class="rec" id="recBtn" aria-label="Start or stop recording" data-tip="Record / Stop"><i></i></button></div>`;
     stopListening = onMeMove(me => { $("#gpsChip").textContent = "GPS ±" + Math.round(me.acc || 0) + " m"; });
     $("#camBack").onclick = () => go("map");
     $("#recBtn").onclick = () => (isRecording() ? end() : begin());
-    $("#stopbtn").onclick = end;
     try {
       await startCamera($("#v"));
     } catch (e) { toast("Camera blocked. Allow camera access in your browser."); go("map"); return; }

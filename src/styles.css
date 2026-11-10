@@ -40,8 +40,6 @@ input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--surf)
 .rec{width:84px;height:84px;border-radius:50%;border:5px solid #fff;display:flex;align-items:center;justify-content:center}
 .rec i{display:block;width:60px;height:60px;border-radius:50%;background:var(--acc);transition:.2s}
 .recording .rec i{width:30px;height:30px;border-radius:8px}
-#stopbtn{position:absolute;right:24px;bottom:max(46px,calc(env(safe-area-inset-bottom) + 30px));width:28px;height:28px;border-radius:6px;background:#fff;display:none}
-.recording #stopbtn{display:block}
 #mini{position:absolute;left:16px;bottom:34px;width:96px;height:96px;border-radius:16px;overflow:hidden;border:2px solid #fff}
 .bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .6s}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:120px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:20px;font-size:14px;z-index:3000;max-width:90%}
@@ -71,8 +69,8 @@ input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--surf)
 
 /* instant hover labels (only on devices with a mouse) */
 @media (hover:hover){
-.round,.navb{position:relative}
+.round,.navb,.rec{position:relative}
 [data-tip]:hover::after{content:attr(data-tip);position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);background:var(--ink);color:var(--bg);padding:6px 10px;border-radius:8px;font-size:13px;white-space:nowrap;pointer-events:none;z-index:4000}
-.nav [data-tip]:hover::after{right:auto;left:50%;top:auto;bottom:calc(100% + 10px);transform:translateX(-50%)}
-.head [data-tip]:hover::after{right:auto;left:calc(100% + 8px)}
+.nav [data-tip]:hover::after,.rec[data-tip]:hover::after{right:auto;left:50%;top:auto;bottom:calc(100% + 10px);transform:translateX(-50%)}
+.head [data-tip]:hover::after,#camBack[data-tip]:hover::after{right:auto;left:calc(100% + 8px)}
 }
