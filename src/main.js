@@ -9,8 +9,10 @@ import { toast } from "./components/toast.js";
 import { loadShared, loadContribs } from "./data/contributions.js";
 import { map as mapPage } from "./pages/map.js";
 import { applySettings } from "./data/settings.js";
+import { startTooltips } from "./components/tooltip.js";
 
 applySettings();
+startTooltips();
 const later = (file, name) => () => import(`./pages/${file}.js`).then(m => m[name]); // load only when opened
 register({
   map: mapPage, home: later("home", "home"), camera: later("camera", "camera"), saved: later("saved", "saved"),

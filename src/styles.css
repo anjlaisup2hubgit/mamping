@@ -67,8 +67,5 @@ input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--surf)
 .opt{display:flex;justify-content:space-between;width:100%;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surf)}
 .opt.on{border-color:var(--acc);outline:2px solid var(--acc)}
 
-/* instant hover labels */
-.round,.navb,.rec{position:relative}
-[data-tip]:hover::after,[data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);background:var(--ink);color:var(--bg);padding:6px 10px;border-radius:8px;font-size:13px;white-space:nowrap;pointer-events:none;z-index:4000}
-.nav [data-tip]:hover::after,.rec[data-tip]:hover::after{right:auto;left:50%;top:auto;bottom:calc(100% + 10px);transform:translateX(-50%)}
-.head [data-tip]:hover::after,#camBack[data-tip]:hover::after{right:auto;left:calc(100% + 8px)}
+/* name label that follows the pointer onto a button */
+#tip{position:fixed;z-index:5000;display:none;background:var(--ink);color:var(--bg);padding:6px 10px;border-radius:8px;font-size:13px;white-space:nowrap;pointer-events:none}
