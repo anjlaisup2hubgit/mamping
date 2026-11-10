@@ -7,7 +7,7 @@ let stream = null, rec = null, chunks = [], track = [], timer = null, secs = 0, 
 export const isRecording = () => !!rec;
 
 export async function startCamera(videoEl) {
-  stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: true });
+  stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 24 } }, audio: true });
   videoEl.srcObject = stream;
   await videoEl.play();
 }
@@ -22,7 +22,7 @@ export function startRecording({ onTick, onPoint }) {
   if (rec || !stream) return;
   chunks = []; track = []; secs = 0;
   const mime = ["video/mp4", "video/webm;codecs=vp9", "video/webm"].find(t => window.MediaRecorder && MediaRecorder.isTypeSupported(t)) || "";
-  rec = new MediaRecorder(stream, mime ? { mimeType: mime } : {});
+  rec = new MediaRecorder(stream, { ...(mime ? { mimeType: mime } : {}), videoBitsPerSecond: 1500000, audioBitsPerSecond: 64000 }); // small files for weak phones
   rec.ondataavailable = e => e.data.size && chunks.push(e.data);
   rec.onstop = () => finish && finish();
   rec.start(1000);

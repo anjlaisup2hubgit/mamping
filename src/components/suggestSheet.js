@@ -9,8 +9,7 @@ import { createBuilding } from "../data/osmEdit.js";
 export function showSuggestion(polygon, center, confidence) {
   openSheet(`<div><h2>Missing building</h2><p class="mid" style="margin:4px 0 0">AI outline · ${Math.round((confidence || 0) * 100)}% sure</p></div>
     <div><label for="sn">Name</label><input type="text" id="sn" placeholder="What is it?"></div>
-    ${osmConfirm()}<button class="big primary" id="toOsm" style="min-height:48px">Add building to OpenStreetMap</button><div class="row"><button class="big ghost" id="subO" style="min-height:48px">Save outline</button><button class="big ghost" id="clsO" style="min-height:48px">Close</button></div>`);
-  $("#clsO").onclick = closeSheet;
+    ${osmConfirm()}<button class="big primary" id="toOsm" style="min-height:48px">Add building to OpenStreetMap</button><div class="row"><button class="big ghost" id="subO" style="min-height:48px">Save outline</button></div>`);
   $("#toOsm").onclick = async () => {
     if (!osmAllowed()) return;
     try {

@@ -24,8 +24,7 @@ export function showBuilding(id) {
   const link = location.href.split("#")[0] + "#b" + id;
   openSheet(`<div><h2>${esc(b.name || "Unnamed building")}</h2><p class="mid" style="margin:4px 0 0">${h ? h + " m" : "Height unknown"}${b.levels ? " · " + b.levels + " floors" : ""}${b.addr ? " · " + esc(b.addr) : ""}</p></div>
     ${notes.length ? notes.map(note).join("") : '<p class="mid" style="margin:0">No contributions yet.</p>'}
-    <div class="row"><button class="big primary" id="shareB" style="min-height:48px">Share</button><button class="big ghost" id="closeB" style="min-height:48px">Close</button></div>`);
-  $("#closeB").onclick = clear;
+    <div class="row"><button class="big primary" id="shareB" style="min-height:48px">Share</button></div>`);
   $("#shareB").onclick = async () => {
     try { await navigator.clipboard.writeText(link); toast("Link copied"); } catch (e) { toast(link); }
   };

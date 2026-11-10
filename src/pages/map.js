@@ -8,7 +8,7 @@ import { bottomNav, bindNav } from "../components/bottomNav.js";
 import { searchBar, bindSearch } from "../components/searchBar.js";
 import { showLayers } from "../components/layersSheet.js";
 
-const side = (id, label, icon) => `<button class="round" id="${id}" aria-label="${label}" title="${label}">${icon}</button>`;
+const side = (id, label, icon) => `<button class="round" id="${id}" aria-label="${label}" data-tip="${label}">${icon}</button>`;
 
 export const map = {
   full: false,

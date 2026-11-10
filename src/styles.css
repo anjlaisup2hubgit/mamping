@@ -40,11 +40,9 @@ input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--surf)
 .rec{width:84px;height:84px;border-radius:50%;border:5px solid #fff;display:flex;align-items:center;justify-content:center}
 .rec i{display:block;width:60px;height:60px;border-radius:50%;background:var(--acc);transition:.2s}
 .recording .rec i{width:30px;height:30px;border-radius:8px}
-#stopbtn{position:absolute;right:24px;bottom:max(46px,calc(env(safe-area-inset-bottom) + 30px));width:28px;height:28px;border-radius:6px;background:#fff;display:none}
-.recording #stopbtn{display:block}
 #mini{position:absolute;left:16px;bottom:34px;width:96px;height:96px;border-radius:16px;overflow:hidden;border:2px solid #fff}
 .bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .6s}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:120px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:20px;font-size:14px;z-index:3000;max-width:90%}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:160px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:20px;font-size:14px;z-index:3000;max-width:90%}
 .pinicon{width:26px;height:26px;border-radius:50% 50% 50% 0;background:var(--acc);transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 6px #0006}
 .scroll{overflow:auto;flex:1;display:flex;flex-direction:column;gap:12px;padding-bottom:20px}
 /* bottom bar, search, side buttons, welcome */
@@ -68,3 +66,6 @@ input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--surf)
 .guide{position:absolute;left:8%;right:8%;top:50%;border-top:3px dashed #fff9;pointer-events:none}
 .opt{display:flex;justify-content:space-between;width:100%;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surf)}
 .opt.on{border-color:var(--acc);outline:2px solid var(--acc)}
+
+/* name label that follows the pointer onto a button */
+#tip{position:fixed;z-index:5000;display:none;background:var(--ink);color:var(--bg);padding:6px 10px;border-radius:8px;font-size:13px;white-space:nowrap;pointer-events:none}
