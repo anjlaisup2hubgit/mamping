@@ -42,7 +42,7 @@ input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--surf)
 .recording .rec i{width:30px;height:30px;border-radius:8px}
 #mini{position:absolute;left:16px;bottom:34px;width:96px;height:96px;border-radius:16px;overflow:hidden;border:2px solid #fff}
 .bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .6s}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:120px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:20px;font-size:14px;z-index:3000;max-width:90%}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:160px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:20px;font-size:14px;z-index:3000;max-width:90%}
 .pinicon{width:26px;height:26px;border-radius:50% 50% 50% 0;background:var(--acc);transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 6px #0006}
 .scroll{overflow:auto;flex:1;display:flex;flex-direction:column;gap:12px;padding-bottom:20px}
 /* bottom bar, search, side buttons, welcome */
