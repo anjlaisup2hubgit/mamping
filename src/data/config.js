@@ -10,4 +10,4 @@ export const ONE_MILE = 1609; // metres
 // To go live: use https://www.openstreetmap.org and https://api.openstreetmap.org, and a client id made on the real site.
 export const OSM_SITE = "https://master.apis.dev.openstreetmap.org";
 export const OSM_API = "https://master.apis.dev.openstreetmap.org";
-export const OSM_CLIENT_ID = ""; // paste the client id from your OpenStreetMap app here
+export const OSM_CLIENT_ID = "Tmz21U6gVbnJnS41CV7bR3nvLf6evN6O0fBV12-QevY"; // public id of our OpenStreetMap app
