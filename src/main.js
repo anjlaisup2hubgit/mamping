@@ -15,8 +15,11 @@ import { review } from "./pages/review.js";
 import { nearby } from "./pages/nearby.js";
 import { map as mapPage } from "./pages/map.js";
 import { help } from "./pages/help.js";
+import { settings } from "./pages/settings.js";
+import { applySettings } from "./data/settings.js";
 
-register({ home, map: mapPage, camera, saved, scan, review, nearby, help });
+applySettings();
+register({ home, map: mapPage, camera, saved, scan, review, nearby, help, settings });
 startMap();
 startBuildingLayer(showBuilding);
 initSheet();
