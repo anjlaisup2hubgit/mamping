@@ -1,0 +1,184 @@
+<title>Hometown Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one-screen phone app, map-first, bottom sheets. One accent (orange). */
+:root{--bg:#F5F5F3;--surf:#FFFFFF;--ink:#1C1C1C;--mid:#6E6E69;--line:#DEDED9;--map:#EAEAE6;--bld:#D6D6D0;--road:#FFFFFF;--acc:#E8470F;--onacc:#fff;--cam:#222;
+--font:Inter,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141413;--surf:#1F1F1E;--ink:#F2F2EF;--mid:#9C9C96;--line:#333331;--map:#232322;--bld:#35352F;--road:#161615;--acc:#FF6A33;--onacc:#1C1C1C;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141413;--surf:#1F1F1E;--ink:#F2F2EF;--mid:#9C9C96;--line:#333331;--map:#232322;--bld:#35352F;--road:#161615;--acc:#FF6A33;--onacc:#1C1C1C;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;padding-block:0;padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+#app{position:relative;height:100%;max-width:480px;margin:0 auto;overflow:hidden;background:var(--bg)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.pad{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.mapwrap{position:absolute;inset:0}
+.mapwrap svg{width:100%;height:100%;display:block}
+.bld{fill:var(--bld);stroke:none;cursor:pointer;transition:fill .15s}
+.bld.contrib{fill:color-mix(in srgb,var(--acc) 22%,var(--bld))}
+.bld.match{fill:color-mix(in srgb,var(--acc) 30%,transparent);stroke:var(--acc);stroke-width:4}
+.road{stroke:var(--road);stroke-width:14;fill:none}
+.pinG{transition:transform .8s linear}
+.big{display:flex;align-items:center;justify-content:center;gap:10px;min-height:60px;border-radius:30px;font-weight:600;font-size:18px}
+.primary{background:var(--acc);color:var(--onacc)}
+.ghost{background:var(--surf);border:1px solid var(--line)}
+.round{width:44px;height:44px;border-radius:50%;background:var(--surf);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:600}
+.dock{position:absolute;left:0;right:0;bottom:0;padding-top:16px;padding-bottom:max(20px,env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px}
+.top{position:absolute;top:0;left:0;right:0;padding-top:max(14px,env(safe-area-inset-top,0px));display:flex;justify-content:space-between;align-items:center;z-index:2}
+h1{font-size:22px;margin:0;font-weight:650;letter-spacing:-.01em}
+.mid{color:var(--mid)}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surf);border-radius:24px 24px 0 0;border-top:1px solid var(--line);padding-top:12px;padding-bottom:max(18px,env(safe-area-inset-bottom,0px));max-height:62%;overflow:auto;display:flex;flex-direction:column;gap:12px}
+.grab{width:44px;height:5px;border-radius:3px;background:var(--line);align-self:center}
+label{font-size:13px;color:var(--mid);display:block;margin-bottom:6px}
+input[type=text],textarea{width:100%;font:inherit;color:var(--ink);background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.cam{background:var(--cam);color:#fff}
+.cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.chip{display:inline-flex;align-items:center;gap:6px;background:#000a;color:#fff;border-radius:16px;padding:6px 12px;font-size:13px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--acc)}
+.rec{width:84px;height:84px;border-radius:50%;border:5px solid #fff;display:flex;align-items:center;justify-content:center}
+.rec i{display:block;width:60px;height:60px;border-radius:50%;background:var(--acc);transition:all .2s}
+.recording .rec i{width:30px;height:30px;border-radius:8px}
+.mini{position:absolute;left:16px;bottom:34px;width:96px;height:96px;border-radius:16px;overflow:hidden;border:2px solid #fff}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+.item{display:flex;align-items:center;gap:12px;background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:left;width:100%}
+.item b{display:block}
+.thumb{width:92px;height:62px;border-radius:10px;background:var(--cam);color:#fff;display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden}
+.thumb video,.thumb img{width:100%;height:100%;object-fit:cover}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .5s}
+.toast{position:absolute;left:50%;transform:translateX(-50%);bottom:110px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:20px;font-size:14px;z-index:9}
+.tag{font-size:12px;background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--ink);border-radius:10px;padding:3px 9px}
+.help{padding-block:20px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<div id="app"></div>
+<script>
+// ---- data: example buildings near the town square (marked as examples) ----
+const B=[
+{id:"b1",x:30,y:120,w:90,h:80,name:"Town Hall",ht:18,contrib:true,vids:2,notes:["Clock tower is being repaired."]},
+{id:"b2",x:140,y:120,w:90,h:80,name:"Corner Café",ht:9,contrib:true,vids:1,notes:["New café! Great coffee."]},
+{id:"b3",x:250,y:120,w:90,h:80,name:"Old Library",ht:12,contrib:true,vids:3,notes:["Open late on Thursdays."]},
+{id:"b4",x:30,y:240,w:90,h:90,name:"Town Market",ht:7,contrib:false,vids:0,notes:[]},
+{id:"b5",x:140,y:240,w:90,h:90,name:"Unnamed building",ht:6,contrib:false,vids:0,notes:[],missing:true},
+{id:"b6",x:250,y:240,w:90,h:90,name:"Post Office",ht:8,contrib:false,vids:0,notes:[]},
+{id:"b7",x:30,y:370,w:130,h:80,name:"Bakery Row",ht:10,contrib:true,vids:1,notes:["Fresh bread at 7am."]},
+{id:"b8",x:190,y:370,w:150,h:80,name:"Grain Store",ht:14,contrib:false,vids:0,notes:[]}];
+const $=s=>document.querySelector(s);
+const app=$("#app");
+let S={screen:"home",rec:false,secs:0,clip:null,match:B[1],sel:null,ph:null,gps:{x:180,y:215},lib:[]};
+try{S.lib=JSON.parse(localStorage.getItem("lib")||"[]")}catch(e){}
+function save(){try{localStorage.setItem("lib",JSON.stringify(S.lib))}catch(e){}}
+const hb=location.hash.slice(1);
+function go(s){S.screen=s;render()}
+function toast(t){const d=document.createElement("div");d.className="toast";d.textContent=t;app.appendChild(d);setTimeout(()=>d.remove(),2200)}
+function mapSVG(opts={}){
+ const bl=B.map(b=>`<rect class="bld ${b.contrib?'contrib':''} ${opts.match===b.id?'match':''}" data-id="${b.id}" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="5"><title>${b.name}</title></rect>`).join("");
+ const pin=opts.pin?`<g class="pinG" style="transform:translate(${S.gps.x}px,${S.gps.y}px)"><circle r="22" fill="var(--acc)" opacity=".2"/><path d="M0 0C-17-20-17-42 0-42S17-20 0 0Z" fill="var(--acc)"/><circle cy="-28" r="6" fill="#fff"/></g>`:"";
+ return `<svg viewBox="0 0 360 520" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Map of the town centre"><rect width="360" height="520" fill="var(--map)"/><path class="road" d="M0 215H360M0 345H360M125 60V520M235 60V520"/>${bl}${pin}</svg>`}
+function bindMap(fn){document.querySelectorAll(".bld").forEach(e=>e.addEventListener("click",()=>fn(e.dataset.id)))}
+// ---- screens ----
+function render(){
+ clearInterval(S.t);
+ if(S.screen==="home")home();else if(S.screen==="record")record();else if(S.screen==="saved")saved();
+ else if(S.screen==="scan")scan();else if(S.screen==="review")review();else if(S.screen==="map")mapScreen();
+ else if(S.screen==="nearby")nearby();else if(S.screen==="help")help();else if(S.screen==="lib")lib();
+}
+function home(){
+ app.innerHTML=`<div class="screen"><div class="mapwrap">${mapSVG({pin:true})}</div>
+ <div class="top pad"><h1>Hometown Map</h1><div class="row" style="flex:none"><button class="round" id="lb" aria-label="My videos">▤</button><button class="round" id="hp" aria-label="Help">?</button></div></div>
+ <div class="dock pad"><button class="big primary" id="tk">● Take Video</button><div class="row"><button class="big ghost" id="nb" style="min-height:52px">Nearby</button><button class="big ghost" id="mp" style="min-height:52px">Browse map</button></div></div></div>`;
+ bindMap(id=>{S.sel=id;go("map")});
+ $("#tk").onclick=()=>go("record");$("#nb").onclick=()=>go("nearby");$("#mp").onclick=()=>{S.sel=null;go("map")};$("#hp").onclick=()=>go("help");$("#lb").onclick=()=>go("lib");
+}
+async function record(){
+ S.rec=false;S.secs=0;
+ app.innerHTML=`<div class="screen cam" id="cam"><video id="v" muted playsinline></video>
+ <div class="top pad"><span class="chip"><span class="dot"></span>GPS locked</span><span class="chip" id="tm">0:00</span></div>
+ <div class="mini"><div style="width:100%;height:100%">${mapSVG({pin:true})}</div></div>
+ <div class="dock pad" style="align-items:center;flex-direction:row;justify-content:center;gap:0"><button class="rec" id="rb" aria-label="Start recording"><i></i></button></div>
+ <button id="sb" aria-label="Stop" hidden style="position:absolute;right:24px;bottom:max(46px,calc(env(safe-area-inset-bottom,0px) + 30px));width:28px;height:28px;border-radius:6px;background:#fff"></button>
+ <button id="bk" class="chip" style="position:absolute;left:16px;top:70px">← Back</button></div>`;
+ $("#bk").onclick=()=>{stopStream();go("home")};
+ try{const m=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"},audio:false});S.stream=m;$("#v").srcObject=m;$("#v").play()}catch(e){S.stream=null}
+ $("#rb").onclick=()=>{ if(!S.rec)start();else stop()};$("#sb").onclick=stop;
+ setTimeout(()=>{if(S.screen==="record"&&!S.rec)start()},600);
+}
+function stopStream(){clearInterval(S.t);if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null}}
+function start(){
+ if(S.rec)return;S.rec=true;S.secs=0;$("#cam").classList.add("recording");$("#sb").hidden=false;
+ const path=[[180,215],[180,260],[180,310],[180,345],[210,345]];let i=0;
+ S.t=setInterval(()=>{S.secs++;$("#tm").textContent=Math.floor(S.secs/60)+":"+String(S.secs%60).padStart(2,"0");
+  i=Math.min(i+1,path.length-1);S.gps={x:path[i][0],y:path[i][1]};const g=document.querySelector(".mini .pinG");if(g)g.style.transform=`translate(${S.gps.x}px,${S.gps.y}px)`},1000);
+}
+function stop(){
+ if(!S.rec)return;stopStream();S.rec=false;
+ S.clip={id:Date.now(),secs:Math.max(S.secs,1),at:new Date().toLocaleString([], {dateStyle:"medium",timeStyle:"short"}),sent:false};
+ S.lib.unshift({id:S.clip.id,secs:S.clip.secs,at:S.clip.at,sent:false,building:"Not matched yet"});save();go("saved");
+}
+function saved(){
+ app.innerHTML=`<div class="screen pad" style="justify-content:center;align-items:center;gap:14px;text-align:center">
+ <div style="width:96px;height:96px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center"><svg width="52" height="52" viewBox="0 0 52 52"><path d="M12 27l10 10 18-22" stroke="var(--onacc)" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+ <h1>Your video is saved</h1><p class="mid" style="margin:0">${S.clip.secs}s · kept privately on this phone</p>
+ <div style="width:100%;margin-top:30px;display:flex;flex-direction:column;gap:10px"><button class="big primary" id="sm">Send to map</button><button class="big ghost" id="bh">Back to home</button></div></div>`;
+ $("#sm").onclick=()=>go("scan");$("#bh").onclick=()=>go("home");
+}
+function scan(){
+ const steps=["Finding edges","Estimating height","Matching OpenStreetMap"];
+ app.innerHTML=`<div class="screen pad" style="justify-content:center;gap:16px"><h1>Reading your video</h1><div class="bar"><i id="pb"></i></div><p class="mid" id="st" style="margin:0">${steps[0]}</p></div>`;
+ let n=0;S.t=setInterval(()=>{n++;$("#pb").style.width=Math.min(n*34,100)+"%";$("#st").textContent=steps[Math.min(n,2)];if(n>=3){clearInterval(S.t);go("review")}},700);
+ setTimeout(()=>{const p=$("#pb");if(p)p.style.width="34%"},50);
+}
+function review(){
+ const m=S.match;
+ app.innerHTML=`<div class="screen"><div class="top pad" style="position:relative;padding-bottom:6px"><button class="round" id="bk" aria-label="Back">←</button><h1>Review</h1><span style="width:44px"></span></div>
+ <div class="pad" style="overflow:auto;flex:1;display:flex;flex-direction:column;gap:14px;padding-bottom:16px">
+ <div style="height:150px;border-radius:16px;overflow:hidden;border:1px solid var(--line);flex:none">${mapSVG({match:m.id})}</div>
+ <div class="row" style="flex:none"><span class="tag">Matched with 92% confidence</span>${m.missing?'<span class="tag">New outline from satellite</span>':''}</div>
+ <div><label for="nm">Building name</label><input type="text" id="nm" value="${m.name}"></div>
+ <div class="row"><div><label for="ht">Height (m)</label><input type="text" id="ht" inputmode="numeric" value="${m.ht}"></div><div><label for="fl">Floors</label><input type="text" id="fl" inputmode="numeric" value="${Math.round(m.ht/3.2)}"></div></div>
+ <div><label for="cm">Add comment</label><input type="text" id="cm" placeholder="New café!"></div>
+ <div class="row" style="flex:none;align-items:center"><label class="big ghost" style="min-height:52px;margin:0;color:var(--ink);font-size:16px"><input type="file" id="ph" accept="image/*" hidden><span id="pl">+ Add photo</span></label></div></div>
+ <div class="pad" style="padding-top:8px;padding-bottom:max(18px,env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px"><button class="big primary" id="up">Upload now</button><button class="big ghost" id="of" style="min-height:48px">Keep offline</button></div></div>`;
+ $("#bk").onclick=()=>go("saved");
+ $("#ph").onchange=e=>{const f=e.target.files[0];if(f){S.ph=URL.createObjectURL(f);$("#pl").textContent="Photo added ✓"}};
+ const apply=()=>{m.name=$("#nm").value||m.name;m.ht=parseInt($("#ht").value)||m.ht;const c=$("#cm").value.trim();if(c)m.notes.push(c);m.contrib=true;m.vids++;m.missing=false;
+  const l=S.lib.find(x=>x.id===S.clip.id);if(l){l.building=m.name;}};
+ $("#up").onclick=()=>{apply();const l=S.lib.find(x=>x.id===S.clip.id);if(l)l.sent=true;save();S.sel=m.id;toast("Sent to map");go("map")};
+ $("#of").onclick=()=>{apply();save();toast("Saved on this phone only");go("home")};
+}
+function mapScreen(){
+ const b=B.find(x=>x.id===S.sel);
+ let sheet="";
+ if(b){const share=location.href.split("#")[0]+"#"+b.id;
+ sheet=`<div class="sheet pad"><div class="grab"></div><div><h1>${b.name}</h1><p class="mid" style="margin:4px 0 0">${b.ht} m · about ${Math.round(b.ht/3.2)} floors${b.contrib?"":" · no contributions yet"}</p></div>
+ ${b.vids?`<div style="display:flex;gap:10px;overflow:auto">${Array.from({length:b.vids},(_,i)=>`<div class="thumb" style="width:110px;height:72px">▶ 0:${String(18+i*9).padStart(2,"0")}</div>`).join("")}${S.ph&&S.match===b?`<div class="thumb" style="width:110px;height:72px"><img src="${S.ph}" alt="Your photo"></div>`:""}</div>`:""}
+ ${b.notes.map(n=>`<div style="padding:10px 12px;border-radius:12px;background:var(--bg)">“${n}”</div>`).join("")}
+ <div class="row"><button class="big primary" id="sh" style="min-height:50px">Share</button><button class="big ghost" id="cl" style="min-height:50px">Close</button></div></div>`}
+ app.innerHTML=`<div class="screen"><div class="mapwrap">${mapSVG({match:S.sel})}</div>
+ <div class="top pad"><button class="round" id="bk" aria-label="Home">←</button><span class="chip" style="background:var(--surf);color:var(--ink);border:1px solid var(--line)">${b?"Tap another building":"Tap a building"}</span><span style="width:44px"></span></div>${sheet}</div>`;
+ bindMap(id=>{S.sel=id;mapScreen()});$("#bk").onclick=()=>go("home");
+ if(b){$("#cl").onclick=()=>{S.sel=null;mapScreen()};
+  $("#sh").onclick=async()=>{const u=location.href.split("#")[0]+"#"+b.id;try{await navigator.clipboard.writeText(u);toast("Link copied")}catch(e){toast(u)}}}
+}
+function nearby(){
+ const l=B.filter(b=>b.contrib).map((b,i)=>({b,d:[0.2,0.4,0.5,0.8][i]||0.9}));
+ app.innerHTML=`<div class="screen"><div class="top pad" style="position:relative;padding-bottom:10px"><button class="round" id="bk" aria-label="Back">←</button><h1>Nearby · 1 mile</h1><span style="width:44px"></span></div>
+ <div class="pad" style="overflow:auto;display:flex;flex-direction:column;gap:10px;padding-bottom:20px">${l.map(({b,d})=>`<button class="item" data-id="${b.id}"><span class="thumb">▶</span><span><b>${b.name}</b><span class="mid">${d} mi · ${b.vids} video${b.vids>1?"s":""} · ${b.notes.length} comment${b.notes.length==1?"":"s"}</span></span></button>`).join("")}</div></div>`;
+ $("#bk").onclick=()=>go("home");document.querySelectorAll(".item").forEach(e=>e.onclick=()=>{S.sel=e.dataset.id;go("map")});
+}
+function lib(){
+ app.innerHTML=`<div class="screen"><div class="top pad" style="position:relative;padding-bottom:10px"><button class="round" id="bk" aria-label="Back">←</button><h1>My videos</h1><span style="width:44px"></span></div>
+ <div class="pad" style="overflow:auto;display:flex;flex-direction:column;gap:10px;padding-bottom:20px">${S.lib.length?S.lib.map(x=>`<div class="item"><span class="thumb">▶ ${x.secs}s</span><span><b>${x.building}</b><span class="mid">${x.at}</span><br><span class="tag">${x.sent?"Shared":"Private, on this phone"}</span></span></div>`).join(""):`<p class="mid">No videos yet. Tap Take Video to start your library.</p>`}</div></div>`;
+ $("#bk").onclick=()=>go("home");
+}
+function help(){
+ app.innerHTML=`<div class="screen"><div class="top pad" style="position:relative;padding-bottom:10px"><button class="round" id="bk" aria-label="Back">←</button><h1>Help</h1><span style="width:44px"></span></div>
+ <div class="pad help" style="display:flex;flex-direction:column;gap:14px"><div class="thumb" style="width:100%;height:190px;font-size:40px;border-radius:16px">▶</div><p style="margin:0"><b>20-second tour</b></p><p class="mid" style="margin:0">1. Tap Take Video and walk past a building.<br>2. Tap the stop square.<br>3. Tap Send to map, check the name and height, then Upload now.</p></div></div>`;
+ $("#bk").onclick=()=>go("home");
+}
+if(hb&&B.some(b=>b.id===hb)){S.sel=hb;S.screen="map"}
+render();
+</script>
