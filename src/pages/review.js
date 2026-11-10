@@ -59,6 +59,7 @@ async function finish(send) {
       toast("Sent to map");
     } catch (e) { toast("Upload failed. Kept on this phone."); }
   } else toast("Saved on this phone only");
+  clip.blob = null; clip.videoDeleted = true; // the video has done its job, so delete it
   await saveClip(clip);
   await loadContribs();
   refreshStyles();

@@ -19,7 +19,7 @@ export const home = {
     bindOsmAccount(() => home.open(el));
     $("#start").onclick = () => go("camera");
     await loadContribs();
-    const mine = state.contribs.filter(c => c.blob).sort((a, b) => b.id - a.id);
+    const mine = state.contribs.filter(c => c.blob || c.videoDeleted).sort((a, b) => b.id - a.id);
     $("#list").innerHTML = mine.length ? "<h2>My videos</h2>" + mine.map(videoRow).join("") : empty;
   }
 };
