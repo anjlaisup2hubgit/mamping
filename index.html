@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hometown Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#F5F5F3;--surf:#fff;--ink:#1C1C1C;--mid:#6E6E69;--line:#DEDED9;--acc:#E8470F;--onacc:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#141413;--surf:#1F1F1E;--ink:#F2F2EF;--mid:#9C9C96;--line:#333331;--acc:#FF6A33;--onacc:#1C1C1C}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+#map{position:absolute;inset:0}
+.leaflet-tile-pane{filter:grayscale(1) contrast(.9) brightness(1.03)}
+@media (prefers-color-scheme:dark){.leaflet-tile-pane{filter:grayscale(1) invert(1) contrast(.8) brightness(.9)}}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg);z-index:1000}
+.screen.on{display:flex}
+.pad{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+.big{display:flex;align-items:center;justify-content:center;min-height:56px;border-radius:28px;font-weight:600;font-size:18px;width:100%}
+.primary{background:var(--acc);color:var(--onacc)}
+.ghost{background:var(--surf);border:1px solid var(--line)}
+.round{width:44px;height:44px;border-radius:50%;background:var(--surf);border:1px solid var(--line);font-weight:700;flex:none}
+#home{position:absolute;inset:0;pointer-events:none;z-index:500}
+#home>*{pointer-events:auto}
+.top{position:absolute;top:0;left:0;right:0;padding-top:max(12px,env(safe-area-inset-top));display:flex;justify-content:space-between;align-items:center;gap:8px}
+.top h1{margin:0;font-size:20px;background:var(--surf);border:1px solid var(--line);border-radius:22px;padding:8px 14px}
+.dock{position:absolute;left:0;right:0;bottom:0;padding-bottom:max(18px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px;max-width:480px;margin:0 auto}
+.row{display:flex;gap:10px}
+h2{margin:0;font-size:22px}
+.mid{color:var(--mid)}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:var(--surf);border-top:1px solid var(--line);border-radius:24px 24px 0 0;padding-top:16px;padding-bottom:max(18px,env(safe-area-inset-bottom));max-height:60%;overflow:auto;display:none;flex-direction:column;gap:12px;z-index:900}
+.sheet.on{display:flex}
+label{font-size:13px;color:var(--mid);display:block;margin-bottom:6px}
+input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tag{font-size:12px;background:color-mix(in srgb,var(--acc) 18%,transparent);border-radius:10px;padding:3px 9px;display:inline-block}
+.item{display:block;text-align:left;width:100%;background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:14px}
+.note{background:var(--bg);border-radius:12px;padding:10px 12px}
+#cam{background:#000;color:#fff}
+#cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.chip{background:#000a;color:#fff;border-radius:16px;padding:6px 12px;font-size:13px;display:inline-flex;gap:6px;align-items:center}
+.rec{width:84px;height:84px;border-radius:50%;border:5px solid #fff;display:flex;align-items:center;justify-content:center}
+.rec i{display:block;width:60px;height:60px;border-radius:50%;background:var(--acc);transition:.2s}
+.recording .rec i{width:30px;height:30px;border-radius:8px}
+#stopbtn{position:absolute;right:24px;bottom:max(46px,calc(env(safe-area-inset-bottom) + 30px));width:28px;height:28px;border-radius:6px;background:#fff;display:none}
+.recording #stopbtn{display:block}
+#mini{position:absolute;left:16px;bottom:34px;width:96px;height:96px;border-radius:16px;overflow:hidden;border:2px solid #fff}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .6s}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:120px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:20px;font-size:14px;z-index:3000;max-width:90%}
+.pinicon{width:26px;height:26px;border-radius:50% 50% 50% 0;background:var(--acc);transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 6px #0006}
+.scroll{overflow:auto;flex:1;display:flex;flex-direction:column;gap:12px;padding-bottom:20px}
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<div id="home">
+  <div class="top pad"><h1>Hometown Map</h1>
+    <div class="row"><button class="round" id="goHP" aria-label="Go to Hai Phong">HP</button><button class="round" id="goMe" aria-label="My location">◎</button><button class="round" id="openLib" aria-label="My videos">▤</button><button class="round" id="openHelp" aria-label="Help">?</button></div></div>
+  <div class="dock pad"><button class="big primary" id="take">● Take Video</button>
+    <div class="row"><button class="big ghost" id="openNear" style="min-height:52px">Nearby</button></div></div>
+</div>
+
+<div class="sheet pad" id="bsheet"></div>
+
+<div class="screen" id="cam">
+  <video id="v" muted playsinline></video>
+  <div class="top pad"><span class="chip" id="gpsChip">GPS searching</span><span class="chip" id="tm">0:00</span></div>
+  <button class="chip" id="camBack" style="position:absolute;left:16px;top:72px">← Back</button>
+  <div id="mini"></div>
+  <div class="dock pad" style="align-items:center;flex-direction:row;justify-content:center"><button class="rec" id="recBtn" aria-label="Start or stop recording"><i></i></button></div>
+  <button id="stopbtn" aria-label="Stop"></button>
+</div>
+
+<div class="screen pad" id="saved" style="justify-content:center;align-items:center;text-align:center;gap:14px">
+  <div style="width:96px;height:96px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center"><svg width="52" height="52" viewBox="0 0 52 52"><path d="M12 27l10 10 18-22" stroke="var(--onacc)" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <h2>Your video is saved</h2><p class="mid" id="savedInfo" style="margin:0"></p>
+  <div style="width:100%;max-width:420px;display:flex;flex-direction:column;gap:10px;margin-top:24px"><button class="big primary" id="toScan">Send to map</button><button class="big ghost" id="toHome">Back to home</button></div>
+</div>
+
+<div class="screen pad" id="scan" style="justify-content:center;gap:16px"><h2>Reading your video</h2><div class="bar"><i id="pb"></i></div><p class="mid" id="st" style="margin:0">Finding nearby buildings</p></div>
+
+<div class="screen" id="review">
+  <div class="pad" style="padding-top:max(12px,env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between;padding-bottom:8px"><button class="round" data-back aria-label="Back">←</button><h2>Review</h2><span style="width:44px"></span></div>
+  <div class="pad scroll" id="revBody"></div>
+  <div class="pad" style="padding-top:8px;padding-bottom:max(18px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;max-width:520px;width:100%;margin:0 auto"><button class="big primary" id="uploadNow">Upload now</button><button class="big ghost" id="keepOff" style="min-height:48px">Keep offline</button></div>
+</div>
+
+<div class="screen" id="near"><div class="pad" style="padding-top:max(12px,env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between;padding-bottom:8px"><button class="round" data-back aria-label="Back">←</button><h2>Nearby · 1 mile</h2><span style="width:44px"></span></div><div class="pad scroll" id="nearBody"></div></div>
+<div class="screen" id="lib"><div class="pad" style="padding-top:max(12px,env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between;padding-bottom:8px"><button class="round" data-back aria-label="Back">←</button><h2>My videos</h2><span style="width:44px"></span></div><div class="pad scroll" id="libBody"></div></div>
+<div class="screen" id="help"><div class="pad" style="padding-top:max(12px,env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between;padding-bottom:8px"><button class="round" data-back aria-label="Back">←</button><h2>Help</h2><span style="width:44px"></span></div>
+  <div class="pad scroll"><p><b>Quick tour</b></p><p class="mid">1. Tap Take Video and walk past a building.<br>2. Tap the stop square.<br>3. Tap Send to map, check the name and height, then Upload now.</p><p class="mid">Your videos stay on this phone until you upload them.</p></div></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+"use strict";
+/* ---------- config ---------- */
+const HAI_PHONG=[20.8449,106.6881];          // city centre
+const UPLOAD_URL="";                          // set to your server's endpoint to enable Upload now
+const OVERPASS="https://overpass-api.de/api/interpreter";
+const $=s=>document.querySelector(s);
+const toast=t=>{const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3000)};
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- local library (IndexedDB) ---------- */
+const DB={db:null,
+ open(){return new Promise((ok,no)=>{const r=indexedDB.open("hometown",1);r.onupgradeneeded=()=>r.result.createObjectStore("clips",{keyPath:"id"});r.onsuccess=()=>{this.db=r.result;ok()};r.onerror=()=>no(r.error)})},
+ tx(m){return this.db.transaction("clips",m).objectStore("clips")},
+ put(o){return new Promise((ok,no)=>{const q=this.tx("readwrite").put(o);q.onsuccess=ok;q.onerror=()=>no(q.error)})},
+ all(){return new Promise((ok,no)=>{const q=this.tx("readonly").getAll();q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)})}};
+
+/* ---------- map ---------- */
+const map=L.map("map",{zoomControl:false,attributionControl:true}).setView(HAI_PHONG,17);
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap contributors"}).addTo(map);
+const bLayer=L.layerGroup().addTo(map);
+const meIcon=L.divIcon({className:"",html:'<div class="pinicon"></div>',iconSize:[26,26],iconAnchor:[8,26]});
+let me=null,meMarker=null,followed=false;
+let buildings=new Map();       // id -> {id,name,ht,levels,poly,coords,layer}
+let contribs=[];               // local clips with building
+let selectedId=null,loadTimer=null,loading=false;
+
+function setMe(lat,lng,acc){
+  me={lat,lng,acc};
+  if(!meMarker)meMarker=L.marker([lat,lng],{icon:meIcon,zIndexOffset:1000}).addTo(map);else meMarker.setLatLng([lat,lng]);
+  if(!followed){followed=true;map.setView([lat,lng],17)}
+  const c=$("#gpsChip");if(c)c.textContent="GPS ±"+Math.round(acc||0)+" m";
+}
+if("geolocation" in navigator){
+  navigator.geolocation.watchPosition(p=>setMe(p.coords.latitude,p.coords.longitude,p.coords.accuracy),
+   ()=>{toast("Location is off. Showing Hai Phong.")},{enableHighAccuracy:true,maximumAge:2000});
+}
+$("#goMe").onclick=()=>me?map.setView([me.lat,me.lng],18):toast("Waiting for GPS");
+$("#goHP").onclick=()=>map.setView(HAI_PHONG,17);
+
+/* ---------- OpenStreetMap buildings ---------- */
+const mid=(c)=>{const n=c.length;return [c.reduce((a,p)=>a+p[0],0)/n,c.reduce((a,p)=>a+p[1],0)/n]};
+function parseH(t){if(!t)return null;const n=parseFloat(String(t).replace(",","."));return isFinite(n)?n:null}
+function styleFor(b){
+  const has=contribs.some(c=>c.buildingId===b.id);
+  if(b.id===selectedId)return {color:"#E8470F",weight:4,fillColor:"#E8470F",fillOpacity:.3};
+  return has?{color:"#E8470F",weight:2,fillColor:"#E8470F",fillOpacity:.2}:{color:"#7a7a74",weight:1,fillColor:"#9a9a94",fillOpacity:.25};
+}
+async function loadBuildings(){
+  if(loading||map.getZoom()<16){return}
+  const b=map.getBounds().pad(0.1);
+  const q=`[out:json][timeout:25];way["building"](${b.getSouth()},${b.getWest()},${b.getNorth()},${b.getEast()});out geom tags 800;`;
+  loading=true;
+  try{
+    const r=await fetch(OVERPASS,{method:"POST",body:"data="+encodeURIComponent(q),headers:{"Content-Type":"application/x-www-form-urlencoded"}});
+    if(!r.ok)throw 0;const j=await r.json();
+    for(const w of j.elements){
+      if(buildings.has(w.id)||!w.geometry)continue;
+      const coords=w.geometry.map(g=>[g.lat,g.lon]);
+      const t=w.tags||{};
+      const bd={id:w.id,name:t.name||t["name:vi"]||null,ht:parseH(t.height),levels:parseH(t["building:levels"]),kind:t.building,addr:[t["addr:housenumber"],t["addr:street"]].filter(Boolean).join(" "),coords,center:mid(coords)};
+      bd.layer=L.polygon(coords,styleFor(bd)).addTo(bLayer).on("click",e=>{L.DomEvent.stopPropagation(e);select(bd.id)});
+      buildings.set(w.id,bd);
+    }
+  }catch(e){toast("Could not load buildings. Check your connection.")}
+  loading=false;
+}
+map.on("moveend",()=>{clearTimeout(loadTimer);loadTimer=setTimeout(loadBuildings,500)});
+map.on("click",()=>{selectedId=null;refresh();$("#bsheet").classList.remove("on")});
+function refresh(){buildings.forEach(b=>b.layer.setStyle(styleFor(b)))}
+function inside(pt,poly){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const[yi,xi]=poly[i],[yj,xj]=poly[j];if(((yi>pt[0])!==(yj>pt[0]))&&(pt[1]<(xj-xi)*(pt[0]-yi)/(yj-yi)+xi))c=!c}return c}
+const dist=(a,b,c,d)=>{const R=6371000,t=x=>x*Math.PI/180,dl=t(c-a),dn=t(d-b);const h=Math.sin(dl/2)**2+Math.cos(t(a))*Math.cos(t(c))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
+function nearestBuilding(lat,lng){
+  let best=null,bd=1e9;
+  buildings.forEach(b=>{const d=inside([lat,lng],b.coords)?0:dist(lat,lng,b.center[0],b.center[1]);if(d<bd){bd=d;best=b}});
+  return best?{b:best,d:bd}:null;
+}
+function heightOf(b){return b.ht||(b.levels?Math.round(b.levels*3.2):null)}
+
+/* ---------- building sheet ---------- */
+function select(id){
+  selectedId=id;refresh();const b=buildings.get(id);if(!b)return;
+  const cs=contribs.filter(c=>c.buildingId===id);
+  const h=heightOf(b);
+  const share=location.href.split("#")[0]+"#b"+id;
+  $("#bsheet").innerHTML=`<div><h2>${esc(b.name||"Unnamed building")}</h2><p class="mid" style="margin:4px 0 0">${h?h+" m":"Height unknown"}${b.levels?" · "+b.levels+" floors":""}${b.addr?" · "+esc(b.addr):""}</p></div>
+   ${cs.length?cs.map(c=>`<div class="note"><span class="tag">${c.sent?"Shared":"Private"}</span> ${esc(c.comment||"Video "+c.secs+"s")} <span class="mid">· ${esc(c.at)}</span></div>`).join(""):`<p class="mid" style="margin:0">No contributions yet.</p>`}
+   <div class="row"><button class="big primary" id="shareB" style="min-height:48px">Share</button><button class="big ghost" id="closeB" style="min-height:48px">Close</button></div>`;
+  $("#bsheet").classList.add("on");
+  $("#shareB").onclick=async()=>{try{await navigator.clipboard.writeText(share);toast("Link copied")}catch(e){toast(share)}};
+  $("#closeB").onclick=()=>{selectedId=null;refresh();$("#bsheet").classList.remove("on")};
+}
+
+/* ---------- screens ---------- */
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===id));$("#home").style.display=id?"none":"";}
+function home(){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));$("#home").style.display=""}
+document.querySelectorAll("[data-back]").forEach(b=>b.onclick=home);
+$("#toHome").onclick=home;
+$("#openHelp").onclick=()=>show("help");
+
+/* ---------- recording ---------- */
+let stream=null,rec=null,chunks=[],track=[],timer=null,secs=0,clip=null,watchId=null,miniMap=null,miniDot=null;
+async function openCam(){
+  show("cam");$("#cam").classList.remove("recording");$("#tm").textContent="0:00";
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:true});
+    $("#v").srcObject=stream;await $("#v").play();
+  }catch(e){toast("Camera blocked. Allow camera access in your browser.");home();return}
+  if(!miniMap){miniMap=L.map("mini",{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false,doubleClickZoom:false});L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(miniMap);miniDot=L.marker([0,0],{icon:meIcon}).addTo(miniMap)}
+  const c=me?[me.lat,me.lng]:HAI_PHONG;miniMap.setView(c,18);miniDot.setLatLng(c);setTimeout(()=>miniMap.invalidateSize(),50);
+  setTimeout(()=>{if($("#cam").classList.contains("on")&&!rec)startRec()},500);   // starts automatically
+}
+function startRec(){
+  if(rec||!stream)return;
+  chunks=[];track=[];secs=0;
+  const mime=["video/mp4","video/webm;codecs=vp9","video/webm"].find(t=>window.MediaRecorder&&MediaRecorder.isTypeSupported(t))||"";
+  rec=new MediaRecorder(stream,mime?{mimeType:mime}:{});
+  rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+  rec.onstop=finishRec;rec.start(1000);
+  $("#cam").classList.add("recording");
+  watchId=navigator.geolocation.watchPosition(p=>{const pt={lat:p.coords.latitude,lng:p.coords.longitude,t:Date.now()};track.push(pt);if(miniMap){miniMap.setView([pt.lat,pt.lng]);miniDot.setLatLng([pt.lat,pt.lng])}},()=>{},{enableHighAccuracy:true});
+  timer=setInterval(()=>{secs++;$("#tm").textContent=Math.floor(secs/60)+":"+String(secs%60).padStart(2,"0")},1000);
+}
+function stopRec(){if(!rec)return;clearInterval(timer);if(watchId!=null)navigator.geolocation.clearWatch(watchId);rec.stop()}
+async function finishRec(){
+  const type=rec.mimeType||"video/webm";const blob=new Blob(chunks,{type});rec=null;
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
+  if(!track.length&&me)track.push({lat:me.lat,lng:me.lng,t:Date.now()});
+  clip={id:Date.now(),blob,secs:Math.max(secs,1),track,at:new Date().toLocaleString(),sent:false,buildingId:null,name:"",height:null,comment:"",photo:null};
+  try{await DB.put(clip)}catch(e){toast("Could not save on this phone")}
+  $("#savedInfo").textContent=clip.secs+"s · "+(track.length?"GPS tracked":"no GPS")+" · kept privately on this phone";
+  show("saved");
+}
+$("#take").onclick=openCam;
+$("#recBtn").onclick=()=>rec?stopRec():startRec();
+$("#stopbtn").onclick=stopRec;
+$("#camBack").onclick=()=>{if(rec){rec.onstop=null;clearInterval(timer);rec.stop();rec=null}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}home()};
+
+/* ---------- match + review ---------- */
+let matchB=null;
+$("#toScan").onclick=async()=>{
+  show("scan");$("#pb").style.width="20%";
+  const p=clip.track[Math.floor(clip.track.length/2)]||{lat:map.getCenter().lat,lng:map.getCenter().lng};
+  map.setView([p.lat,p.lng],18);await loadBuildings();
+  $("#pb").style.width="70%";$("#st").textContent="Matching to OpenStreetMap";
+  const m=nearestBuilding(p.lat,p.lng);matchB=m&&m.d<60?m.b:null;
+  setTimeout(()=>{$("#pb").style.width="100%";setTimeout(openReview,400)},500);
+};
+function openReview(){
+  const b=matchB;const h=b?heightOf(b):null;
+  $("#revBody").innerHTML=`<div class="row" style="align-items:center">${b?'<span class="tag">Matched by location</span>':'<span class="tag">No building found nearby</span>'}</div>
+  <div><label for="rn">Building name</label><input type="text" id="rn" value="${esc(b?.name||"")}" placeholder="Add a name"></div>
+  <div class="row"><div style="flex:1"><label for="rh">Height (m)</label><input type="text" id="rh" inputmode="decimal" value="${h??""}" placeholder="Estimate"></div><div style="flex:1"><label for="rf">Floors</label><input type="text" id="rf" inputmode="numeric" value="${b?.levels??""}"></div></div>
+  <div><label for="rc">Add comment</label><input type="text" id="rc" placeholder="New café!"></div>
+  <label class="big ghost" style="margin:0;color:var(--ink);font-size:16px;min-height:52px"><input type="file" id="rp" accept="image/*" hidden><span id="rpl">+ Add photo</span></label>`;
+  $("#rp").onchange=e=>{const f=e.target.files[0];if(f){clip.photo=f;$("#rpl").textContent="Photo added ✓"}};
+  show("review");
+}
+async function commit(send){
+  clip.buildingId=matchB?matchB.id:null;
+  clip.name=$("#rn").value.trim();clip.height=parseFloat($("#rh").value.replace(",","."))||null;
+  clip.comment=$("#rc").value.trim();clip.levels=parseFloat($("#rf").value)||null;
+  clip.lat=clip.track[0]?.lat;clip.lng=clip.track[0]?.lng;
+  if(send){
+    if(!UPLOAD_URL){toast("No server connected yet. Kept on this phone.")}
+    else{try{const fd=new FormData();fd.append("meta",JSON.stringify({...clip,blob:undefined,photo:undefined}));fd.append("video",clip.blob);if(clip.photo)fd.append("photo",clip.photo);const r=await fetch(UPLOAD_URL,{method:"POST",body:fd});if(!r.ok)throw 0;clip.sent=true;toast("Sent to map")}catch(e){toast("Upload failed. Kept on this phone.")}}
+  }else toast("Saved on this phone only");
+  await DB.put(clip);await loadContribs();refresh();
+  if(matchB){home();map.setView(matchB.center,18);select(matchB.id)}else home();
+}
+$("#uploadNow").onclick=()=>commit(true);
+$("#keepOff").onclick=()=>commit(false);
+
+/* ---------- lists ---------- */
+async function loadContribs(){try{contribs=await DB.all()}catch(e){contribs=[]}}
+$("#openNear").onclick=async()=>{
+  await loadContribs();const c=map.getCenter(),ref=me?[me.lat,me.lng]:[c.lat,c.lng];
+  const by={};contribs.filter(x=>x.buildingId&&x.lat!=null&&dist(ref[0],ref[1],x.lat,x.lng)<=1609).forEach(x=>(by[x.buildingId]||(by[x.buildingId]=[])).push(x));
+  const ids=Object.keys(by);
+  $("#nearBody").innerHTML=ids.length?ids.map(id=>{const b=buildings.get(+id),n=by[id];const d=dist(ref[0],ref[1],n[0].lat,n[0].lng)/1609;return `<button class="item" data-id="${id}"><b>${esc(b?.name||n[0].name||"Building")}</b><br><span class="mid">${d.toFixed(2)} mi · ${n.length} video${n.length>1?"s":""}</span></button>`}).join(""):`<p class="mid">No contributions within one mile yet. Record a video to add the first.</p>`;
+  document.querySelectorAll("#nearBody .item").forEach(e=>e.onclick=()=>{home();const b=buildings.get(+e.dataset.id);if(b){map.setView(b.center,18);select(b.id)}});
+  show("near");
+};
+$("#openLib").onclick=async()=>{
+  await loadContribs();
+  $("#libBody").innerHTML=contribs.length?contribs.sort((a,b)=>b.id-a.id).map(c=>`<div class="item"><b>${esc(c.name||"Unmatched video")}</b><br><span class="mid">${c.secs}s · ${esc(c.at)}</span><br><span class="tag">${c.sent?"Shared":"Private, on this phone"}</span></div>`).join(""):`<p class="mid">No videos yet.</p>`;
+  show("lib");
+};
+
+/* ---------- start ---------- */
+(async()=>{
+  try{await DB.open();await loadContribs()}catch(e){}
+  home();loadBuildings();
+  const m=location.hash.match(/^#b(\d+)$/);
+  if(m){const id=+m[1];fetch(OVERPASS,{method:"POST",body:"data="+encodeURIComponent(`[out:json];way(${id});out geom tags;`)}).then(r=>r.json()).then(async j=>{const w=j.elements[0];if(w?.geometry){map.setView([w.geometry[0].lat,w.geometry[0].lon],18);await loadBuildings();select(id)}}).catch(()=>{})}
+})();
+</script>
+</body>
+</html>
