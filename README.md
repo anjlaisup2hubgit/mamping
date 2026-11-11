@@ -1,7 +1,7 @@
 # Mamping
 
 ## Download
-Copy the project to your computer with `git clone https://github.com/anjlaisup2hubgit/mapping.git`.
+For development `git clone https://github.com/anjlaisup2hubgit/mapping.git`.
 
 ## Features
 - You walk up to a building and film it with your phone.
