@@ -6,7 +6,7 @@ For development `git clone https://github.com/anjlaisup2hubgit/mapping.git`.
 ## Features
 - You walk up to a building and film it with your phone.
 - The app notes where you stood, so it knows which building you filmed.
-- A smart helper looks at the video and writes down the building's name and height.
+- Ai looks at the video and writes down the building's name and height.
 - You check what it wrote and fix any mistakes.
 - You can keep your video private or send it to the map.
 - The map shows every building, and you can tap one to see its videos.
