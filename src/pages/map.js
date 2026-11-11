@@ -1,4 +1,4 @@
-// Map: search, layers, nearby, and find-missing buttons over the map.
+// Map: search, layers, and find-missing buttons over the map.
 import { $ } from "../components/dom.js";
 import { go } from "../components/router.js";
 import { goMe } from "../components/mapView.js";
@@ -14,12 +14,11 @@ export const map = {
   full: false,
   open(el) {
     el.innerHTML = searchBar() + `<div class="side">
-      ${side("layersB", "Map layers", icons.layers)}${side("goMe", "My location", icons.locate)}${side("openNear", "Nearby", icons.list)}${side("findMiss", "Find missing buildings", icons.scan)}${side("openHelp", "Help", icons.help)}${side("openSettings", "Settings", icons.settings)}</div>` + bottomNav("map");
+      ${side("layersB", "Map layers", icons.layers)}${side("goMe", "My location", icons.locate)}${side("findMiss", "Find missing buildings", icons.scan)}${side("openHelp", "Help", icons.help)}${side("openSettings", "Settings", icons.settings)}</div>` + bottomNav("map");
     bindNav(el);
     bindSearch();
     $("#layersB").onclick = showLayers;
     $("#goMe").onclick = goMe;
-    $("#openNear").onclick = () => go("nearby");
     $("#findMiss").onclick = findMissing;
     $("#openHelp").onclick = () => go("help");
     $("#openSettings").onclick = () => go("settings");

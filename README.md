@@ -12,7 +12,7 @@ For development `git clone https://github.com/anjlaisup2hubgit/mapping.git`.
 - The map shows every building, and you can tap one to see its videos.
 - A search box helps you find a place.
 - You can switch the map between a street picture and a satellite picture.
-- The app can spot buildings that are missing from the map and let you add them.
+- Ai reads satellite pictures of the whole map you see, spots buildings that are missing, and lets you add the ones you tick.
 - A list shows the buildings close to you.
 
 ## File tree
@@ -30,14 +30,13 @@ mapping/
 │   │   ├── scan.js      The helper studies your video.
 │   │   ├── review.js    Check and fix the building facts.
 │   │   ├── map.js       The big map.
-│   │   ├── nearby.js    Buildings close to you.
 │   │   ├── settings.js  Choices you can change.
 │   │   └── help.js      How to use the app.
 │   ├── components/ Small pieces that many screens share.
 │   │   ├── bottomNav.js, header.js    Buttons at the bottom and top.
 │   │   ├── mapView.js, miniMap.js     The big map and the small map.
 │   │   ├── buildingLayer.js           Draws buildings on the map.
-│   │   ├── buildingSheet.js, layersSheet.js, suggestSheet.js, sheet.js
+│   │   ├── buildingSheet.js, layersSheet.js, suggestSheet.js, batchSheet.js, sheet.js
 │   │   │                              Panels that slide up from the bottom.
 │   │   ├── searchBar.js               The place search box.
 │   │   ├── osmAccount.js, osmConfirm.js   Log in and confirm sharing to OpenStreetMap.

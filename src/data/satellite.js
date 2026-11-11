@@ -11,6 +11,17 @@ const loadImage = url => new Promise((ok, no) => {
   const i = new Image(); i.crossOrigin = "anonymous"; i.onload = () => ok(i); i.onerror = no; i.src = url;
 });
 
+// Centres of the satellite pictures (3x3 tiles each) that cover the bounds, nearest the middle first.
+export function viewCentres(bounds, max) {
+  const x0 = Math.floor(tileX(bounds.getWest())), x1 = Math.floor(tileX(bounds.getEast()));
+  const y0 = Math.floor(tileY(bounds.getNorth())), y1 = Math.floor(tileY(bounds.getSouth()));
+  const mx = (tileX(bounds.getWest()) + tileX(bounds.getEast())) / 2, my = (tileY(bounds.getNorth()) + tileY(bounds.getSouth())) / 2;
+  const list = [];
+  for (let x = x0; x <= x1; x += 3) for (let y = y0; y <= y1; y += 3) list.push([x + 1.5, y + 1.5]);
+  return list.sort((a, b) => Math.hypot(a[0] - mx, a[1] - my) - Math.hypot(b[0] - mx, b[1] - my))
+    .slice(0, max).map(([x, y]) => [latOf(y), lngOf(x)]);
+}
+
 export async function getSatelliteView(lat, lng) {
   const cx = Math.floor(tileX(lng)), cy = Math.floor(tileY(lat));
   const canvas = document.createElement("canvas");

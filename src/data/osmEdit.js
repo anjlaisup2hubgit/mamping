@@ -38,15 +38,21 @@ export function addMissingTags(wayId, wanted, comment) {
   });
 }
 
-// Adds a new building from a list of [lat, lng] corners.
-export function createBuilding(corners, tags, comment) {
+// Adds new buildings in one changeset. Each item is { corners: [[lat, lng], ...], tags }.
+export function createBuildings(items, comment) {
   return withChangeset(comment, "Esri World Imagery", async cs => {
-    const nodes = corners.map(([lat, lng], i) => `<node id="${-(i + 1)}" changeset="${cs}" lat="${lat.toFixed(7)}" lon="${lng.toFixed(7)}"/>`).join("");
-    const refs = [...corners.map((_, i) => -(i + 1)), -1].map(r => `<nd ref="${r}"/>`).join("");
-    const all = { building: "yes", ...tags };
-    const t = Object.entries(all).filter(([, v]) => v).map(([k, v]) => `<tag k="${x(k)}" v="${x(v)}"/>`).join("");
-    const change = `<osmChange version="0.6" generator="Mamping"><create>${nodes}<way id="-100" changeset="${cs}">${refs}${t}</way></create></osmChange>`;
-    await call("POST", `changeset/${cs}/upload`, change);
+    let id = 0, parts = "";
+    for (const { corners, tags } of items) {
+      const ids = corners.map(() => --id);
+      const nodes = corners.map(([lat, lng], i) => `<node id="${ids[i]}" changeset="${cs}" lat="${lat.toFixed(7)}" lon="${lng.toFixed(7)}"/>`).join("");
+      const refs = [...ids, ids[0]].map(r => `<nd ref="${r}"/>`).join("");
+      const t = Object.entries({ building: "yes", ...tags }).filter(([, v]) => v).map(([k, v]) => `<tag k="${x(k)}" v="${x(v)}"/>`).join("");
+      parts += `${nodes}<way id="${--id}" changeset="${cs}">${refs}${t}</way>`;
+    }
+    await call("POST", `changeset/${cs}/upload`, `<osmChange version="0.6" generator="Mamping"><create>${parts}</create></osmChange>`);
     return true;
   });
 }
+
+// Adds one new building from a list of [lat, lng] corners.
+export const createBuilding = (corners, tags, comment) => createBuildings([{ corners, tags }], comment);
