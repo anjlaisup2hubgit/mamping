@@ -1,14 +1,16 @@
 // Log in to OpenStreetMap with OAuth 2 (PKCE). No password or secret is stored by us.
-import { OSM_SITE, OSM_CLIENT_ID } from "./config.js";
+import { OSM_SITE, OSM_API, OSM_CLIENT_ID, OSM_PRACTICE, DEV_USERS } from "./config.js";
 
-const TOKEN = "osm_token", VERIFIER = "osm_verifier";
+const TOKEN = OSM_PRACTICE ? "osm_token_practice" : "osm_token", VERIFIER = "osm_verifier";
 const redirect = () => location.origin + location.pathname;
 const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
 export const osmReady = () => !!OSM_CLIENT_ID;
 export const getToken = () => { try { return localStorage.getItem(TOKEN); } catch (e) { return null; } };
 export const isLoggedIn = () => !!getToken();
-export const logout = () => { try { localStorage.removeItem(TOKEN); } catch (e) { /* nothing to clear */ } };
+export const isDev = () => { try { return localStorage.getItem("osm_dev") === "1"; } catch (e) { return false; } };
+export const setPractice = on => { localStorage.setItem("osm_practice", on ? "1" : "0"); location.reload(); };
+export const logout = () => { try { localStorage.removeItem(TOKEN); if (!OSM_PRACTICE) localStorage.removeItem("osm_dev"); } catch (e) { /* nothing to clear */ } };
 
 export async function login() {
   const verifier = b64(crypto.getRandomValues(new Uint8Array(32)));
@@ -33,6 +35,16 @@ export async function finishLogin() {
   history.replaceState(null, "", location.pathname + location.hash);
   sessionStorage.removeItem(VERIFIER);
   if (!r.ok) throw new Error("login failed");
-  localStorage.setItem(TOKEN, (await r.json()).access_token);
+  const token = (await r.json()).access_token;
+  localStorage.setItem(TOKEN, token);
+  if (!OSM_PRACTICE) await markDev(token);
   return true;
+}
+
+// Dev accounts (listed in config) get the practice-server switch; everyone else never sees it.
+async function markDev(token) {
+  try {
+    const d = await (await fetch(`${OSM_API}/api/0.6/user/details.json`, { headers: { Authorization: "Bearer " + token } })).json();
+    if (DEV_USERS.includes(d.user.display_name)) localStorage.setItem("osm_dev", "1");
+  } catch (e) { /* not a dev account */ }
 }

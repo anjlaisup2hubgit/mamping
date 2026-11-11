@@ -66,3 +66,6 @@ input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--surf)
 
 /* name label that follows the pointer onto a button */
 #tip{position:fixed;z-index:5000;display:none;background:var(--ink);color:var(--bg);padding:6px 10px;border-radius:8px;font-size:13px;white-space:nowrap;pointer-events:none}
+
+/* Flat outlines cannot follow a tilted map */
+.tilted .leaflet-overlay-pane { display: none; }
