@@ -1,6 +1,7 @@
 // Home page row: connect to or leave OpenStreetMap.
 import { $ } from "./dom.js";
 import { OSM_PRACTICE } from "../data/config.js";
+import { clearLocalScan } from "../data/savedScan.js";
 import { isLoggedIn, login, logout, osmReady, isDev, setPractice } from "../data/osmAuth.js";
 
 export function osmAccount() {
@@ -15,5 +16,5 @@ export function bindOsmAccount(refresh) {
   const inBtn = $("#osmIn"), outBtn = $("#osmOut");
   if (inBtn) inBtn.onclick = login;
   if ($("#osmEnv")) $("#osmEnv").onclick = () => setPractice(!OSM_PRACTICE);
-  if (outBtn) outBtn.onclick = () => { logout(); refresh(); };
+  if (outBtn) outBtn.onclick = () => { logout(); clearLocalScan(); location.reload(); }; // reload so the last user's boxes leave the map
 }

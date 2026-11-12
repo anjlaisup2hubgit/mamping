@@ -1,5 +1,5 @@
 // Loads real building outlines from OpenStreetMap.
-import { OVERPASS_URL } from "./config.js";
+import { OVERPASS_URLS } from "./config.js";
 import { mid } from "./geo.js";
 
 const number = t => { const n = parseFloat(String(t ?? "").replace(",", ".")); return isFinite(n) ? n : null; };
@@ -15,13 +15,20 @@ function toBuilding(w) {
   };
 }
 
+// Free servers are often busy, so try each one (up to 20 seconds) until one answers.
 async function ask(query) {
-  const r = await fetch(OVERPASS_URL, {
-    method: "POST", body: "data=" + encodeURIComponent(query),
-    headers: { "Content-Type": "application/x-www-form-urlencoded" }
-  });
-  if (!r.ok) throw new Error(r.status);
-  return (await r.json()).elements.filter(w => w.geometry);
+  let last;
+  for (const url of OVERPASS_URLS) {
+    try {
+      const r = await fetch(url, {
+        method: "POST", body: "data=" + encodeURIComponent(query), signal: AbortSignal.timeout(20000),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      });
+      if (!r.ok) throw new Error(r.status);
+      return (await r.json()).elements.filter(w => w.geometry);
+    } catch (e) { last = e; }
+  }
+  throw last;
 }
 
 export async function fetchBuildingsIn(b) {

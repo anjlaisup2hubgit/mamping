@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="1200" height="675" fill="#f6f3ee"/>
+  <!-- fake map roads -->
+  <g stroke="#fff" stroke-width="14" fill="none" stroke-linecap="round">
+    <path d="M330 0 L220 675"/><path d="M980 0 L880 675"/><path d="M0 140 L1200 170"/>
+  </g>
+  <path d="M0 470 L190 190 L260 0" stroke="#f9d98b" stroke-width="18" fill="none"/>
+  <path d="M640 250 a14 14 0 1 1 28 0 c0 14 -14 28 -14 28 s-14 -14 -14 -28z" fill="#e8460a"/>
+
+  <!-- Bottom-left: search (tap to expand) -->
+  <rect x="24" y="607" width="250" height="48" rx="24" fill="#fff" stroke="#ddd"/>
+  <circle cx="52" cy="630" r="8" fill="none" stroke="#555" stroke-width="2.5"/>
+  <path d="M58 636 L65 643" stroke="#555" stroke-width="2.5" stroke-linecap="round"/>
+  <text x="80" y="637" font-size="16" fill="#777">Search a place</text>
+
+  <!-- Bottom bar: 7 slots -->
+  <rect x="320" y="600" width="560" height="60" rx="30" fill="#fff" stroke="#ddd"/>
+  <g fill="none" stroke="#444" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- home -->
+    <path d="M348 630 L360 618 L372 630 M351 628 V642 H369 V628"/>
+    <!-- map -->
+    <path d="M428 622 L436 619 L444 622 L452 619 V639 L444 642 L436 639 L428 642Z M436 619 V639 M444 622 V642"/>
+    <!-- layers -->
+    <path d="M520 618 L534 625 L520 632 L506 625Z M506 631 L520 638 L534 631"/>
+    <!-- locate -->
+    <circle cx="680" cy="630" r="7"/><path d="M680 616 V621 M680 639 V644 M666 630 H671 M689 630 H694"/>
+    <!-- scan -->
+    <path d="M750 622 V618 H754 M766 618 H770 V622 M770 638 V642 H766 M754 642 H750 V638 M755 630 H765"/>
+    <!-- settings -->
+    <circle cx="840" cy="630" r="5"/><circle cx="840" cy="630" r="11" stroke-dasharray="4 3.2"/>
+  </g>
+  <!-- camera (centre, raised) -->
+  <circle cx="600" cy="618" r="36" fill="#e8460a" stroke="#fff" stroke-width="4"/>
+  <rect x="584" y="607" width="32" height="24" rx="5" fill="none" stroke="#fff" stroke-width="2.5"/>
+  <circle cx="600" cy="619" r="6" fill="none" stroke="#fff" stroke-width="2.5"/>
+  <!-- labels -->
+  <g font-size="11" fill="#666" text-anchor="middle">
+    <text x="360" y="656">Home</text><text x="440" y="656">Map</text><text x="520" y="656">Layers</text>
+    <text x="680" y="656">Locate</text><text x="760" y="656">Scan</text><text x="840" y="656">Settings</text>
+  </g>
+
+  <!-- Settings popover with Help inside -->
+  <rect x="770" y="530" width="160" height="56" rx="14" fill="#fff" stroke="#ddd"/>
+  <path d="M840 586 l-8 -0 l8 8 l8 -8z" fill="#fff" stroke="#ddd" transform="translate(0 -1)"/>
+  <text x="790" y="553" font-size="14" fill="#333">⚙  Preferences</text>
+  <text x="790" y="574" font-size="14" fill="#333">?  Help</text>
+  <text x="600" y="30" font-size="16" fill="#333" text-anchor="middle" font-weight="600">Proposed layout: search bottom-left, one bottom bar, Help inside Settings</text>
+</svg>

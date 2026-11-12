@@ -1,5 +1,5 @@
 // Log in to OpenStreetMap with OAuth 2 (PKCE). No password or secret is stored by us.
-import { OSM_SITE, OSM_API, OSM_CLIENT_ID, OSM_PRACTICE, DEV_USERS } from "./config.js";
+import { OSM_SITE, OSM_API, OSM_CLIENT_ID, OSM_PRACTICE, DEV_USERS, IS_LOCAL } from "./config.js";
 
 const TOKEN = OSM_PRACTICE ? "osm_token_practice" : "osm_token", VERIFIER = "osm_verifier";
 const redirect = () => location.origin + location.pathname;
@@ -8,7 +8,7 @@ const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+
 export const osmReady = () => !!OSM_CLIENT_ID;
 export const getToken = () => { try { return localStorage.getItem(TOKEN); } catch (e) { return null; } };
 export const isLoggedIn = () => !!getToken();
-export const isDev = () => { try { return localStorage.getItem("osm_dev") === "1"; } catch (e) { return false; } };
+export const isDev = () => { try { return IS_LOCAL || localStorage.getItem("osm_dev") === "1"; } catch (e) { return false; } };
 export const setPractice = on => { localStorage.setItem("osm_practice", on ? "1" : "0"); location.reload(); };
 export const logout = () => { try { localStorage.removeItem(TOKEN); if (!OSM_PRACTICE) localStorage.removeItem("osm_dev"); } catch (e) { /* nothing to clear */ } };
 

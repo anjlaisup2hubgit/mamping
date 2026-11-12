@@ -8,6 +8,12 @@ export const searchBar = () => `<div class="search"><input type="text" id="q" pl
 
 export function bindSearch() {
   let timer = null;
+  // The search icon in the bottom bar shows or hides the real search box.
+  $("#searchB").onclick = () => {
+    const box = $(".search");
+    box.classList.toggle("open");
+    if (box.classList.contains("open")) $("#q").focus();
+  };
   const run = async () => {
     const q = $("#q").value.trim();
     if (q.length < 3) { $("#results").innerHTML = ""; return; }
@@ -19,6 +25,13 @@ export function bindSearch() {
       });
     } catch (e) { toast("Search is not available right now."); }
   };
+  // Tapping anywhere else closes the search box.
+  const closeOutside = e => {
+    const box = $(".search");
+    if (!box) { document.removeEventListener("pointerdown", closeOutside); return; }
+    if (!e.target.closest(".search, #searchB")) box.classList.remove("open");
+  };
+  document.addEventListener("pointerdown", closeOutside);
   $("#q").oninput = () => { clearTimeout(timer); timer = setTimeout(run, 500); };
   $("#q").onkeydown = e => { if (e.key === "Enter") { clearTimeout(timer); run(); } };
 }

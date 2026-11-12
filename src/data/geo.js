@@ -17,3 +17,17 @@ export function dist(a, b, c, d) {
   const h = Math.sin(t(c - a) / 2) ** 2 + Math.cos(t(a)) * Math.cos(t(c)) * Math.sin(t(d - b) / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(h));
 }
+
+// Neat rectangle around [x, y] points, tilted like their longest edge.
+export function rectOf(pts) {
+  let best = 0, ang = 0;
+  pts.forEach((p, i) => {
+    const q = pts[(i + 1) % pts.length], len = Math.hypot(q[0] - p[0], q[1] - p[1]);
+    if (len > best) { best = len; ang = Math.atan2(q[1] - p[1], q[0] - p[0]); }
+  });
+  const c = Math.cos(ang), s = Math.sin(ang);
+  const r = pts.map(([x, y]) => [x * c + y * s, -x * s + y * c]);
+  const [x0, x1] = [Math.min(...r.map(p => p[0])), Math.max(...r.map(p => p[0]))];
+  const [y0, y1] = [Math.min(...r.map(p => p[1])), Math.max(...r.map(p => p[1]))];
+  return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].map(([u, v]) => [u * c - v * s, u * s + v * c]);
+}

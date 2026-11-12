@@ -1,18 +1,12 @@
-// Saves and applies display choices (colour theme and text size) on this phone.
+// Saves the AI choices on this phone.
 const KEY = "display_settings";
-const SIZES = { small: "14px", normal: "16px", large: "19px" };
+// outline = how each missing building is drawn; geminiKey is the user's own key.
+const DEFAULTS = { outline: "rect", geminiKey: "" };
 
 export const getSettings = () => {
-  try { return { theme: "auto", size: "normal", ...JSON.parse(localStorage.getItem(KEY)) }; } catch (e) { return { theme: "auto", size: "normal" }; }
+  try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY)) }; } catch (e) { return { ...DEFAULTS }; }
 };
-
-export function applySettings() {
-  const { theme, size } = getSettings(), root = document.documentElement;
-  if (theme === "auto") root.removeAttribute("data-theme"); else root.dataset.theme = theme;
-  root.style.setProperty("--fs", SIZES[size] || SIZES.normal);
-}
 
 export function saveSetting(name, value) {
   try { localStorage.setItem(KEY, JSON.stringify({ ...getSettings(), [name]: value })); } catch (e) { /* cannot save */ }
-  applySettings();
 }

@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 OpenStreetMap buildings near the phone:
 ${list || "(none)"}
 Pick the candidate that best matches the filmed building (use distance, shape, floors and any signs). Estimate floors by counting them, and height in metres (about 3.2 m per floor, more for shops). Read any sign for the business name.
-JSON keys: buildingId (number or null), name (string or null), floors (number or null), heightM (number or null), confidence (0 to 1), note (short string).`);
+JSON keys: buildingId (number or null), name (string or null), floors (number or null), heightM (number or null), confidence (0 to 1), note (short string).`, 1200, req.headers["x-gemini-key"]);
     res.json(out);
   } catch (e) { res.status(500).json({ error: String(e.message || e) }); }
 }
