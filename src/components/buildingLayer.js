@@ -4,7 +4,7 @@ import { fetchBuildingsIn } from "../data/overpass.js";
 import { map } from "./mapView.js";
 import { toast } from "./toast.js";
 
-let layer = null, onTap = null, timer = null, pending = null;
+let layer = null, onTap = null, timer = null, pending = null, warned = false;
 
 export function startBuildingLayer(tapHandler) {
   onTap = tapHandler;
@@ -30,7 +30,8 @@ async function run() {
         .on("click", e => { L.DomEvent.stopPropagation(e); onTap(b.id); });
       state.buildings.set(b.id, b);
     }
-  } catch (e) { toast("Could not load buildings. Check your connection."); }
+    warned = false;
+  } catch (e) { if (!warned) toast("Could not load buildings. Check your connection."); warned = true; } // say it once, not after every drag
 }
 
 export function loadBuildings() {

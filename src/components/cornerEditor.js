@@ -12,7 +12,7 @@ export function stopEditing() {
 // b = {coords, center, shape}: dragging a dot reshapes b.shape and updates b.coords and b.center.
 export function editCorners(b) {
   stopEditing();
-  const icon = L.divIcon({ className: "", html: '<div class="corner"></div>', iconSize: [20, 20], iconAnchor: [10, 10] });
+  const icon = L.divIcon({ className: "corner-hit", html: '<div class="corner"></div>', iconSize: [44, 44], iconAnchor: [22, 22] });
   dots = b.coords.map((c, i) => L.marker(c, { draggable: true, icon, zIndexOffset: 2000 }).addTo(map)
     .on("drag", e => {
       b.coords[i] = [e.latlng.lat, e.latlng.lng];

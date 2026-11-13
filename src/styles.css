@@ -109,3 +109,7 @@ input[type=checkbox]{width:22px;height:22px;flex:none;accent-color:var(--acc)}
 #bsheet .row label{color:var(--ink);font-size:15px;min-height:44px}
 .ghost.show{min-width:64px;min-height:44px;padding:0 16px;border-radius:22px;font-weight:600}
 button:disabled{opacity:.5;cursor:default}
+
+/* corner handles: a big invisible touch area around a small visible dot */
+.corner-hit{display:flex;align-items:center;justify-content:center}
+.corner{width:22px;height:22px}

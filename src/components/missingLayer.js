@@ -5,7 +5,7 @@ import { outlineAll } from "../data/tracer.js";
 import { getSatelliteView, viewCentres } from "../data/satellite.js";
 import { mid, inside, dist } from "../data/geo.js";
 import { map, liftIntoView } from "./mapView.js";
-import { loadBuildings } from "./buildingLayer.js";
+import { loadBuildings, refreshStyles } from "./buildingLayer.js";
 import { showSuggestion } from "./suggestSheet.js";
 import { showBatch } from "./batchSheet.js";
 import { editCorners, stopEditing } from "./cornerEditor.js";
@@ -63,7 +63,7 @@ function drawMissing(list) {
   layer ||= L.layerGroup().addTo(map);
   list.forEach(b => {
     b.shape = L.polygon(b.coords, { color: "#E8470F", weight: 2, dashArray: "6 6", fillColor: "#E8470F", fillOpacity: 0.15 }).addTo(layer)
-      .on("click", e => { L.DomEvent.stopPropagation(e); editCorners(b); showSuggestion(b); liftIntoView(b.center); });
+      .on("click", e => { L.DomEvent.stopPropagation(e); state.selectedId = null; refreshStyles(); editCorners(b); showSuggestion(b); liftIntoView(b.center); });
   });
 }
 
