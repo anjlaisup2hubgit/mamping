@@ -4,7 +4,7 @@ import { findBuildings } from "../data/finder.js";
 import { outlineAll } from "../data/tracer.js";
 import { getSatelliteView, viewCentres } from "../data/satellite.js";
 import { mid, inside, dist } from "../data/geo.js";
-import { map } from "./mapView.js";
+import { map, liftIntoView } from "./mapView.js";
 import { loadBuildings } from "./buildingLayer.js";
 import { showSuggestion } from "./suggestSheet.js";
 import { showBatch } from "./batchSheet.js";
@@ -27,7 +27,17 @@ async function scanView([lat, lng]) {
   });
 }
 
+// Pulses the scan button while working, so you can tell something is happening.
 export async function findMissing() {
+  const btn = document.querySelector("#findMiss");
+  if (btn?.classList.contains("busy")) return;
+  btn?.classList.add("busy");
+  try { await scan(); } finally { btn?.classList.remove("busy"); }
+}
+
+const WHY = { 500: "The AI is not set up. Add a Gemini key in Settings.", 401: "Your Gemini key was refused. Check it in Settings.", 429: "The AI is busy. Try again in a minute." };
+
+async function scan() {
   if (map.getZoom() < MIN_ZOOM) return toast("Zoom in closer to scan.");
   layer ||= L.layerGroup().addTo(map);
   layer.clearLayers();
@@ -42,7 +52,7 @@ export async function findMissing() {
     if ([...state.buildings.values()].some(o => near(b.center, o)) || missing.some(o => near(b.center, o))) continue;
     missing.push(b);
   }
-  if (failed === results.length) return toast("Could not read the satellite image: " + (results[0].reason?.message || "unknown error"));
+  if (failed === results.length) return toast(WHY[results[0].reason?.message] || "Could not read the satellite image. Check your internet and try again.");
   drawMissing(missing);
   save(missing);
   toast(`${missing.length ? `${missing.length} missing found.` : "No missing buildings found here."}${failed ? ` ${failed} picture(s) failed.` : ""}`);
@@ -53,7 +63,7 @@ function drawMissing(list) {
   layer ||= L.layerGroup().addTo(map);
   list.forEach(b => {
     b.shape = L.polygon(b.coords, { color: "#E8470F", weight: 2, dashArray: "6 6", fillColor: "#E8470F", fillOpacity: 0.15 }).addTo(layer)
-      .on("click", e => { L.DomEvent.stopPropagation(e); editCorners(b); showSuggestion(b); });
+      .on("click", e => { L.DomEvent.stopPropagation(e); editCorners(b); showSuggestion(b); liftIntoView(b.center); });
   });
 }
 

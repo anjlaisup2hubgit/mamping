@@ -61,6 +61,8 @@ export function startMap() {
 }
 
 export const centerOn = (latlng, zoom = 18) => map.setView(latlng, zoom);
+// Slides the map so a point sits in the top part of the screen, above a panel.
+export const liftIntoView = latlng => map.panBy([0, map.latLngToContainerPoint(latlng).y - innerHeight * 0.2]);
 export const goHaiPhong = () => map.setView(HAI_PHONG, 17);
 export const goMe = () => (state.me ? centerOn([state.me.lat, state.me.lng]) : toast("Waiting for GPS"));
 export const viewCenter = () => (state.me ? { lat: state.me.lat, lng: state.me.lng } : map.getCenter());

@@ -19,7 +19,7 @@ export const scan = {
     const clip = state.clip;
     const p = clip.track[Math.floor(clip.track.length / 2)] || map.getCenter();
     centerOn([p.lat, p.lng]);
-    await loadBuildings();
+    await loadBuildings().catch(() => {}); // still go on without nearby buildings
     progress(70, "Matching to OpenStreetMap");
     const result = await matchClip(clip, p, text => progress(70, text));
     if (result.aiFailed) toast("AI is unavailable. Using your location instead.");

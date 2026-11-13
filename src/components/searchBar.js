@@ -16,7 +16,7 @@ export function bindSearch() {
   };
   const run = async () => {
     const q = $("#q").value.trim();
-    if (q.length < 3) { $("#results").innerHTML = ""; return; }
+    if (q.length < 3) { $("#results").innerHTML = q ? '<button disabled>Type at least 3 letters</button>' : ""; return; }
     try {
       const list = await searchPlaces(q);
       $("#results").innerHTML = list.length ? list.map((p, i) => `<button data-i="${i}">${esc(p.label)}</button>`).join("") : '<button disabled>No places found</button>';

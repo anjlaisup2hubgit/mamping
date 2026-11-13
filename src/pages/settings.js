@@ -9,14 +9,14 @@ import { saveSetting } from "../data/settings.js";
 const TABS = [["home", "Home"], ["settings", "Settings"]];
 let tab = "home";
 
-const settingsTab = () => `<div class="pad">${aiSettings()}<p><b>Login</b></p><div id="osm">${osmAccount()}</div>
-  <p><b>Help</b></p><button class="opt" id="openHelp">How to use Mamping</button></div>`;
+const settingsTab = () => `<div class="pad">${aiSettings()}<h3 class="sec">Login</h3><div id="osm">${osmAccount()}</div>
+  <h3 class="sec">Help</h3><button class="opt" id="openHelp">How to use Mamping</button></div>`;
 
 export const settings = {
   open(el) {
     const draw = () => {
       const keep = el.querySelector(".scroll")?.scrollTop || 0; // redrawing would otherwise jump back to the top
-      el.innerHTML = header("Settings") + `<div class="tabs">${TABS.map(([v, t]) => `<button class="${tab === v ? "on" : ""}" data-tab="${v}">${t}</button>`).join("")}</div>
+      el.innerHTML = header(tab === "home" ? "Home" : "Settings") + `<div class="tabs">${TABS.map(([v, t]) => `<button class="${tab === v ? "on" : ""}" data-tab="${v}">${t}</button>`).join("")}</div>
         <div class="scroll">${tab === "home" ? homeTab() : settingsTab()}</div>`;
       el.querySelector(".scroll").scrollTop = keep;
       bindBack(el);

@@ -6,7 +6,7 @@ html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--ink);font:var(--fs,16px)/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-#map{position:absolute;inset:0}
+#map{position:absolute;inset:0;z-index:0}
 #page{position:absolute;inset:0;z-index:500;pointer-events:none;display:flex;flex-direction:column}
 #page>*{pointer-events:auto}
 #page.full{z-index:1000;background:var(--bg);pointer-events:auto}
@@ -40,7 +40,7 @@ input[type=password],input[type=text]{width:100%;font:inherit;color:var(--ink);b
 .recording .rec i{width:30px;height:30px;border-radius:8px}
 #mini{position:absolute;left:16px;bottom:34px;width:96px;height:96px;border-radius:16px;overflow:hidden;border:2px solid #fff}
 .bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .6s}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:120px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:20px;font-size:14px;z-index:3000;max-width:90%}
+.toast{position:fixed;left:50%;transform:translateX(-50%);top:44px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:20px;font-size:14px;z-index:3000;max-width:90%}
 .pinicon{width:26px;height:26px;border-radius:50% 50% 50% 0;background:var(--acc);transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 6px #0006}
 .tabs{display:flex;border-bottom:1px solid var(--line)}
 .tabs button{flex:1;padding:12px;color:var(--mid);border-bottom:3px solid transparent}
@@ -54,7 +54,7 @@ input[type=password],input[type=text]{width:100%;font:inherit;color:var(--ink);b
 .round{color:var(--ink)}
 .round svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
 .nav svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
-:root{--b:min(42px,calc((100vw - 32px) / 9.6))}
+:root{--b:min(44px,calc((100vw - 84px) / 7.6))}
 .nav.tools{gap:2px;padding:8px 14px}
 .nav.tools .navb{width:var(--b);height:var(--b)}
 .nav.tools .navb svg{width:calc(var(--b) * .62);height:calc(var(--b) * .62)}
@@ -72,11 +72,11 @@ input[type=password],input[type=text]{width:100%;font:inherit;color:var(--ink);b
 .results:empty{display:none}
 .results button{display:block;width:100%;text-align:left;padding:12px 14px;border-bottom:1px solid var(--line)}
 .welcome{background:var(--acc);color:var(--onacc);border-radius:0 0 28px 28px;padding-top:max(24px,env(safe-area-inset-top));padding-bottom:22px;display:flex;flex-direction:column;gap:12px}
-.welcome h1{font-size:28px}.welcome p{margin:0}
+.welcome h1{font-size:28px;margin:0}.welcome p{margin:0}
 .empty{text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:40px}
 .empty svg{width:96px;height:96px;fill:none;stroke:var(--mid);stroke-width:1.5}
 .guide{position:absolute;left:8%;right:8%;top:50%;border-top:3px dashed #fff9;pointer-events:none}
-.opt{display:flex;justify-content:space-between;width:100%;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surf)}
+.opt{display:flex;justify-content:space-between;text-align:left;gap:10px;width:100%;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surf)}
 .opt.on{border-color:var(--acc);outline:2px solid var(--acc)}
 
 /* name label that follows the pointer onto a button */
@@ -84,3 +84,28 @@ input[type=password],input[type=text]{width:100%;font:inherit;color:var(--ink);b
 
 /* Flat outlines cannot follow a tilted map */
 .tilted .leaflet-overlay-pane { display: none; }
+
+/* map credit: small, at the top so it never hides behind the bottom bar or a panel */
+.leaflet-bottom.leaflet-right{bottom:auto;top:0}
+.leaflet-control-attribution{font-size:10px;max-width:70vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#fffc;margin-top:max(0px,env(safe-area-inset-top))}
+
+/* panel close button, section headings, scan progress */
+.sheet h2{padding-right:40px}
+.sheet .x{position:absolute;top:10px;right:12px;width:36px;height:36px;border-radius:50%;background:var(--bg);color:var(--ink)}
+h3.sec{margin:20px 0 8px;font-size:15px}
+.navb.busy svg{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+
+/* on wide screens, keep page content in a readable column */
+#page.full:not(.cam)>*{max-width:640px;width:100%;margin-left:auto;margin-right:auto}
+
+/* spacing between stacked options, and a tick on the chosen one so it is not shown by colour alone */
+.scroll .opt+.opt{margin-top:8px}
+#osmEnv{display:block;margin-bottom:10px;padding:8px 0}
+.opt.on::after{content:"✓";font-weight:700;color:var(--acc)}
+
+/* checkboxes and the small buttons in the missing-building list: big enough to tap, readable text */
+input[type=checkbox]{width:22px;height:22px;flex:none;accent-color:var(--acc)}
+#bsheet .row label{color:var(--ink);font-size:15px;min-height:44px}
+.ghost.show{min-width:64px;min-height:44px;padding:0 16px;border-radius:22px;font-weight:600}
+button:disabled{opacity:.5;cursor:default}

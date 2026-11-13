@@ -14,7 +14,7 @@ import { toast } from "../components/toast.js";
 import { osmConfirm, osmAllowed } from "../components/osmConfirm.js";
 import { addMissingTags } from "../data/osmEdit.js";
 
-const number = id => parseFloat($(id).value.replace(",", ".")) || null;
+const number = id => { const n = parseFloat($(id).value.replace(",", ".")); return n > 0 ? n : null; }; // blank, text, zero or negative = no value
 
 function form() {
   const b = state.match, ai = state.ai;
@@ -48,7 +48,10 @@ async function sendToOsm() {
   } catch (e) { toast("Could not reach OpenStreetMap: " + e.message); }
 }
 
+let busy = false; // stops a double tap from uploading twice
 async function finish(send) {
+  if (busy) return;
+  busy = true;
   const clip = state.clip;
   readForm(clip);
   if (send) {
@@ -63,12 +66,14 @@ async function finish(send) {
   await saveClip(clip);
   await loadContribs();
   refreshStyles();
+  busy = false;
   go("map");
   if (state.match) { centerOn(state.match.center); showBuilding(state.match.id); }
 }
 
 export const review = {
   open(el) {
+    busy = false;
     el.innerHTML = header("Review") + form();
     bindBack(el, "saved");
     $("#rp").onchange = e => {

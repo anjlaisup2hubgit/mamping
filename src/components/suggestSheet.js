@@ -12,11 +12,12 @@ export function showSuggestion(b) {
     ${osmConfirm()}<button class="big primary" id="toOsm" style="min-height:48px">Add building to OpenStreetMap</button><div class="row"><button class="big ghost" id="subO" style="min-height:48px">Save outline</button></div>`);
   $("#toOsm").onclick = async () => {
     if (!osmAllowed()) return;
+    $("#toOsm").disabled = true; // no double send
     try {
       await createBuilding(b.coords, { name: $("#sn").value.trim() }, "Add missing building traced from satellite imagery");
       toast("Building added to OpenStreetMap");
       closeSheet();
-    } catch (e) { toast("Could not reach OpenStreetMap: " + e.message); }
+    } catch (e) { $("#toOsm").disabled = false; toast("Could not reach OpenStreetMap: " + e.message); }
   };
   $("#subO").onclick = async () => {
     try {
