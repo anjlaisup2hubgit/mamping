@@ -8,7 +8,7 @@ const KEY = "osm_queue";
 export const getQueue = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } };
 const saveQueue = q => { try { localStorage.setItem(KEY, JSON.stringify(q)); } catch (e) { /* cannot save */ } };
 
-// Does the edit now. Returns what was added (tags) or how many buildings were made.
+// Does the edit now. Returns what was added (tags) or the new buildings with their ids.
 async function run(job) {
   if (job.kind === "tags") {
     const r = await addMissingTags(job.wayId, job.wanted, job.comment);
@@ -17,7 +17,7 @@ async function run(job) {
   }
   const r = await createBuildings(job.items, job.comment, job.source);
   addHistory({ kind: "create", ways: r.ways, cs: r.cs });
-  return r.ways.length;
+  return r.ways;
 }
 
 // fetch throws a TypeError when there is no connection at all.

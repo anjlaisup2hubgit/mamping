@@ -1,6 +1,8 @@
 // Draws OpenStreetMap buildings on the map and loads more as you move.
 import { state } from "../data/state.js";
 import { fetchBuildingsIn } from "../data/overpass.js";
+import { getQueue } from "../data/osmSend.js";
+import { mid } from "../data/geo.js";
 import { map } from "./mapView.js";
 import { toast } from "./toast.js";
 
@@ -11,6 +13,7 @@ export function startBuildingLayer(tapHandler) {
   // Own map layer, so buildings show on the street map only (hidden on satellite, see styles.css), under the orange boxes.
   map.createPane("osm").style.zIndex = 390;
   layer = L.layerGroup().addTo(map);
+  getQueue().filter(j => j.kind === "create").forEach(j => showSentBuildings(j.items)); // still waiting from last time
   map.on("moveend", () => { clearTimeout(timer); timer = setTimeout(loadBuildings, 500); });
 }
 
@@ -28,14 +31,25 @@ export function styleFor(b) {
 export const refreshStyles = () => state.buildings.forEach(b => b.layer.setStyle(styleFor(b)));
 export function setNeedsHeight(on) { state.needsHeight = on; refreshStyles(); }
 
+function add(b) {
+  if (state.buildings.has(b.id)) return;
+  b.layer = L.polygon(b.coords, { ...styleFor(b), pane: "osm" }).addTo(layer)
+    .on("click", e => { L.DomEvent.stopPropagation(e); onTap(b.id); });
+  state.buildings.set(b.id, b);
+}
+
+// Puts buildings you just sent on the map now, since the map's copy of OpenStreetMap can take minutes to show them.
+// That way a new scan skips them and you are warned before adding them twice.
+// ways = the ids OpenStreetMap gave them; none yet if they are waiting in the offline queue.
+let waiting = 0;
+export function showSentBuildings(items, ways = []) {
+  items.forEach(({ corners, tags }, i) =>
+    add({ id: ways[i]?.id ?? "waiting-" + ++waiting, coords: corners, center: mid(corners), kind: "yes", name: tags.name || null, ht: null, levels: null, addr: "" }));
+}
+
 async function run() {
   try {
-    for (const b of await fetchBuildingsIn(map.getBounds().pad(0.1))) {
-      if (state.buildings.has(b.id)) continue;
-      b.layer = L.polygon(b.coords, { ...styleFor(b), pane: "osm" }).addTo(layer)
-        .on("click", e => { L.DomEvent.stopPropagation(e); onTap(b.id); });
-      state.buildings.set(b.id, b);
-    }
+    for (const b of await fetchBuildingsIn(map.getBounds().pad(0.1))) add(b);
     warned = false;
   } catch (e) { if (!warned) toast("Could not load buildings. Check your connection."); warned = true; } // say it once, not after every drag
 }

@@ -8,6 +8,7 @@ import { osmAllowed } from "./osmConfirm.js";
 import { removeBox } from "./missingLayer.js";
 import { sendOrQueue } from "../data/osmSend.js";
 import { overlapsExisting } from "../data/buildings.js";
+import { showSentBuildings } from "./buildingLayer.js";
 import "./shapeTools.js"; // the Rectangle / Undo / Not a building buttons float next to the shape
 
 export function showSuggestion(b) {
@@ -27,9 +28,11 @@ export function showSuggestion(b) {
     if (overlapsExisting(b.coords) && !warned) { warned = true; return toast("This overlaps a building already on the map. Fix the corners, or tap again to add anyway."); }
     $("#toOsm").disabled = true; // no double send
     try {
-      const r = await sendOrQueue({ kind: "create", items: [{ corners: b.coords, tags: { name: $("#sn").value.trim() } }],
+      const items = [{ corners: b.coords, tags: { name: $("#sn").value.trim() } }];
+      const r = await sendOrQueue({ kind: "create", items,
         source: [b.from, "Esri World Imagery"].filter(Boolean).join("; "),
         comment: b.from ? `Add missing building from ${b.from}, checked against satellite imagery` : "Add missing building traced from satellite imagery" });
+      showSentBuildings(items, r.result);
       toast(r.queued ? "No internet. It will be sent when you are back online." : "Building added to OpenStreetMap");
       removeBox(b); // it is on the map now, so the orange box has done its job
       closeSheet();

@@ -8,6 +8,7 @@ import { toast } from "./toast.js";
 import { osmConfirm, osmAllowed } from "./osmConfirm.js";
 import { sendOrQueue } from "../data/osmSend.js";
 import { overlapsExisting } from "../data/buildings.js";
+import { showSentBuildings } from "./buildingLayer.js";
 import { inside } from "../data/geo.js";
 import { currentBoxes, removeBoxes, restoreBoxes, restyle, saveBoxes, fixBox, unfocus, drawYourself, scanWithAi, saveForTraining } from "./missingLayer.js";
 
@@ -127,8 +128,10 @@ export function showReview() {
     $("#addKept").disabled = true; // no double send
     try {
       const n = `${kept.length} building${kept.length > 1 ? "s" : ""}`;
-      const r = await sendOrQueue({ kind: "create", items: kept.map(b => ({ corners: b.coords, tags: {} })), source: sourceOf(kept),
+      const items = kept.map(b => ({ corners: b.coords, tags: {} }));
+      const r = await sendOrQueue({ kind: "create", items, source: sourceOf(kept),
         comment: kept.some(b => b.from) ? `Add missing buildings from ${[...new Set(kept.map(b => b.from).filter(Boolean).map(short))].join("/")} outlines, checked against satellite imagery` : "Add missing buildings traced from satellite imagery" });
+      showSentBuildings(items, r.result);
       toast(r.queued ? `No internet. ${n} will be sent when you are back online.` : `${n} added to OpenStreetMap`);
       undo = [];
       removeBoxes(kept); // the rest stay, so you can keep checking
