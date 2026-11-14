@@ -19,6 +19,7 @@ export function showBuilding(id) {
   refreshStyles();
   const b = state.buildings.get(id);
   if (!b) return;
+  map.panTo(b.center); // slide the building to the middle of the screen
   const notes = state.contribs.filter(c => c.buildingId === id);
   const h = heightOf(b);
   const link = location.href.split("#")[0] + "#b" + id;
