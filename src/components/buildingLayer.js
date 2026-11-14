@@ -10,7 +10,7 @@ let layer = null, onTap = null, timer = null, pending = null, warned = false;
 
 export function startBuildingLayer(tapHandler) {
   onTap = tapHandler;
-  // Own map layer, so buildings show on the street map only (hidden on satellite, see styles.css), under the orange boxes.
+  // Own map layer, so buildings show on every map, under the orange boxes.
   map.createPane("osm").style.zIndex = 390;
   layer = L.layerGroup().addTo(map);
   getQueue().filter(j => j.kind === "create").forEach(j => showSentBuildings(j.items)); // still waiting from last time

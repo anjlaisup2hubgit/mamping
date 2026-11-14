@@ -82,8 +82,6 @@ input[type=password],input[type=text],select{width:100%;font:inherit;color:var(-
 /* "2D" button: top right under the map credit, only while tilted or turned */
 #flatBtn{display:none;position:absolute;top:calc(max(0px,env(safe-area-inset-top)) + 44px);right:16px;z-index:800;color:var(--acc);border:2px solid var(--acc)}
 .tilted #flatBtn{display:block}
-/* OpenStreetMap building outlines only show on the street map */
-#map:not(.street) .leaflet-osm-pane { display: none; }
 
 /* map credit: small, at the top so it never hides behind the bottom bar or a panel */
 .leaflet-bottom.leaflet-right{bottom:auto;top:0}
