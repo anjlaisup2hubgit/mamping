@@ -1,8 +1,7 @@
 // Remembers the edits you sent to OpenStreetMap on this phone, newest first.
 // An entry is { at, kind: "tags", wayId, added, cs, version } or { at, kind: "create", ways, cs }, plus undone: true once undone.
-import { OSM_PRACTICE } from "./config.js";
 
-const KEY = OSM_PRACTICE ? "osm_history_practice" : "osm_history"; // practice edits stay apart from real ones
+const KEY = "osm_history";
 
 export const getHistory = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } };
 const save = list => { try { localStorage.setItem(KEY, JSON.stringify(list.slice(0, 200))); } catch (e) { /* cannot save */ } };

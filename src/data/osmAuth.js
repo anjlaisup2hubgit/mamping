@@ -1,16 +1,14 @@
 // Log in to OpenStreetMap with OAuth 2 (PKCE). No password or secret is stored by us.
-import { OSM_SITE, OSM_API, OSM_CLIENT_ID, OSM_PRACTICE, DEV_USERS, IS_LOCAL } from "./config.js";
+import { OSM_SITE, OSM_API, OSM_CLIENT_ID } from "./config.js";
 
-const TOKEN = OSM_PRACTICE ? "osm_token_practice" : "osm_token", VERIFIER = "osm_verifier", NAME = OSM_PRACTICE ? "osm_name_practice" : "osm_name";
+const TOKEN = "osm_token", VERIFIER = "osm_verifier", NAME = "osm_name";
 const redirect = () => location.origin + location.pathname;
 const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
 export const osmReady = () => !!OSM_CLIENT_ID;
 export const getToken = () => { try { return localStorage.getItem(TOKEN); } catch (e) { return null; } };
 export const isLoggedIn = () => !!getToken();
-export const isDev = () => { try { return IS_LOCAL || localStorage.getItem("osm_dev") === "1"; } catch (e) { return false; } };
-export const setPractice = on => { localStorage.setItem("osm_practice", on ? "1" : "0"); location.reload(); };
-export const logout = () => { try { localStorage.removeItem(TOKEN); localStorage.removeItem(NAME); if (!OSM_PRACTICE) localStorage.removeItem("osm_dev"); } catch (e) { /* nothing to clear */ } };
+export const logout = () => { try { localStorage.removeItem(TOKEN); localStorage.removeItem(NAME); } catch (e) { /* nothing to clear */ } };
 
 export async function login() {
   const verifier = b64(crypto.getRandomValues(new Uint8Array(32)));
@@ -37,8 +35,7 @@ export async function finishLogin() {
   if (!r.ok) throw new Error("login failed");
   const token = (await r.json()).access_token;
   localStorage.setItem(TOKEN, token);
-  const name = await accountName();
-  if (!OSM_PRACTICE && DEV_USERS.includes(name)) localStorage.setItem("osm_dev", "1"); // dev accounts get the practice-server switch
+  await accountName(); // remember the username for the account picture
   return true;
 }
 

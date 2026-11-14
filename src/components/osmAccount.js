@@ -1,20 +1,21 @@
-// Home page row: connect to or leave OpenStreetMap.
+// Account card at the top of Settings: who is logged in to OpenStreetMap, with Log in or Log out.
 import { $ } from "./dom.js";
-import { OSM_PRACTICE } from "../data/config.js";
 import { clearLocalScan } from "../data/savedScan.js";
-import { isLoggedIn, login, logout, osmReady, isDev, setPractice } from "../data/osmAuth.js";
+import { isLoggedIn, login, logout, osmReady, accountName } from "../data/osmAuth.js";
 
 export function osmAccount() {
-  if (!osmReady()) return `<p class="mid" style="margin:0">OpenStreetMap editing is not set up yet.</p>`;
-  const dev = isDev() ? `<button id="osmEnv" style="text-decoration:underline">${OSM_PRACTICE ? "Practice server: switch to real map" : "Real map: switch to practice server"}</button>` : "";
-  return dev + (isLoggedIn()
-    ? `<div class="row" style="align-items:center"><span class="tag">OpenStreetMap connected</span><button id="osmOut" style="text-decoration:underline">Log out</button></div>`
-    : `<button class="big ghost" id="osmIn" style="min-height:48px">Connect OpenStreetMap</button>`);
+  if (!osmReady()) return `<div class="card acct"><p class="mid" style="margin:0">OpenStreetMap editing is not set up yet.</p></div>`;
+  const inside = isLoggedIn()
+    ? `<span class="avatar" id="osmAv">?</span><span class="who"><b id="osmName">Logged in</b><span class="mid">OpenStreetMap account</span></span><button class="pill ghost" id="osmOut">Log out</button>`
+    : `<span class="avatar off">?</span><span class="who"><b>Not logged in</b><span class="mid">Log in to send your edits to the map</span></span><button class="pill primary" id="osmIn">Log in</button>`;
+  return `<div class="card acct"><div class="acctRow">${inside}</div></div>`;
 }
 
-export function bindOsmAccount(refresh) {
+export async function bindOsmAccount() {
   const inBtn = $("#osmIn"), outBtn = $("#osmOut");
   if (inBtn) inBtn.onclick = login;
-  if ($("#osmEnv")) $("#osmEnv").onclick = () => setPractice(!OSM_PRACTICE);
   if (outBtn) outBtn.onclick = () => { logout(); clearLocalScan(); location.reload(); }; // reload so the last user's boxes leave the map
+  if (!isLoggedIn()) return;
+  const name = await accountName();
+  if (name && $("#osmName")) { $("#osmName").textContent = name; $("#osmAv").textContent = name[0].toUpperCase(); }
 }

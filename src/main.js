@@ -9,7 +9,6 @@ import { toast } from "./components/toast.js";
 import { loadShared, loadContribs } from "./data/contributions.js";
 import { map as mapPage } from "./pages/map.js";
 import { startTooltips } from "./components/tooltip.js";
-import { showPracticeBanner } from "./components/practiceBanner.js";
 import { restoreMissing } from "./components/missingLayer.js";
 import { flushQueue } from "./data/osmSend.js";
 
@@ -21,14 +20,14 @@ async function sendWaiting() {
 }
 window.addEventListener("online", sendWaiting);
 
-showPracticeBanner();
 startTooltips();
 const later = (file, name) => () => import(`./pages/${file}.js`).then(m => m[name]); // load only when opened
 register({
   map: mapPage, camera: later("camera", "camera"), saved: later("saved", "saved"),
   scan: later("scan", "scan"), review: later("review", "review"), drive: later("drive", "drive"),
   help: later("help", "help"), settings: later("settings", "settings"),
-  videos: later("videos", "videos"), outlines: later("outlines", "outlines")
+  videos: later("videos", "videos"), outlines: later("outlines", "outlines"),
+  edits: later("edits", "edits"), scanSettings: later("scanSettings", "scanSettings")
 });
 // Remove the old saved copies so nothing is cached anymore.
 if ("serviceWorker" in navigator) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister()));

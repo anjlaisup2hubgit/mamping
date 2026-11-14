@@ -1,7 +1,6 @@
 // Every call to our own server lives here.
 import { getSettings } from "./settings.js";
 import { getToken } from "./osmAuth.js";
-import { OSM_PRACTICE } from "./config.js";
 
 export async function post(url, body) {
   const key = getSettings().geminiKey; // the user's own Gemini key, if they added one
@@ -15,7 +14,7 @@ export const findOutlines = image => post("/api/outline", { image });
 export const sendContribution = body => post("/api/contribute", body);
 
 // The user's own saved orange boxes; the server knows who they are from the OpenStreetMap login token.
-const osmHeaders = () => ({ "Content-Type": "application/json", Authorization: "Bearer " + getToken(), ...(OSM_PRACTICE && { "x-osm-practice": "1" }) });
+const osmHeaders = () => ({ "Content-Type": "application/json", Authorization: "Bearer " + getToken() });
 export async function getScan() {
   const r = await fetch("/api/scan", { headers: osmHeaders() });
   if (!r.ok) throw new Error(r.status);

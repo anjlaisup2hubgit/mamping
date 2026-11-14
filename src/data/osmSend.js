@@ -1,11 +1,10 @@
 // Sends an edit to OpenStreetMap and records it; with no internet, keeps it in a queue and sends it later.
 // A job is { kind: "tags", wayId, wanted, comment } or { kind: "create", items, comment, source }.
-import { OSM_PRACTICE } from "./config.js";
 import { isLoggedIn } from "./osmAuth.js";
 import { addMissingTags, createBuildings } from "./osmEdit.js";
 import { addHistory } from "./history.js";
 
-const KEY = OSM_PRACTICE ? "osm_queue_practice" : "osm_queue";
+const KEY = "osm_queue";
 export const getQueue = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } };
 const saveQueue = q => { try { localStorage.setItem(KEY, JSON.stringify(q)); } catch (e) { /* cannot save */ } };
 

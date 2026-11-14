@@ -1,32 +1,45 @@
-// Settings: your videos and scanned outlines, your edits, AI choices and OpenStreetMap login.
+// Settings: your account at the top, then one short list. Each row opens its own page, so this screen never gets crowded.
 import { header, bindBack } from "../components/header.js";
 import { osmAccount, bindOsmAccount } from "../components/osmAccount.js";
-import { aiSettings, bindAiSettings } from "../components/aiSettings.js";
-import { editHistory, bindEditHistory } from "../components/editHistory.js";
+import { currentBoxes } from "../components/missingLayer.js";
+import { icons } from "../components/icons.js";
 import { go } from "../components/router.js";
-import { saveSetting } from "../data/settings.js";
+import { state } from "../data/state.js";
+import { loadContribs } from "../data/contributions.js";
+import { weekCounts } from "../data/history.js";
+import { getSettings } from "../data/settings.js";
 
-const page = () => `<div class="pad"><h3 class="sec">Saved for later</h3>
-  <button class="opt" data-to="videos">Recorded videos</button>
-  <button class="opt" data-to="outlines">Scanned outlines</button>
-  <h3 class="sec">Your edits</h3><div id="edits" style="display:flex;flex-direction:column;gap:8px"></div>
-  ${aiSettings()}<h3 class="sec">Login</h3><div id="osm">${osmAccount()}</div>
-  <h3 class="sec">Help</h3><button class="opt" data-to="help">How to use Mamping</button></div>`;
+const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+// One tappable row: icon, title, a short line under it, and an arrow.
+const row = (to, icon, title, sub, id = "") =>
+  `<button class="lrow" data-to="${to}"><span class="lic">${icon}</span><span class="who"><b>${title}</b><span class="mid" ${id ? `id="${id}"` : ""}>${sub}</span></span><span class="chev">›</span></button>`;
+
+function page() {
+  const boxes = currentBoxes().length, { heights, buildings } = weekCounts();
+  return `<div class="pad">${osmAccount()}
+  <div class="card list" style="margin-top:16px">
+    ${row("videos", icons.video, "Recorded videos", "Loading…", "vidSub")}
+    ${row("outlines", icons.scan, "Scanned outlines", boxes ? `${plural(boxes, "missing building")} to check` : "None yet")}
+    ${row("edits", icons.list, "My edits", heights || buildings ? `This week: ${plural(heights, "height")}, ${plural(buildings, "building")}` : "Nothing added this week")}
+    ${row("scanSettings", icons.settings, "Scan options", getSettings().outline === "roof" ? "Roof shape outlines" : "Rectangle outlines")}
+    ${row("help", icons.help, "How to use Mamping", "Filming tips and a quick tour")}</div></div>`;
+}
+
+// Fills in how many videos you have and how many still need the AI.
+async function countVideos(el) {
+  await loadContribs();
+  const mine = state.contribs.filter(c => c.blob || c.videoDeleted), waiting = mine.filter(c => c.blob).length;
+  const sub = el.querySelector("#vidSub");
+  if (sub) sub.textContent = mine.length ? plural(mine.length, "video") + (waiting ? ` · ${waiting} not checked by AI` : "") : "None yet";
+}
 
 export const settings = {
   open(el) {
-    const draw = () => {
-      const keep = el.querySelector(".scroll")?.scrollTop || 0; // redrawing would otherwise jump back to the top
-      el.innerHTML = header("Settings") + `<div class="scroll">${page()}</div>`;
-      el.querySelector(".scroll").scrollTop = keep;
-      bindBack(el);
-      const drawEdits = () => { const e = el.querySelector("#edits"); e.innerHTML = editHistory(); bindEditHistory(e, drawEdits); };
-      drawEdits();
-      el.querySelectorAll("[data-to]").forEach(b => { b.onclick = () => go(b.dataset.to); });
-      bindAiSettings(el);
-      bindOsmAccount(draw);
-      el.querySelectorAll("[data-set]").forEach(b => { b.onclick = () => { saveSetting(b.dataset.set, b.dataset.val); draw(); }; });
-    };
-    draw();
+    el.innerHTML = header("Settings") + `<div class="scroll">${page()}</div>`;
+    bindBack(el);
+    el.querySelectorAll("[data-to]").forEach(b => { b.onclick = () => go(b.dataset.to); });
+    bindOsmAccount();
+    countVideos(el);
   }
 };

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 375 640" width="375" height="640" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
+  <!-- Settings redesign: account card, then one short list. Each row opens its own page, so the screen never gets crowded. -->
+  <rect width="375" height="640" fill="#F5F5F3"/>
+
+  <!-- header -->
+  <circle cx="38" cy="36" r="22" fill="#fff" stroke="#DEDED9"/>
+  <text x="38" y="42" text-anchor="middle" font-size="18" font-weight="700" fill="#1C1C1C">←</text>
+  <text x="187.5" y="43" text-anchor="middle" font-size="20" font-weight="700" fill="#1C1C1C">Settings</text>
+
+  <!-- account card -->
+  <rect x="16" y="72" width="343" height="80" rx="16" fill="#fff" stroke="#DEDED9"/>
+  <circle cx="56" cy="112" r="24" fill="#E8470F"/>
+  <text x="56" y="119" text-anchor="middle" font-size="20" font-weight="700" fill="#fff">M</text>
+  <text x="92" y="107" font-size="16" font-weight="700" fill="#1C1C1C">minh_maps</text>
+  <text x="92" y="126" font-size="13" fill="#6E6E69">OpenStreetMap account</text>
+  <rect x="263" y="90" width="82" height="44" rx="22" fill="#fff" stroke="#DEDED9"/>
+  <text x="304" y="117" text-anchor="middle" font-size="15" font-weight="600" fill="#1C1C1C">Log out</text>
+
+  <!-- one list, five rows (61px each) -->
+  <rect x="16" y="168" width="343" height="305" rx="16" fill="#fff" stroke="#DEDED9"/>
+  <g stroke="#DEDED9"><line x1="16" y1="229" x2="359" y2="229"/><line x1="16" y1="290" x2="359" y2="290"/><line x1="16" y1="351" x2="359" y2="351"/><line x1="16" y1="412" x2="359" y2="412"/></g>
+  <g fill="#FBE3DA"><rect x="30" y="180" width="36" height="36" rx="10"/><rect x="30" y="241" width="36" height="36" rx="10"/><rect x="30" y="302" width="36" height="36" rx="10"/><rect x="30" y="363" width="36" height="36" rx="10"/><rect x="30" y="424" width="36" height="36" rx="10"/></g>
+  <g fill="none" stroke="#E8470F" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="36" y="191" width="16" height="14" rx="2"/><path d="M52 196l7-4v12l-7-4"/>
+    <path d="M36 253v-5h5M55 248h5v5M60 265v5h-5M41 270h-5v-5M42 259h12"/>
+    <path d="M44 314h13M44 320h13M44 326h13M39 314h.01M39 320h.01M39 326h.01"/>
+    <circle cx="48" cy="381" r="3"/><circle cx="48" cy="381" r="8"/>
+    <circle cx="48" cy="442" r="10"/><path d="M45.5 439.5a2.5 2.5 0 015 .5c0 1.5-2.5 2-2.5 3.5M48 447h.01"/>
+  </g>
+  <g font-size="16" font-weight="700" fill="#1C1C1C">
+    <text x="80" y="195">Recorded videos</text><text x="80" y="256">Scanned outlines</text><text x="80" y="317">My edits</text><text x="80" y="378">Scan options</text><text x="80" y="439">How to use Mamping</text>
+  </g>
+  <g font-size="13" fill="#6E6E69">
+    <text x="80" y="214">4 videos · 1 not checked by AI</text><text x="80" y="275">7 missing buildings to check</text><text x="80" y="336">This week: 3 heights, 2 buildings</text><text x="80" y="397">Rectangle outlines</text><text x="80" y="458">Filming tips and a quick tour</text>
+  </g>
+  <g font-size="24" fill="#6E6E69"><text x="339" y="206">›</text><text x="339" y="267">›</text><text x="339" y="328">›</text><text x="339" y="389">›</text><text x="339" y="450">›</text></g>
+
+  <!-- notes -->
+  <text x="16" y="512" font-size="12" fill="#6E6E69">Each row opens its own page with a back arrow to Settings.</text>
+  <text x="16" y="530" font-size="12" fill="#6E6E69">The small grey line under each title shows what is inside,</text>
+  <text x="16" y="548" font-size="12" fill="#6E6E69">so you rarely need to open a row just to check.</text>
+  <text x="16" y="576" font-size="12" fill="#6E6E69">Logged out: grey "?" picture, "Not logged in", orange Log in button.</text>
+</svg>
