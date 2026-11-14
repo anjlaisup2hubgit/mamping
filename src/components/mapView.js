@@ -7,7 +7,7 @@ import { toast } from "./toast.js";
 export let map = null;
 export const meIcon = L.divIcon({ className: "", html: '<div class="pinicon"></div>', iconSize: [26, 26], iconAnchor: [8, 26] });
 
-let meMarker = null, followed = false, base = null, baseName = "street", pitch = 0;
+let meMarker = null, followed = false, base = null, baseName = "street", pitch = 0, bearing = 0;
 
 const BASES = {
   street: { url: TILE_URL, credit: "© OpenFreeMap © OpenMapTiles Data from OpenStreetMap" },
@@ -29,10 +29,23 @@ export function setBaseLayer(name) {
 // Tilt only works on the street vector map; it shows the style's 3D buildings.
 // Flat building outlines can't tilt with the map, so they are hidden while tilted.
 function applyTilt() {
-  if (base && base.getMaplibreMap) base.getMaplibreMap().setPitch(pitch);
-  map.getContainer().classList.toggle("tilted", pitch > 0 && !!(base && base.getMaplibreMap));
+  if (base && base.getMaplibreMap) {
+    base.getMaplibreMap().setPitch(pitch);
+    base.getMaplibreMap().setBearing(bearing);
+  }
+  map.getContainer().classList.toggle("tilted", (pitch > 0 || bearing !== 0) && !!(base && base.getMaplibreMap));
 }
 function setPitch(p) { pitch = Math.max(0, Math.min(85, p)); applyTilt(); }
+
+// Left/right arrow keys spin the view all the way around (360°, 5° per press).
+function startSpinKeys() {
+  window.addEventListener("keydown", e => {
+    if ((e.key !== "ArrowLeft" && e.key !== "ArrowRight") || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+    e.preventDefault();
+    bearing = (bearing + (e.key === "ArrowRight" ? 5 : -5) + 360) % 360;
+    applyTilt();
+  });
+}
 
 // Right-click drag (mouse) or two-finger vertical drag (touch) tilts the view.
 function startTiltGestures(el) {
@@ -51,6 +64,7 @@ export function startMap() {
   map = L.map("map", { zoomControl: false }).setView(HAI_PHONG, 17);
   setBaseLayer("street");
   startTiltGestures(map.getContainer());
+  startSpinKeys();
   map.on("moveend", applyTilt); // the vector layer can reset pitch when the map moves
   onMeMove(me => {
     if (!meMarker) meMarker = L.marker([me.lat, me.lng], { icon: meIcon, zIndexOffset: 1000 }).addTo(map);
@@ -64,5 +78,4 @@ export const centerOn = (latlng, zoom = 18) => map.setView(latlng, zoom);
 // Slides the map so a point sits in the top part of the screen, above a panel.
 export const liftIntoView = latlng => map.panBy([0, map.latLngToContainerPoint(latlng).y - innerHeight * 0.2]);
 export const goHaiPhong = () => map.setView(HAI_PHONG, 17);
-export const goMe = () => (state.me ? centerOn([state.me.lat, state.me.lng]) : toast("Waiting for your location. Allow location access if asked."));
 export const viewCenter = () => (state.me ? { lat: state.me.lat, lng: state.me.lng } : map.getCenter());

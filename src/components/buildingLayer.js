@@ -8,6 +8,8 @@ let layer = null, onTap = null, timer = null, pending = null, warned = false;
 
 export function startBuildingLayer(tapHandler) {
   onTap = tapHandler;
+  // Own map layer, so buildings show on the street map only (hidden on satellite, see styles.css), under the orange boxes.
+  map.createPane("osm").style.zIndex = 390;
   layer = L.layerGroup().addTo(map);
   map.on("moveend", () => { clearTimeout(timer); timer = setTimeout(loadBuildings, 500); });
 }
@@ -30,7 +32,7 @@ async function run() {
   try {
     for (const b of await fetchBuildingsIn(map.getBounds().pad(0.1))) {
       if (state.buildings.has(b.id)) continue;
-      b.layer = L.polygon(b.coords, styleFor(b)).addTo(layer)
+      b.layer = L.polygon(b.coords, { ...styleFor(b), pane: "osm" }).addTo(layer)
         .on("click", e => { L.DomEvent.stopPropagation(e); onTap(b.id); });
       state.buildings.set(b.id, b);
     }

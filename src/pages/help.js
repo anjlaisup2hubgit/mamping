@@ -14,6 +14,6 @@ export const help = {
       <h3 class="sec">How the AI is used</h3>
       <p class="mid" style="margin:0 0 8px">The AI looks at a few pictures from your video and the nearby location, then suggests a building name and height.</p>
       <p class="mid" style="margin:0 0 8px">Every AI suggestion is only a guess, so please check it and fix it before you send.</p></div>`;
-    bindBack(el);
+    bindBack(el, "settings");
   }
 };

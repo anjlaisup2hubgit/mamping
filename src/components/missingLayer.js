@@ -5,7 +5,7 @@ import { findBuildings } from "../data/finder.js";
 import { outlineAll } from "../data/tracer.js";
 import { getSatelliteView, viewCentres } from "../data/satellite.js";
 import { mid, inside, dist } from "../data/geo.js";
-import { map, liftIntoView } from "./mapView.js";
+import { map, liftIntoView, currentBase, setBaseLayer } from "./mapView.js";
 import { loadBuildings, refreshStyles } from "./buildingLayer.js";
 import { showSuggestion } from "./suggestSheet.js";
 import { showBatch } from "./batchSheet.js";
@@ -38,9 +38,10 @@ async function busy(work) {
   btn?.classList.add("busy");
   try { await work(); } finally { btn?.classList.remove("busy"); }
 }
-// The scan button: choose an area first, then scan only that.
+// The scan button: switch to satellite (roofs are easiest to see), choose an area, then scan only that.
 export function findMissing() {
   if (map.getZoom() < MIN_ZOOM) return toast("Zoom in closer to scan.");
+  if (currentBase() !== "satellite") setBaseLayer("satellite");
   pickArea(chosen => { area = chosen; busy(async () => { if (!(await showReady())) await scan(); }); }, MAX_VIEWS);
 }
 export const scanWithAi = () => busy(scan); // same area as the last scan

@@ -1,21 +1,21 @@
-// Map: search box at the bottom-left, and one bottom bar with all the map tools.
+// Map: the home screen. Search box at the bottom, one bottom bar with all the map tools, account picture in the corner.
 import { $ } from "../components/dom.js";
-import { goMe } from "../components/mapView.js";
 import { findMissing } from "../components/missingLayer.js";
 import { bottomNav, bindNav } from "../components/bottomNav.js";
 import { searchBar, bindSearch } from "../components/searchBar.js";
-import { settingsMenu, bindSettingsMenu } from "../components/settingsMenu.js";
 import { showLayers } from "../components/layersSheet.js";
+import { accountBadge, bindAccountBadge } from "../components/accountBadge.js";
+import { go } from "../components/router.js";
 
 export const map = {
   full: false,
   open(el) {
-    el.innerHTML = searchBar() + settingsMenu() + bottomNav("map", true);
+    el.innerHTML = searchBar() + accountBadge() + bottomNav();
     bindNav(el);
     bindSearch();
-    bindSettingsMenu();
+    bindAccountBadge(el);
     $("#layersB").onclick = showLayers;
-    $("#goMe").onclick = goMe;
     $("#findMiss").onclick = findMissing;
+    $("#settingsB").onclick = () => go("settings");
   }
 };

@@ -27,7 +27,8 @@ const later = (file, name) => () => import(`./pages/${file}.js`).then(m => m[nam
 register({
   map: mapPage, camera: later("camera", "camera"), saved: later("saved", "saved"),
   scan: later("scan", "scan"), review: later("review", "review"), drive: later("drive", "drive"),
-  help: later("help", "help"), settings: later("settings", "settings")
+  help: later("help", "help"), settings: later("settings", "settings"),
+  videos: later("videos", "videos"), outlines: later("outlines", "outlines")
 });
 // Remove the old saved copies so nothing is cached anymore.
 if ("serviceWorker" in navigator) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister()));
