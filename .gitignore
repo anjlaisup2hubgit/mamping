@@ -2,5 +2,5 @@
 .env*
 node_modules
 
-# guide pictures stay on this computer; only the PDF is shared
-docs/guide/*.png
+# guide screenshots stay on this computer; the PDF and the two guide pictures are shared
+docs/guide/[0-9][0-9]-*.png
