@@ -7,7 +7,7 @@ import { state } from "../data/state.js";
 import { mid, squareUp } from "../data/geo.js";
 import { pushWall, turn, bearing, snapTurn, sizeText } from "../data/shapeMoves.js";
 import { wallAngle } from "../data/rectangle.js";
-import { loadRoads, roadsNow } from "../data/roads.js";
+import { loadRoads, roadsNow, roadReach } from "../data/roads.js";
 
 let dots = [], current = null, past = [], onChange = null, lastTap = { i: -1, at: 0 }, watcher = null;
 
@@ -87,7 +87,7 @@ function draw() {
       remember();
       const centre = [...current.center], buildings = [...state.buildings.values()].map(b => b.coords);
       loadRoads(...centre);
-      spin = { centre, coords: c.map(x => [...x]), from: bearing(centre, ll({ latlng: e.target.getLatLng() })), target: () => wallAngle(centre, roadsNow(), buildings) };
+      spin = { centre, coords: c.map(x => [...x]), from: bearing(centre, ll({ latlng: e.target.getLatLng() })), target: () => wallAngle(centre, roadsNow(), buildings, roadReach()) };
     })
     .on("drag", e => {
       const s = snapTurn(spin.coords, bearing(spin.centre, ll(e)) - spin.from, spin.target());

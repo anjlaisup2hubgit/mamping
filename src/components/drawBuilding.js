@@ -2,8 +2,9 @@
 // 2 taps = rectangle lined up with the road, 3 taps = rectangle at any angle, 4 or more = any shape.
 import { state } from "../data/state.js";
 import { mid } from "../data/geo.js";
-import { loadRoads, roadsNow } from "../data/roads.js";
+import { loadRoads, roadsNow, roadReach } from "../data/roads.js";
 import { wallAngle, rectFrom2, rectFrom3 } from "../data/rectangle.js";
+import { pickStreet } from "./streetPicker.js";
 import { $ } from "./dom.js";
 import { map, currentBase, setBaseLayer } from "./mapView.js";
 import { openSheet, closeSheet } from "./sheet.js";
@@ -15,7 +16,7 @@ let pts = [], drawn = null, onDone = null;
 function shape() {
   if (pts.length === 2) {
     const buildings = [...state.buildings.values()].map(b => b.coords);
-    return rectFrom2(pts[0], pts[1], wallAngle(mid(pts), roadsNow(), buildings));
+    return rectFrom2(pts[0], pts[1], wallAngle(mid(pts), roadsNow(), buildings, roadReach()));
   }
   if (pts.length === 3) return rectFrom3(...pts);
   return pts;
@@ -58,7 +59,8 @@ export function startDrawing(done) {
   const c = map.getCenter();
   loadRoads(c.lat, c.lng).then(() => { if (drawn && pts.length === 2) redraw(); }); // no roads: walls follow buildings or north
   openSheet(`<div><h2>Draw a building</h2><p class="mid" style="margin:4px 0 0">Tap 2 opposite corners for a rectangle, 3 for a tilted one (two along a wall, one on the far wall), or every corner, going round in order.</p></div>
-    <div class="row"><button class="big ghost" id="drBack" style="min-height:48px">Undo corner</button><button class="big primary" id="drDone" style="min-height:48px">Done</button></div>`);
+    <div class="row"><button class="big ghost" id="drStreet" style="min-height:48px">Pick street</button><button class="big ghost" id="drBack" style="min-height:48px">Undo corner</button><button class="big primary" id="drDone" style="min-height:48px">Done</button></div>`);
+  $("#drStreet").onclick = () => { map.off("click", addPoint); pickStreet(() => { map.on("click", addPoint); redraw(); }); }; // the street tap must not add a corner
   $("#drBack").onclick = () => { pts.pop(); redraw(); };
   $("#drDone").onclick = finish;
   $("#bsheet .x").addEventListener("click", stopDrawing); // closing the panel cancels drawing

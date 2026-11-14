@@ -1,0 +1,48 @@
+<svg viewBox="0 0 760 420" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="14">
+  <title>Choose a street to line outlines up with</title>
+  <style>.t{font-weight:600;font-size:16px}.s{fill:#555}</style>
+
+  <!-- BEFORE -->
+  <text x="20" y="28" class="t">Before: lines up with the nearest street</text>
+  <rect x="20" y="40" width="340" height="340" rx="14" fill="#f3f1ea" stroke="#ccc"/>
+  <!-- main street (horizontal) -->
+  <rect x="20" y="300" width="340" height="30" fill="#fff" stroke="#bbb"/>
+  <text x="30" y="320" class="s" font-size="12">Main street</text>
+  <!-- side street (vertical, right next to the houses) -->
+  <rect x="285" y="40" width="26" height="260" fill="#fff" stroke="#bbb"/>
+  <text x="298" y="150" class="s" font-size="12" transform="rotate(90 298 150)">Side street</text>
+  <!-- houses turned to the side street -->
+  <g fill="#E8470F" fill-opacity=".3" stroke="#E8470F" stroke-width="2">
+    <rect x="50" y="70" width="40" height="90"/><rect x="100" y="70" width="40" height="90"/>
+    <rect x="150" y="70" width="40" height="90"/><rect x="200" y="70" width="40" height="90"/>
+  </g>
+  <path d="M255 115h-12m0 0l5-5m-5 5l5 5" stroke="#555" fill="none" stroke-width="2"/>
+  <text x="50" y="200" class="s">Rows end up facing the wrong way</text>
+  <text x="50" y="220" class="s">(the side street was closer)</text>
+
+  <!-- AFTER -->
+  <text x="400" y="28" class="t">After: tap the street you want</text>
+  <rect x="400" y="40" width="340" height="340" rx="14" fill="#f3f1ea" stroke="#ccc"/>
+  <rect x="400" y="300" width="340" height="30" fill="#fff" stroke="#bbb"/>
+  <!-- blue highlight on chosen street -->
+  <rect x="400" y="300" width="340" height="30" fill="#1E7BE8" fill-opacity=".35" stroke="#1E7BE8" stroke-width="3"/>
+  <text x="410" y="320" font-size="12" fill="#1E7BE8" font-weight="600">Main street · chosen</text>
+  <rect x="665" y="40" width="26" height="260" fill="#fff" stroke="#bbb"/>
+  <!-- houses lined up with chosen street -->
+  <g fill="#E8470F" fill-opacity=".3" stroke="#E8470F" stroke-width="2">
+    <rect x="430" y="100" width="90" height="40"/><rect x="430" y="150" width="90" height="40"/>
+    <rect x="430" y="200" width="90" height="40"/><rect x="430" y="250" width="90" height="40"/>
+  </g>
+  <!-- tap marker -->
+  <circle cx="620" cy="315" r="14" fill="#1E7BE8" fill-opacity=".25" stroke="#1E7BE8" stroke-width="2"/>
+  <circle cx="620" cy="315" r="4" fill="#1E7BE8"/>
+  <text x="540" y="270" class="s">1. Tap the street</text>
+  <text x="540" y="290" class="s">2. Outlines follow it</text>
+
+  <!-- tool button -->
+  <g transform="translate(400 392)">
+    <rect width="140" height="24" rx="12" fill="#fff" stroke="#bbb"/>
+    <path d="M18 5L15 19M26 5l3 14" stroke="#222" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <text x="40" y="17" class="s" font-size="12">Street button</text>
+  </g>
+</svg>

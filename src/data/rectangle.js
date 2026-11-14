@@ -20,9 +20,9 @@ function nearestAngle(p, lines, max) {
 }
 
 // Which way the walls should run around point p: nearest road, else nearest building, else north.
-export function wallAngle(p, roads, buildings) {
+export function wallAngle(p, roads, buildings, reach = 60) {
   const closed = buildings.map(c => [...c, c[0]]);
-  return nearestAngle(p, roads, 60) ?? nearestAngle(p, closed, 30) ?? 0;
+  return nearestAngle(p, roads, reach) ??nearestAngle(p, closed, 30) ?? 0;
 }
 
 // Rectangle with opposite corners a and b, walls turned by `ang` radians.
