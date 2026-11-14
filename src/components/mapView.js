@@ -35,26 +35,70 @@ function applyTilt() {
     base.getMaplibreMap().setPitch(pitch);
     base.getMaplibreMap().setBearing(bearing);
   }
-  map.getContainer().classList.toggle("tilted", (pitch > 0 || bearing !== 0) && !!(base && base.getMaplibreMap));
+  const tilted = (pitch > 0 || bearing !== 0) && !!(base && base.getMaplibreMap);
+  map.getContainer().classList.toggle("tilted", tilted);
+  // While tilted, our own drag (below) moves the map, because Leaflet's flat drag fights the turned 3D view.
+  if (tilted) map.dragging.disable(); else map.dragging.enable();
 }
 function setPitch(p) { pitch = Math.max(0, Math.min(85, p)); applyTilt(); }
+function setBearing(b) { bearing = ((b % 360) + 360) % 360; applyTilt(); }
 
-// Left/right arrow keys spin the view all the way around (360°, 5° per press).
+// Holding an arrow key walks the camera smoothly around the buildings: left/right spin 360°, up/down tilt.
 function startSpinKeys() {
+  const moves = { ArrowLeft: [0, -1], ArrowRight: [0, 1], ArrowUp: [1, 0], ArrowDown: [-1, 0] };
+  const held = new Set();
+  let last = 0;
+  const step = now => {
+    if (!held.size) return;
+    const secs = Math.min(0.05, (now - last) / 1000); last = now;
+    let dp = 0, db = 0;
+    held.forEach(k => { dp += moves[k][0]; db += moves[k][1]; });
+    pitch = Math.max(0, Math.min(85, pitch + dp * 45 * secs)); // 45° a second
+    setBearing(bearing + db * 90 * secs); // 90° a second: a full circle in 4 seconds
+    requestAnimationFrame(step);
+  };
   window.addEventListener("keydown", e => {
-    if ((e.key !== "ArrowLeft" && e.key !== "ArrowRight") || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+    if (!moves[e.key] || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
     e.preventDefault();
-    bearing = (bearing + (e.key === "ArrowRight" ? 5 : -5) + 360) % 360;
-    applyTilt();
-  });
+    e.stopPropagation(); // stop the map from sliding sideways too
+    if (!held.size) { last = performance.now(); requestAnimationFrame(step); }
+    held.add(e.key);
+  }, true);
+  window.addEventListener("keyup", e => held.delete(e.key));
+  window.addEventListener("blur", () => held.clear());
 }
 
-// Right-click drag (mouse) or two-finger vertical drag (touch) tilts the view.
+// Left-drag (or one finger) while tilted: the ground follows the pointer, in whatever direction the view faces.
+function startTiltedDrag(el) {
+  let last = null;
+  el.addEventListener("pointerdown", e => {
+    if (!e.isPrimary) { last = null; return; } // a second finger means pinch or tilt, not drag
+    if (e.button !== 0 || map.dragging.enabled()) return;
+    if (e.target.closest(".leaflet-marker-pane, .leaflet-control-container, .leaflet-popup-pane")) return;
+    last = [e.clientX, e.clientY];
+  });
+  window.addEventListener("pointermove", e => {
+    if (!last || !e.isPrimary) return;
+    const gl = base.getMaplibreMap(), c = gl.project(gl.getCenter());
+    const centre = gl.unproject([c.x - (e.clientX - last[0]), c.y - (e.clientY - last[1])]);
+    last = [e.clientX, e.clientY];
+    map.setView([centre.lat, centre.lng], map.getZoom(), { animate: false });
+    base._update(); // move the 3D map now instead of waiting for its slow catch-up
+  });
+  window.addEventListener("pointerup", () => { last = null; });
+  window.addEventListener("pointercancel", () => { last = null; });
+}
+
+// Right-click drag (mouse): up/down tilts, left/right turns. Two-finger vertical drag (touch) tilts.
 function startTiltGestures(el) {
-  let startY = null, startPitch = 0;
+  let startY = null, startX = 0, startPitch = 0, startBearing = 0;
   el.addEventListener("contextmenu", e => e.preventDefault());
-  el.addEventListener("mousedown", e => { if (e.button === 2) { startY = e.clientY; startPitch = pitch; } });
-  window.addEventListener("mousemove", e => { if (startY !== null) setPitch(startPitch + (startY - e.clientY) * 0.3); });
+  el.addEventListener("mousedown", e => { if (e.button === 2) { startY = e.clientY; startX = e.clientX; startPitch = pitch; startBearing = bearing; } });
+  window.addEventListener("mousemove", e => {
+    if (startY === null) return;
+    pitch = Math.max(0, Math.min(85, startPitch + (startY - e.clientY) * 0.3));
+    setBearing(startBearing + (startX - e.clientX) * 0.3);
+  });
   window.addEventListener("mouseup", () => { startY = null; });
   const avgY = t => (t[0].clientY + t[1].clientY) / 2;
   el.addEventListener("touchstart", e => { if (e.touches.length === 2) { startY = avgY(e.touches); startPitch = pitch; } });
@@ -67,6 +111,7 @@ export function startMap() {
   setBaseLayer("street");
   startTiltGestures(map.getContainer());
   startSpinKeys();
+  startTiltedDrag(map.getContainer());
   map.on("moveend", applyTilt); // the vector layer can reset pitch when the map moves
   onMeMove(me => {
     if (!meMarker) meMarker = L.marker([me.lat, me.lng], { icon: meIcon, zIndexOffset: 1000 }).addTo(map);
