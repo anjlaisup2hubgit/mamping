@@ -43,6 +43,7 @@ export async function getSatelliteView(lat, lng) {
   await Promise.all(jobs);
   return {
     image: canvas.toDataURL("image/jpeg", 0.7).split(",")[1],
-    toLatLng: (px, py) => [latOf(cy - 1 + py / TILE), lngOf(cx - 1 + px / TILE)]
+    toLatLng: (px, py) => [latOf(cy - 1 + py / TILE), lngOf(cx - 1 + px / TILE)],
+    toPixel: (lat, lng) => [(tileX(lng) - (cx - 1)) * TILE, (tileY(lat) - (cy - 1)) * TILE]
   };
 }

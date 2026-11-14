@@ -2,5 +2,8 @@
 .env*
 node_modules
 
+# pictures saved for AI training stay on this computer
+training/
+
 # guide screenshots stay on this computer; the PDF and the two guide pictures are shared
 docs/guide/[0-9][0-9]-*.png
