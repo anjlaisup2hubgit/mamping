@@ -1,3 +1,6 @@
 .vercel
 .env*
 node_modules
+
+# guide pictures stay on this computer; only the PDF is shared
+docs/guide/*.png
