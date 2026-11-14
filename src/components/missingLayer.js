@@ -3,7 +3,7 @@
 import { state } from "../data/state.js";
 import { findBuildings } from "../data/finder.js";
 import { outlineAll } from "../data/tracer.js";
-import { getSatelliteView, viewCentres } from "../data/satellite.js";
+import { getSatelliteView } from "../data/satellite.js";
 import { mid, inside, dist } from "../data/geo.js";
 import { map, liftIntoView, currentBase, setBaseLayer } from "./mapView.js";
 import { loadBuildings, refreshStyles } from "./buildingLayer.js";
@@ -17,7 +17,10 @@ import { readyIn } from "../data/readyBuildings.js";
 import { pickArea } from "./areaPicker.js";
 
 const MAX_VIEWS = 6, MIN_ZOOM = 17, MAX_READY = 60; // more than 60 boxes at once is too many to check
-let layer = null, boxes = [], area = null; // boxes = the orange outlines now on the map; area = the last area scanned
+let layer = null, boxes = [], area = null, squares = []; // boxes = the orange outlines now on the map; area = the last area scanned, squares = its chosen pictures
+
+// True if a point [lat, lng] sits in one of the chosen picture squares.
+const picked = ([lat, lng]) => squares.some(p => lat <= p.nw[0] && lat >= p.se[0] && lng >= p.nw[1] && lng <= p.se[1]);
 
 const near = (center, o) => inside(center, o.coords) || dist(center[0], center[1], o.center[0], o.center[1]) < 6;
 
@@ -42,7 +45,7 @@ async function busy(work) {
 export function findMissing() {
   if (map.getZoom() < MIN_ZOOM) return toast("Zoom in closer to scan.");
   if (currentBase() !== "satellite") setBaseLayer("satellite");
-  pickArea(chosen => { area = chosen; busy(async () => { if (!(await showReady())) await scan(); }); }, MAX_VIEWS);
+  pickArea((box, chosen) => { area = box; squares = chosen; busy(async () => { if (!(await showReady())) await scan(); }); }, MAX_VIEWS);
 }
 export const scanWithAi = () => busy(scan); // same area as the last scan
 
@@ -62,7 +65,7 @@ async function showReady() {
   let list;
   const osm = Promise.race([loadBuildings(), new Promise(ok => setTimeout(ok, 5000))]); // a slow OpenStreetMap server should not hold this up
   try { [, list] = await Promise.all([osm, readyIn(view)]); } catch (e) { console.warn("[ready] not available:", e); return false; }
-  list = list.filter(b => view.contains(b.center) && ![...state.buildings.values()].some(o => near(b.center, o)))
+  list = list.filter(b => picked(b.center) && ![...state.buildings.values()].some(o => near(b.center, o)))
     .sort((a, b) => dist(c.lat, c.lng, a.center[0], a.center[1]) - dist(c.lat, c.lng, b.center[0], b.center[1]));
   if (!list.length) return false;
   addBoxes(list.slice(0, MAX_READY));
@@ -74,14 +77,14 @@ async function showReady() {
 const WHY = { 500: "The AI is not set up. Add a Gemini key in Settings.", 401: "Your Gemini key was refused. Check it in Settings.", 429: "The AI is busy. Try again in a minute." };
 
 async function scan() {
-  const views = viewCentres(area, MAX_VIEWS);
+  const views = squares.map(p => p.centre);
   toast(`Reading ${views.length} satellite picture${views.length > 1 ? "s" : ""}…`);
   const [, ...results] = await Promise.allSettled([loadBuildings(), ...views.map(scanView)]);
   const failed = results.filter(r => r.status === "rejected").length;
   results.filter(r => r.status === "rejected").forEach(r => console.error("[scan] failed:", r.reason));
   const missing = [];
   for (const b of results.flatMap(r => r.value || [])) {
-    if (!area.contains(b.center)) continue; // pictures reach past the edge of the chosen area
+    if (!picked(b.center)) continue; // pictures reach past the edge of the chosen squares
     if ([...state.buildings.values()].some(o => near(b.center, o)) || missing.some(o => near(b.center, o))) continue;
     missing.push(b);
   }

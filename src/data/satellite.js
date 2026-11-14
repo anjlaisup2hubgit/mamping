@@ -25,8 +25,6 @@ export function pictureSquares(bounds) {
     .map(([x, y]) => ({ centre: [latOf(y + 1.5), lngOf(x + 1.5)], nw: [latOf(y), lngOf(x)], se: [latOf(y + STEP), lngOf(x + STEP)] }));
 }
 
-export const viewCentres = (bounds, max) => pictureSquares(bounds).slice(0, max).map(p => p.centre);
-
 // Grows a box out to the edges of whole pictures (at least one). Returns [nw, se] as [lat, lng].
 export function snapToPictures(bounds) {
   const x0 = down(tileX(bounds.getWest())), y0 = down(tileY(bounds.getNorth()));
