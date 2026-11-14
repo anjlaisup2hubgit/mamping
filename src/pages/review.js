@@ -12,9 +12,9 @@ import { refreshStyles } from "../components/buildingLayer.js";
 import { showBuilding } from "../components/buildingSheet.js";
 import { toast } from "../components/toast.js";
 import { osmConfirm, osmAllowed } from "../components/osmConfirm.js";
-import { addMissingTags } from "../data/osmEdit.js";
-
-const number = id => { const n = parseFloat($(id).value.replace(",", ".")); return n > 0 ? n : null; }; // blank, text, zero or negative = no value
+import { sendOrQueue } from "../data/osmSend.js";
+import { detailsFields, bindDetails, readDetails } from "../components/detailsFields.js";
+import { preview3d } from "../components/preview3d.js";
 
 function form() {
   const b = state.match, ai = state.ai;
@@ -23,7 +23,7 @@ function form() {
   const tag = !b ? "No building found nearby" : ai ? "Matched by AI · " + Math.round((ai.confidence || 0) * 100) + "%" : "Matched by location";
   return `<div class="pad scroll"><div class="row" style="align-items:center"><span class="tag">${tag}</span></div>${ai?.note ? `<p class="mid" style="margin:0">${esc(ai.note)}</p>` : ""}
     <div><label for="rn">Building name</label><input type="text" id="rn" value="${esc(ai?.name || b?.name || "")}" placeholder="Add a name"></div>
-    <div class="row"><div style="flex:1"><label for="rh">Height (m)</label><input type="text" id="rh" inputmode="decimal" value="${h ?? ""}" placeholder="Estimate"></div><div style="flex:1"><label for="rf">Floors</label><input type="text" id="rf" inputmode="numeric" value="${floors ?? ""}"></div></div>
+    ${detailsFields(h, floors)}${b ? '<div id="p3d" class="note"></div>' : ""}
     <div><label for="rc">Add comment</label><input type="text" id="rc" placeholder="New café!"></div>
     <label class="big ghost" style="margin:0;color:var(--ink);font-size:16px;min-height:52px"><input type="file" id="rp" accept="image/*" hidden><span id="rpl">+ Add photo</span></label></div>
     <div class="pad" style="padding-top:8px;padding-bottom:max(18px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;max-width:520px;width:100%;margin:0 auto">${state.match ? osmConfirm() + '<button class="big ghost" id="toOsm" style="min-height:48px">Add details to OpenStreetMap</button>' : ""}<button class="big primary" id="uploadNow">Upload now</button><button class="big ghost" id="keepOff" style="min-height:48px">Keep offline</button></div>`;
@@ -32,8 +32,9 @@ function form() {
 function readForm(clip) {
   clip.buildingId = state.match ? state.match.id : null;
   clip.name = $("#rn").value.trim();
-  clip.height = number("#rh");
-  clip.levels = number("#rf");
+  const d = readDetails();
+  clip.height = d.height;
+  clip.levels = d["building:levels"];
   clip.comment = $("#rc").value.trim();
   clip.lat = clip.track[0]?.lat;
   clip.lng = clip.track[0]?.lng;
@@ -41,10 +42,11 @@ function readForm(clip) {
 
 async function sendToOsm() {
   if (!osmAllowed()) return;
-  const wanted = { name: $("#rn").value.trim(), height: number("#rh"), "building:levels": number("#rf") };
+  const wanted = { name: $("#rn").value.trim(), ...readDetails() };
   try {
-    const added = await addMissingTags(state.match.id, wanted, "Add building details from a street video");
-    toast(added.length ? "Added to OpenStreetMap: " + added.join(", ") : "OpenStreetMap already has these details.");
+    const r = await sendOrQueue({ kind: "tags", wayId: state.match.id, wanted, comment: "Add building details from a street video" });
+    const added = Object.keys(r.result || {});
+    toast(r.queued ? "No internet. These details will be sent when you are back online." : added.length ? "Added to OpenStreetMap: " + added.join(", ") : "OpenStreetMap already has these details.");
   } catch (e) { toast("Could not reach OpenStreetMap: " + e.message); }
 }
 
@@ -81,6 +83,13 @@ export const review = {
       if (f) { state.clip.photo = f; $("#rpl").textContent = "Photo added ✓"; }
     };
     if ($("#toOsm")) $("#toOsm").onclick = sendToOsm;
+    const drawPreview = () => {
+      if (!$("#p3d")) return;
+      const d = readDetails();
+      $("#p3d").innerHTML = preview3d({ coords: state.match.coords, height: d.height, levels: d["building:levels"], roofShape: d["roof:shape"], roofHeight: d["roof:height"], wall: d["building:colour"], roof: d["roof:colour"] });
+    };
+    bindDetails(drawPreview);
+    drawPreview();
     $("#uploadNow").onclick = () => finish(true);
     $("#keepOff").onclick = () => finish(false);
   }

@@ -31,3 +31,10 @@ export function rectOf(pts) {
   const [y0, y1] = [Math.min(...r.map(p => p[1])), Math.max(...r.map(p => p[1]))];
   return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].map(([u, v]) => [u * c - v * s, u * s + v * c]);
 }
+
+// Turns a wobbly [lat, lng] outline into a neat rectangle (worked out in metres so the corners are true right angles).
+export function squareUp(coords) {
+  const [lat0, lng0] = coords[0], kx = Math.cos(lat0 * Math.PI / 180) * 111320, ky = 110540;
+  const pts = coords.map(([lat, lng]) => [(lng - lng0) * kx, (lat - lat0) * ky]);
+  return rectOf(pts).map(([x, y]) => [lat0 + y / ky, lng0 + x / kx]);
+}

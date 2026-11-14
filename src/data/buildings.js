@@ -18,3 +18,7 @@ export function candidatesNear(lat, lng, count = 15) {
     .map(b => ({ id: b.id, name: b.name, height: heightOf(b), dist: Math.round(dist(lat, lng, b.center[0], b.center[1])) }))
     .sort((a, b) => a.dist - b.dist).slice(0, count);
 }
+
+// Does a new outline overlap a building already on the map? (a corner of one sits inside the other)
+export const overlapsExisting = coords => [...state.buildings.values()].some(b =>
+  coords.some(c => inside(c, b.coords)) || b.coords.some(c => inside(c, coords)));

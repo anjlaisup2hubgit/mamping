@@ -11,6 +11,15 @@ import { map as mapPage } from "./pages/map.js";
 import { startTooltips } from "./components/tooltip.js";
 import { showPracticeBanner } from "./components/practiceBanner.js";
 import { restoreMissing } from "./components/missingLayer.js";
+import { flushQueue } from "./data/osmSend.js";
+
+// Sends edits that were saved while offline.
+async function sendWaiting() {
+  const { sent, failed } = await flushQueue();
+  if (sent) toast(`${sent} saved edit${sent > 1 ? "s" : ""} sent to OpenStreetMap`);
+  if (failed) toast(`${failed} saved edit${failed > 1 ? "s were" : " was"} refused by OpenStreetMap`);
+}
+window.addEventListener("online", sendWaiting);
 
 showPracticeBanner();
 startTooltips();
@@ -31,6 +40,7 @@ go("map");
 (async () => {
   try { if (await finishLogin()) toast("OpenStreetMap connected"); } catch (e) { toast("OpenStreetMap login failed"); }
   restoreMissing(); // after the login finishes, so we know whose boxes to load
+  sendWaiting();
   try { await openStore(); } catch (e) { /* no phone storage */ }
   await loadContribs();
   loadBuildings();

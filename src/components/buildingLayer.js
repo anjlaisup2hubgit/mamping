@@ -14,6 +14,9 @@ export function startBuildingLayer(tapHandler) {
 
 export function styleFor(b) {
   if (b.id === state.selectedId) return { color: "#E8470F", weight: 4, fillColor: "#E8470F", fillOpacity: 0.3 };
+  if (state.needsHeight) return b.ht || b.levels
+    ? { color: "#7a7a74", weight: 1, fillColor: "#9a9a94", fillOpacity: 0.08 }
+    : { color: "#1F6FEB", weight: 2, fillColor: "#1F6FEB", fillOpacity: 0.35 };
   const has = state.contribs.some(c => c.buildingId === b.id);
   return has
     ? { color: "#E8470F", weight: 2, fillColor: "#E8470F", fillOpacity: 0.2 }
@@ -21,6 +24,7 @@ export function styleFor(b) {
 }
 
 export const refreshStyles = () => state.buildings.forEach(b => b.layer.setStyle(styleFor(b)));
+export function setNeedsHeight(on) { state.needsHeight = on; refreshStyles(); }
 
 async function run() {
   try {

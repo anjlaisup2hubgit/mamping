@@ -8,7 +8,7 @@ import { refreshStyles, loadBuildings } from "./buildingLayer.js";
 import { openSheet, closeSheet } from "./sheet.js";
 import { toast } from "./toast.js";
 
-const clear = () => { state.selectedId = null; refreshStyles(); closeSheet(); };
+const clear = () => { if (state.drawing || state.picking) return; state.selectedId = null; refreshStyles(); closeSheet(); }; // map taps are corners while drawing
 
 export function initSheet() { map.on("click", clear); }
 
