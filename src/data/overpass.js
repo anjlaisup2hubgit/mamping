@@ -36,6 +36,12 @@ export async function fetchBuildingsIn(b) {
   return (await ask(`[out:json][timeout:25];way["building"](${box});out geom tags 800;`)).map(toBuilding);
 }
 
+// Roads within r metres of a point, each as a list of [lat, lng].
+export async function fetchRoadsNear(lat, lng, r) {
+  return (await ask(`[out:json][timeout:25];way["highway"](around:${r},${lat},${lng});out geom;`))
+    .map(w => w.geometry.map(g => [g.lat, g.lon]));
+}
+
 export async function fetchBuildingById(id) {
   const list = await ask(`[out:json];way(${id});out geom tags;`);
   return list[0] ? toBuilding(list[0]) : null;

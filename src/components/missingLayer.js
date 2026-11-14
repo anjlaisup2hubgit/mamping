@@ -155,14 +155,20 @@ export function restoreBoxes(list) {
   saveBoxes();
 }
 
+// Adds one outline the user made (drawn or copied) as a new box.
+export function addBox(coords) {
+  const b = { coords, center: mid(coords), confidence: null };
+  boxes.push(b);
+  drawBox(b);
+  saveBoxes();
+  return b;
+}
+
 // For a building the AI missed: the user taps its corners, then it works like any other box.
 export function drawYourself() {
   stopEditing(); // hide another box's handles so they don't get in the way
   startDrawing(coords => {
-    const b = { coords, center: mid(coords), confidence: null };
-    boxes.push(b);
-    drawBox(b);
-    saveBoxes();
+    const b = addBox(coords);
     focusBox(b);
     showSuggestion(b);
     liftIntoView(b.center);

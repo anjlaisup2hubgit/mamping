@@ -117,6 +117,12 @@ button:disabled{opacity:.5;cursor:default}
 .corner.add{width:14px;height:14px;background:#fff;border:2px solid #E8470F;opacity:.9}
 .mover{width:28px;height:28px;border-radius:50%;background:#E8470F;border:3px solid #fff;box-shadow:0 1px 4px #0006;cursor:move;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;line-height:1}
 .mover::after{content:"✥"}
+/* round arrow outside a wall slides that wall; round handle above the shape turns it; label shows size or angle while dragging */
+.push,.turn{width:26px;height:26px;border-radius:50%;background:#fff;border:1.5px solid #222;box-shadow:0 1px 4px #0006;cursor:grab;display:flex;align-items:center;justify-content:center;color:#222;font-size:16px;line-height:1}
+.push::after{content:"⇕"}
+.turn{width:30px;height:30px}
+.turn::after{content:"↻";font-size:19px}
+.shapeTag{background:#fff;color:#333;font-weight:700;font-size:14px;padding:6px 12px;border-radius:16px;box-shadow:0 1px 4px #0005;white-space:nowrap;width:max-content}
 /* drawing a building yourself: taps go to the map, not to buildings under the finger */
 .drawing.leaflet-grab{cursor:crosshair}
 .drawing .leaflet-interactive{pointer-events:none}

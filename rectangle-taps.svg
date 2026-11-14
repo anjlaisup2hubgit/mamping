@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Two quick ways to draw a rectangle building.
+       Left: 2 taps on opposite corners, the rectangle turns to line up with the nearest road.
+       Right: 3 taps, two along one wall then one on the far wall, works at any angle. -->
+  <rect width="1200" height="675" fill="#5f6b55"/>
+  <line x1="600" y1="80" x2="600" y2="580" stroke="#fff" stroke-opacity="0.4" stroke-width="2"/>
+
+  <!-- top hint -->
+  <rect x="330" y="18" width="540" height="44" rx="22" fill="#fff"/>
+  <text x="600" y="46" font-size="15" fill="#333" text-anchor="middle">Rectangle: tap 2 opposite corners, or 3 corners</text>
+
+  <!-- ===== LEFT: 2 taps, lined up with the road ===== -->
+  <text x="300" y="105" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">2 taps · follows the road</text>
+  <!-- tilted road -->
+  <path d="M40 520 L560 330" stroke="#3d4038" stroke-width="34" fill="none"/>
+  <path d="M40 520 L560 330" stroke="#ffd166" stroke-width="2" stroke-dasharray="14 10" fill="none"/>
+  <text x="430" y="410" font-size="13" fill="#fff" transform="rotate(-20 430 410)">Railway Pde</text>
+  <!-- roof, turned the same way as the road -->
+  <polygon points="150,300 400,209 445,333 195,424" fill="#8a8a86"/>
+  <!-- finished rectangle: band inside, dark edge, light line -->
+  <clipPath id="l"><polygon points="150,300 400,209 445,333 195,424"/></clipPath>
+  <polygon points="150,300 400,209 445,333 195,424" fill="none" stroke="#ffd166" stroke-opacity="0.35" stroke-width="30" clip-path="url(#l)"/>
+  <polygon points="150,300 400,209 445,333 195,424" fill="none" stroke="#222" stroke-opacity="0.6" stroke-width="7" stroke-linejoin="round"/>
+  <polygon points="150,300 400,209 445,333 195,424" fill="none" stroke="#fff3c4" stroke-width="3" stroke-linejoin="round"/>
+  <!-- the diagonal the user tapped -->
+  <line x1="150" y1="300" x2="445" y2="333" stroke="#fff3c4" stroke-width="2" stroke-dasharray="6 6"/>
+  <!-- tapped corners (numbered) and filled-in corners (plain) -->
+  <g fill="#e8460a" stroke="#fff" stroke-width="2"><circle cx="150" cy="300" r="12"/><circle cx="445" cy="333" r="12"/></g>
+  <g font-size="13" font-weight="700" fill="#fff" text-anchor="middle"><text x="150" y="305">1</text><text x="445" y="338">2</text></g>
+  <g fill="#fff" stroke="#222" stroke-width="2"><circle cx="400" cy="209" r="6"/><circle cx="195" cy="424" r="6"/></g>
+  <!-- arrow from road to rectangle edge: same angle -->
+  <path d="M250 470 L290 455" stroke="#fff" stroke-width="2" marker-end="url(#a)"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#fff"/></marker></defs>
+  <g font-size="14" fill="#fff">
+    <text x="60" y="160">Walls copy the angle of the nearest road</text>
+    <text x="60" y="180">(or the house next door, if one is mapped)</text>
+    <text x="300" y="560" text-anchor="middle">Orange = you tapped · white = filled in for you</text>
+  </g>
+
+  <!-- ===== RIGHT: 3 taps, any angle ===== -->
+  <text x="900" y="105" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">3 taps · any angle</text>
+  <!-- roof at an odd angle, no road nearby -->
+  <polygon points="700,250 1010,190 1040,345 730,405" fill="#8a8a86"/>
+  <clipPath id="r"><polygon points="700,250 1010,190 1040,345 730,405"/></clipPath>
+  <polygon points="700,250 1010,190 1040,345 730,405" fill="none" stroke="#ffd166" stroke-opacity="0.35" stroke-width="30" clip-path="url(#r)"/>
+  <polygon points="700,250 1010,190 1040,345 730,405" fill="none" stroke="#222" stroke-opacity="0.6" stroke-width="7" stroke-linejoin="round"/>
+  <polygon points="700,250 1010,190 1040,345 730,405" fill="none" stroke="#fff3c4" stroke-width="3" stroke-linejoin="round"/>
+  <!-- tap 3 can be anywhere on the far wall: show it snapping onto the wall -->
+  <line x1="900" y1="372" x2="884" y2="292" stroke="#fff3c4" stroke-width="2" stroke-dasharray="4 5"/>
+  <g fill="#e8460a" stroke="#fff" stroke-width="2"><circle cx="700" cy="250" r="12"/><circle cx="1010" cy="190" r="12"/><circle cx="900" cy="372" r="12"/></g>
+  <g font-size="13" font-weight="700" fill="#fff" text-anchor="middle"><text x="700" y="255">1</text><text x="1010" y="195">2</text><text x="900" y="377">3</text></g>
+  <g fill="#fff" stroke="#222" stroke-width="2"><circle cx="1040" cy="345" r="6"/><circle cx="730" cy="405" r="6"/></g>
+  <g font-size="14" fill="#fff">
+    <text x="660" y="160">1 → 2: along one wall (sets the angle)</text>
+    <text x="660" y="180">3: anywhere on the far wall (sets the width)</text>
+    <text x="900" y="460" text-anchor="middle">Good for buildings away from roads</text>
+    <text x="900" y="480" text-anchor="middle">or turned differently from the street</text>
+  </g>
+
+  <!-- bottom pill -->
+  <rect x="380" y="590" width="440" height="56" rx="28" fill="#fff"/>
+  <text x="470" y="624" font-size="16" fill="#333" text-anchor="middle">Undo corner</text>
+  <rect x="580" y="596" width="234" height="44" rx="22" fill="#e8460a"/>
+  <text x="697" y="624" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">Done</text>
+</svg>

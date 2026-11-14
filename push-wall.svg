@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Making an outline wider: each wall gets a small arrow handle just outside its middle.
+       Drag it and the whole wall slides out (or in), both its corners move together, corners stay square.
+       The white dot ON the edge still adds a corner, as now. A size label shows while dragging. -->
+  <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#fff"/></marker></defs>
+  <rect width="1200" height="675" fill="#5f6b55"/>
+  <line x1="600" y1="80" x2="600" y2="580" stroke="#fff" stroke-opacity="0.4" stroke-width="2"/>
+
+  <!-- top mode picker stays as it is -->
+  <rect x="400" y="18" width="400" height="44" rx="22" fill="#fff"/>
+  <text x="470" y="46" font-size="15" fill="#333" text-anchor="middle">Tap = keep</text>
+  <text x="590" y="46" font-size="15" fill="#333" text-anchor="middle">Tap = remove</text>
+  <rect x="660" y="22" width="136" height="36" rx="18" fill="#e8460a"/><text x="728" y="46" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">Tap = fix</text>
+
+  <!-- ===== LEFT: before, too narrow ===== -->
+  <text x="300" y="110" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">Outline too narrow</text>
+  <!-- real roof (wider than the outline) -->
+  <polygon points="90,230 470,180 495,370 115,420" fill="#8a8a86"/>
+  <!-- outline only covers the top part -->
+  <polygon points="90,230 470,180 484,285 104,335" fill="#e8460a" fill-opacity="0.25" stroke="#e8460a" stroke-width="3"/>
+  <!-- corners -->
+  <g fill="#e8460a" stroke="#fff" stroke-width="2"><circle cx="90" cy="230" r="8"/><circle cx="470" cy="180" r="8"/><circle cx="484" cy="285" r="8"/><circle cx="104" cy="335" r="8"/></g>
+  <!-- add-corner dots on the edges (unchanged) -->
+  <g fill="#fff" stroke="#e8460a" stroke-width="2"><circle cx="280" cy="205" r="5"/><circle cx="477" cy="232" r="5"/><circle cx="294" cy="310" r="5"/><circle cx="97" cy="282" r="5"/></g>
+  <!-- NEW: push-wall arrow handles just outside each wall -->
+  <g fill="#fff" stroke="#222" stroke-width="1.5">
+    <circle cx="275" cy="168" r="13"/><circle cx="512" cy="227" r="13"/><circle cx="300" cy="347" r="13"/><circle cx="62" cy="287" r="13"/>
+  </g>
+  <g stroke="#222" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M273 160 v16 M268 165 l5 -5 l5 5 M268 171 l5 5 l5 -5"/>
+    <path d="M504 228 h16 M509 223 l-5 5 l5 5 M515 223 l5 5 l-5 5"/>
+    <path d="M302 339 v16 M297 344 l5 -5 l5 5 M297 350 l5 5 l5 -5"/>
+    <path d="M54 288 h16 M59 283 l-5 5 l5 5 M65 283 l5 5 l-5 5"/>
+  </g>
+  <g font-size="14" fill="#fff">
+    <text x="330" y="380">Grab this ↕ handle</text>
+    <text x="330" y="398">and drag down</text>
+    <text x="70" y="470">White dot on the edge = add a corner (as now)</text>
+    <text x="70" y="490">Round ↕ handle outside = slide the whole wall</text>
+  </g>
+
+  <!-- ===== RIGHT: dragging, wall slides out ===== -->
+  <text x="900" y="110" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">Drag: the whole wall slides</text>
+  <polygon points="690,230 1070,180 1095,370 715,420" fill="#8a8a86"/>
+  <!-- old wall position, faint dashed -->
+  <line x1="1084" y1="285" x2="704" y2="335" stroke="#fff" stroke-opacity="0.6" stroke-width="2" stroke-dasharray="6 6"/>
+  <!-- new outline: bottom wall moved, corners stay square -->
+  <polygon points="690,230 1070,180 1095,370 715,420" fill="#e8460a" fill-opacity="0.25" stroke="#e8460a" stroke-width="3"/>
+  <!-- the wall being dragged is highlighted -->
+  <line x1="1095" y1="370" x2="715" y2="420" stroke="#ffd166" stroke-width="5"/>
+  <g fill="#e8460a" stroke="#fff" stroke-width="2"><circle cx="690" cy="230" r="8"/><circle cx="1070" cy="180" r="8"/><circle cx="1095" cy="370" r="8"/><circle cx="715" cy="420" r="8"/></g>
+  <!-- both corners of that wall move together -->
+  <path d="M1084 292 L1093 352" stroke="#fff" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M704 342 L713 402" stroke="#fff" stroke-width="2" marker-end="url(#a)"/>
+  <!-- handle under the finger -->
+  <circle cx="908" cy="432" r="16" fill="#ffd166" stroke="#222" stroke-width="1.5"/>
+  <g stroke="#222" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M908 424 v16 M903 429 l5 -5 l5 5 M903 435 l5 5 l5 -5"/></g>
+  <!-- size label while dragging -->
+  <rect x="940" y="440" width="150" height="34" rx="17" fill="#fff"/>
+  <text x="1015" y="463" font-size="15" font-weight="700" fill="#333" text-anchor="middle">32 m × 14 m</text>
+  <g font-size="14" fill="#fff">
+    <text x="660" y="500">Both corners move together, corners stay square</text>
+    <text x="660" y="520">Size shows while you drag · Undo works as now</text>
+  </g>
+
+  <!-- floating tools, unchanged -->
+  <rect x="517" y="590" width="166" height="48" rx="24" fill="#fff"/>
+  <g fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="533" y="606" width="22" height="16" rx="2"/>
+    <path d="M587 610 h14 a7 7 0 0 1 0 14 h-8"/><path d="M591 604 l-6 6 l6 6"/>
+    <path d="M643 605 l18 18 M661 605 l-18 18" stroke="#c0392b"/>
+  </g>
+</svg>

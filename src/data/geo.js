@@ -18,6 +18,15 @@ export function dist(a, b, c, d) {
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
+// Flat map in metres around point [lat, lng]: to() turns [lat, lng] into [x east, y north], back() undoes it.
+export function metreFrame([lat0, lng0]) {
+  const kx = Math.cos(lat0 * Math.PI / 180) * 111320, ky = 110540;
+  return {
+    to: ([lat, lng]) => [(lng - lng0) * kx, (lat - lat0) * ky],
+    back: ([x, y]) => [lat0 + y / ky, lng0 + x / kx]
+  };
+}
+
 // Neat rectangle around [x, y] points, tilted like their longest edge.
 export function rectOf(pts) {
   let best = 0, ang = 0;

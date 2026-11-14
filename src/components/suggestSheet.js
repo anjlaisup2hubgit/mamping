@@ -17,7 +17,7 @@ export function showSuggestion(b) {
     <button class="primary pill" id="toOsm">Add to OSM</button>
     <button class="round" id="moreB" aria-label="More" data-tip="More">⋯</button>
     <div class="rwide moreMenu" id="moreM" hidden>
-      <p class="mid" style="margin:0;font-size:13px">${from}Drag orange dots to fit the roof. Drag a white dot to add a corner; double-tap an orange dot to remove it. Drag the middle handle to move it all.</p>
+      <p class="mid" style="margin:0;font-size:13px">${from}Drag orange dots to fit the roof. Drag a white dot to add a corner; double-tap an orange dot to remove it. Drag the middle handle to move it all, a round arrow outside a wall to slide that wall, or the round handle above to turn it.</p>
       <button class="ghost pill" id="subO">Save outline</button>
     </div>`, true);
   $("#moreB").onclick = () => { $("#moreM").hidden = !$("#moreM").hidden; };

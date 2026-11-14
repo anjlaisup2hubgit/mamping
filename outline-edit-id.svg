@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Fixing an outline, the OpenStreetMap iD way:
+       small corner dots instead of big handles, tiny edge-middle arrows only on long edges,
+       a corner snaps to a nearby building's corner (shared corner turns into a square), and the band of colour sits inside the edge. -->
+  <rect width="1200" height="675" fill="#5f6b55"/>
+  <g stroke="#3d4038" stroke-width="30" fill="none"><path d="M0 560 L1200 360"/></g>
+  <!-- the roof -->
+  <polygon points="430,190 810,150 840,360 455,405" fill="#8a8a86"/>
+  <!-- the house next door, already mapped -->
+  <polygon points="840,360 1000,345 1015,470 855,485" fill="#7d7468"/>
+  <polygon points="840,360 1000,345 1015,470 855,485" fill="none" stroke="#fff3c4" stroke-opacity="0.7" stroke-width="2"/>
+
+  <!-- top mode picker stays as it is -->
+  <rect x="400" y="18" width="400" height="44" rx="22" fill="#fff"/>
+  <text x="470" y="46" font-size="15" fill="#333" text-anchor="middle">Tap = keep</text>
+  <text x="590" y="46" font-size="15" fill="#333" text-anchor="middle">Tap = remove</text>
+  <rect x="660" y="22" width="136" height="36" rx="18" fill="#e8460a"/><text x="728" y="46" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">Tap = fix</text>
+
+  <!-- outline being fixed -->
+  <clipPath id="inside"><polygon points="430,190 810,150 840,360 455,405"/></clipPath>
+  <polygon points="430,190 810,150 840,360 455,405" fill="none" stroke="#ffd166" stroke-opacity="0.35" stroke-width="36" clip-path="url(#inside)"/>
+  <polygon points="430,190 810,150 840,360 455,405" fill="none" stroke="#222" stroke-opacity="0.6" stroke-width="7" stroke-linejoin="round"/>
+  <polygon points="430,190 810,150 840,360 455,405" fill="none" stroke="#fff3c4" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- small corner dots (finger still grabs a 44px area around each) -->
+  <g fill="#fff" stroke="#222" stroke-width="2"><circle cx="430" cy="190" r="7"/><circle cx="810" cy="150" r="7"/><circle cx="455" cy="405" r="7"/></g>
+  <!-- shared corner with the house next door: square dot -->
+  <rect x="832" y="352" width="16" height="16" fill="#fff" stroke="#222" stroke-width="2"/>
+  <!-- edge middles: little arrows pointing along the edge, drag to add a corner -->
+  <g fill="#fff" stroke="#222" stroke-width="1.5" stroke-linejoin="round">
+    <path d="M612 162 l14 2 l-13 7 z"/>
+    <path d="M822 248 l4 14 l-10 -10 z"/>
+    <path d="M650 380 l-14 3 l11 -9 z"/>
+    <path d="M440 304 l-3 -14 l10 10 z"/>
+  </g>
+  <!-- the dot being dragged, with a dashed ring showing it will snap -->
+  <circle cx="810" cy="150" r="20" fill="none" stroke="#e8460a" stroke-width="2" stroke-dasharray="5 5"/>
+
+  <!-- callouts -->
+  <g font-size="14" fill="#fff">
+    <text x="830" y="140">Small dots: roof edges stay visible</text>
+    <text x="870" y="395">Shared corner = square dot,</text>
+    <text x="870" y="413">moving it moves both buildings</text>
+    <text x="560" y="138">Drag an arrow to add a corner</text>
+  </g>
+
+  <!-- floating tools, unchanged -->
+  <rect x="300" y="430" width="166" height="48" rx="24" fill="#fff"/>
+  <g fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="316" y="446" width="22" height="16" rx="2"/>
+    <path d="M370 450 h14 a7 7 0 0 1 0 14 h-8"/><path d="M374 444 l-6 6 l6 6"/>
+    <path d="M426 445 l18 18 M444 445 l-18 18" stroke="#c0392b"/>
+  </g>
+</svg>
