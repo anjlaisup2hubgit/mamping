@@ -11,15 +11,27 @@ const loadImage = url => new Promise((ok, no) => {
   const i = new Image(); i.crossOrigin = "anonymous"; i.onload = () => ok(i); i.onerror = no; i.src = url;
 });
 
-// Centres of the satellite pictures (3x3 tiles each) that cover the bounds, nearest the middle first.
-export function viewCentres(bounds, max) {
-  const x0 = Math.floor(tileX(bounds.getWest())), x1 = Math.floor(tileX(bounds.getEast()));
-  const y0 = Math.floor(tileY(bounds.getNorth())), y1 = Math.floor(tileY(bounds.getSouth()));
-  const mx = (tileX(bounds.getWest()) + tileX(bounds.getEast())) / 2, my = (tileY(bounds.getNorth()) + tileY(bounds.getSouth())) / 2;
-  const list = [];
-  for (let x = x0; x <= x1; x += 3) for (let y = y0; y <= y1; y += 3) list.push([x + 1.5, y + 1.5]);
-  return list.sort((a, b) => Math.hypot(a[0] - mx, a[1] - my) - Math.hypot(b[0] - mx, b[1] - my))
-    .slice(0, max).map(([x, y]) => [latOf(y), lngOf(x)]);
+// Pictures sit on a fixed grid (3x3 tiles each), so a square on the screen is always exactly one picture.
+const STEP = 3, EPS = 1e-6; // EPS: a corner already on a grid line stays there
+const down = v => Math.floor(v / STEP + EPS) * STEP, up = v => Math.ceil(v / STEP - EPS) * STEP;
+
+// The picture squares that cover the bounds, nearest the middle first. Each: {centre, nw, se} as [lat, lng].
+export function pictureSquares(bounds) {
+  const w = tileX(bounds.getWest()), e = tileX(bounds.getEast()), n = tileY(bounds.getNorth()), s = tileY(bounds.getSouth());
+  const mx = (w + e) / 2, my = (n + s) / 2, list = [];
+  for (let x = down(w); x < e - EPS; x += STEP) for (let y = down(n); y < s - EPS; y += STEP) list.push([x, y]);
+  const far = ([x, y]) => Math.hypot(x + 1.5 - mx, y + 1.5 - my);
+  return list.sort((a, b) => far(a) - far(b))
+    .map(([x, y]) => ({ centre: [latOf(y + 1.5), lngOf(x + 1.5)], nw: [latOf(y), lngOf(x)], se: [latOf(y + STEP), lngOf(x + STEP)] }));
+}
+
+export const viewCentres = (bounds, max) => pictureSquares(bounds).slice(0, max).map(p => p.centre);
+
+// Grows a box out to the edges of whole pictures (at least one). Returns [nw, se] as [lat, lng].
+export function snapToPictures(bounds) {
+  const x0 = down(tileX(bounds.getWest())), y0 = down(tileY(bounds.getNorth()));
+  const x1 = Math.max(up(tileX(bounds.getEast())), x0 + STEP), y1 = Math.max(up(tileY(bounds.getSouth())), y0 + STEP);
+  return [[latOf(y0), lngOf(x0)], [latOf(y1), lngOf(x1)]];
 }
 
 export async function getSatelliteView(lat, lng) {

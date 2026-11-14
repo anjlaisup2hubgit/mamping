@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" font-family="Segoe UI, Arial, sans-serif">
+  <!-- fake satellite map -->
+  <rect width="1200" height="675" fill="#5f6b55"/>
+  <g stroke="#3d4038" stroke-width="22" fill="none"><path d="M0 120 L1200 300"/><path d="M300 0 L180 675"/><path d="M1000 0 L860 675"/></g>
+  <g fill="#7d7468"><rect x="60" y="230" width="80" height="50"/><rect x="950" y="80" width="140" height="90"/><rect x="1040" y="330" width="90" height="60"/></g>
+
+  <!-- orange boxes on the map, each with the same number as in the list -->
+  <g fill="#e8460a" fill-opacity="0.15" stroke="#e8460a" stroke-width="3" stroke-dasharray="8 5">
+    <rect x="430" y="70" width="110" height="60" transform="rotate(25 485 100)"/>
+    <rect x="560" y="120" width="110" height="60" transform="rotate(25 615 150)"/>
+    <rect x="690" y="180" width="110" height="60" transform="rotate(25 745 210)"/>
+  </g>
+  <!-- selected one (tapped in list): solid, brighter, with corner handles -->
+  <rect x="420" y="230" width="120" height="65" transform="rotate(25 480 262)" fill="#ffd166" fill-opacity="0.3" stroke="#ffd166" stroke-width="4"/>
+  <g font-size="14" font-weight="700" fill="#fff" text-anchor="middle">
+    <circle cx="485" cy="100" r="13" fill="#e8460a"/><text x="485" y="105">1</text>
+    <circle cx="615" cy="150" r="13" fill="#e8460a"/><text x="615" y="155">2</text>
+    <circle cx="745" cy="210" r="13" fill="#e8460a"/><text x="745" y="215">3</text>
+    <circle cx="480" cy="262" r="15" fill="#ffd166" stroke="#fff" stroke-width="2"/><text x="480" y="267" fill="#222">4</text>
+  </g>
+
+  <!-- compact sheet: short header, the list gets the space, one main button -->
+  <rect x="300" y="345" width="600" height="320" rx="24" fill="#fff"/>
+  <rect x="580" y="355" width="40" height="5" rx="3" fill="#ddd"/>
+  <text x="326" y="395" font-size="22" font-weight="700" fill="#222">4 missing buildings</text>
+  <text x="326" y="418" font-size="14" fill="#777">Tick the ones that match the picture. Tap a row to see it.</text>
+  <circle cx="870" cy="388" r="18" fill="#f1f1f1"/>
+  <path d="M863 381 L877 395 M877 381 L863 395" stroke="#555" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- list rows: number badge matches map, source, remove -->
+  <g font-size="15" fill="#222">
+    <rect x="316" y="432" width="568" height="40" rx="10" fill="#fafafa"/>
+    <rect x="328" y="442" width="20" height="20" rx="4" fill="#e8460a"/><path d="M332 452 l5 5 l8 -10" stroke="#fff" stroke-width="2.5" fill="none"/>
+    <circle cx="372" cy="452" r="12" fill="#e8460a"/><text x="372" y="457" fill="#fff" font-size="13" font-weight="700" text-anchor="middle">1</text>
+    <text x="394" y="457">Building 1</text><text x="490" y="457" fill="#888" font-size="13">Microsoft</text>
+    <text x="862" y="457" fill="#999" font-size="18" text-anchor="middle">✕</text>
+
+    <rect x="316" y="476" width="568" height="40" rx="10" fill="#fafafa"/>
+    <rect x="328" y="486" width="20" height="20" rx="4" fill="#e8460a"/><path d="M332 496 l5 5 l8 -10" stroke="#fff" stroke-width="2.5" fill="none"/>
+    <circle cx="372" cy="496" r="12" fill="#e8460a"/><text x="372" y="501" fill="#fff" font-size="13" font-weight="700" text-anchor="middle">2</text>
+    <text x="394" y="501">Building 2</text><text x="490" y="501" fill="#888" font-size="13">Google</text>
+    <text x="862" y="501" fill="#999" font-size="18" text-anchor="middle">✕</text>
+
+    <rect x="316" y="520" width="568" height="40" rx="10" fill="#fafafa"/>
+    <rect x="328" y="530" width="20" height="20" rx="4" fill="#fff" stroke="#bbb" stroke-width="2"/>
+    <circle cx="372" cy="540" r="12" fill="#e8460a"/><text x="372" y="545" fill="#fff" font-size="13" font-weight="700" text-anchor="middle">3</text>
+    <text x="394" y="545">Building 3</text><text x="490" y="545" fill="#888" font-size="13">Google</text>
+    <text x="862" y="545" fill="#999" font-size="18" text-anchor="middle">✕</text>
+
+    <!-- selected row -->
+    <rect x="316" y="564" width="568" height="40" rx="10" fill="#fff6dc" stroke="#ffd166" stroke-width="2"/>
+    <rect x="328" y="574" width="20" height="20" rx="4" fill="#fff" stroke="#bbb" stroke-width="2"/>
+    <circle cx="372" cy="584" r="12" fill="#ffd166"/><text x="372" y="589" fill="#222" font-size="13" font-weight="700" text-anchor="middle">4</text>
+    <text x="394" y="589">Building 4</text><text x="490" y="589" fill="#888" font-size="13">Microsoft · drag corners on map</text>
+    <text x="862" y="589" fill="#999" font-size="18" text-anchor="middle">✕</text>
+  </g>
+
+  <!-- one main button; the rest go in a small menu -->
+  <rect x="316" y="614" width="480" height="42" rx="21" fill="#e8460a"/>
+  <text x="556" y="641" font-size="16" font-weight="600" fill="#fff" text-anchor="middle">Add 2 ticked to OpenStreetMap</text>
+  <rect x="806" y="614" width="78" height="42" rx="21" fill="#fff" stroke="#ccc"/>
+  <text x="845" y="641" font-size="15" fill="#333" text-anchor="middle">More</text>
+
+  <!-- More menu (shown open) -->
+  <rect x="930" y="520" width="250" height="100" rx="14" fill="#fff"/>
+  <text x="950" y="555" font-size="15" fill="#333">Scan with our AI instead</text>
+  <line x1="950" y1="570" x2="1160" y2="570" stroke="#eee"/>
+  <text x="950" y="600" font-size="15" fill="#333">AI missed one? Draw it</text>
+  <path d="M895 635 C 915 635 915 600 928 590" stroke="#fff" stroke-width="2" fill="none" stroke-dasharray="4 4"/>
+
+  <!-- notes -->
+  <g font-size="13" fill="#fff">
+    <text x="20" y="560">• Numbers on the map match the list.</text>
+    <text x="20" y="580">• Tap a row: map moves to it, box turns yellow.</text>
+    <text x="20" y="600">• "I checked this" tick moves into a</text>
+    <text x="20" y="618">  confirm step after tapping Add.</text>
+    <text x="20" y="640">• Short text, one button + More,</text>
+    <text x="20" y="658">  so the list always has room.</text>
+  </g>
+</svg>

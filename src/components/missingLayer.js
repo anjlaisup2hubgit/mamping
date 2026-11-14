@@ -45,12 +45,13 @@ export function findMissing() {
 }
 export const scanWithAi = () => busy(scan); // same area as the last scan
 
-function replaceBoxes(list) {
-  layer ||= L.layerGroup().addTo(map);
-  layer.clearLayers();
+// Adds new boxes next to the ones already found, so an earlier scan is never lost. Skips any that sit on an old box.
+function addBoxes(list) {
   stopEditing();
-  boxes = list;
-  boxes.forEach(drawBox);
+  const fresh = list.filter(b => !boxes.some(o => near(b.center, o)));
+  boxes = boxes.concat(fresh);
+  fresh.forEach(drawBox);
+  renumber();
   saveBoxes();
 }
 
@@ -63,7 +64,7 @@ async function showReady() {
   list = list.filter(b => view.contains(b.center) && ![...state.buildings.values()].some(o => near(b.center, o)))
     .sort((a, b) => dist(c.lat, c.lng, a.center[0], a.center[1]) - dist(c.lat, c.lng, b.center[0], b.center[1]));
   if (!list.length) return false;
-  replaceBoxes(list.slice(0, MAX_READY));
+  addBoxes(list.slice(0, MAX_READY));
   toast(list.length > MAX_READY ? `Showing the ${MAX_READY} nearest of ${list.length}. Move the map to see more.` : `${list.length} ready-made outline${list.length > 1 ? "s" : ""} found.`);
   showBatch(boxes);
   return true;
@@ -84,15 +85,28 @@ async function scan() {
     missing.push(b);
   }
   if (failed === results.length) return toast(WHY[results[0].reason?.message] || "Could not read the satellite image. Check your internet and try again.");
-  replaceBoxes(missing);
+  addBoxes(missing);
   toast(`${missing.length ? `${missing.length} missing found.` : "No missing buildings found here."}${failed ? ` ${failed} picture(s) failed.` : ""}`);
   showBatch(boxes); // with none found, it offers to draw one yourself
 }
 
+const STYLE = { color: "#E8470F", weight: 2, dashArray: "6 6", fillColor: "#E8470F", fillOpacity: 0.15 };
+const PICKED = { color: "#FFD166", weight: 4, dashArray: null, fillColor: "#FFD166", fillOpacity: 0.3 }; // the one being looked at
+
 function drawBox(b) {
   layer ||= L.layerGroup().addTo(map);
-  b.shape = L.polygon(b.coords, { color: "#E8470F", weight: 2, dashArray: "6 6", fillColor: "#E8470F", fillOpacity: 0.15 }).addTo(layer)
-    .on("click", e => { if (state.drawing) return; L.DomEvent.stopPropagation(e); state.selectedId = null; refreshStyles(); editBox(b); showSuggestion(b); liftIntoView(b.center); });
+  b.shape = L.polygon(b.coords, STYLE).addTo(layer)
+    .bindTooltip("", { permanent: true, direction: "center", className: "boxnum" })
+    .on("click", e => { if (state.drawing) return; L.DomEvent.stopPropagation(e); state.selectedId = null; refreshStyles(); focusBox(b); showSuggestion(b); liftIntoView(b.center); });
+}
+
+// Each box shows its number, the same as in the list.
+const renumber = () => boxes.forEach((b, i) => b.shape && b.shape.setTooltipContent(String(i + 1)));
+
+// Turns one box yellow (the others back to orange) and shows its corner handles.
+export function focusBox(b) {
+  boxes.forEach(o => o.shape && o.shape.setStyle(o === b ? PICKED : STYLE));
+  editBox(b);
 }
 
 export const currentBoxes = () => boxes;
@@ -105,6 +119,7 @@ export function removeBox(b) {
   boxes = boxes.filter(x => x !== b);
   if (b.shape) b.shape.remove();
   stopEditing();
+  renumber();
   saveBoxes();
 }
 
@@ -115,8 +130,9 @@ export function drawYourself() {
     const b = { coords, center: mid(coords), confidence: null };
     boxes.push(b);
     drawBox(b);
+    renumber();
     saveBoxes();
-    editBox(b);
+    focusBox(b);
     showSuggestion(b);
     liftIntoView(b.center);
   });
@@ -126,4 +142,5 @@ export function drawYourself() {
 export async function restoreMissing() {
   boxes = await loadScan();
   boxes.forEach(drawBox);
+  renumber();
 }
