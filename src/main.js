@@ -26,7 +26,7 @@ startTooltips();
 const later = (file, name) => () => import(`./pages/${file}.js`).then(m => m[name]); // load only when opened
 register({
   map: mapPage, camera: later("camera", "camera"), saved: later("saved", "saved"),
-  scan: later("scan", "scan"), review: later("review", "review"),
+  scan: later("scan", "scan"), review: later("review", "review"), drive: later("drive", "drive"),
   help: later("help", "help"), settings: later("settings", "settings")
 });
 // Remove the old saved copies so nothing is cached anymore.

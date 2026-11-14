@@ -1,11 +1,14 @@
 // Help: a short guide to filming a building.
 import { header, bindBack } from "../components/header.js";
+import { FILM_TIPS } from "../components/filmTips.js";
 
 export const help = {
   open(el) {
     el.innerHTML = header("Help") + `<div class="pad scroll"><h3 class="sec">Quick tour</h3>
       <p class="mid" style="margin:0 0 8px">1. Tap Take Video and walk past a building.<br>2. Tap the stop square.<br>3. Tap Send to map, check the name and height, then Upload now.</p>
       <p class="mid" style="margin:0 0 8px">Your video stays on this phone and is deleted once the building details are collected.</p>
+      <h3 class="sec">Filming tips</h3>
+      <ol class="mid" style="margin:0 0 8px;padding-left:20px">${FILM_TIPS.map(t => `<li>${t}</li>`).join("")}</ol>
       <h3 class="sec">Why this helps</h3>
       <p class="mid" style="margin:0 0 8px">Your films help complete the map for your town, and the app is built light so it saves battery and data.</p>
       <h3 class="sec">How the AI is used</h3>

@@ -128,3 +128,16 @@ button:disabled{opacity:.5;cursor:default}
 
 /* choosing the scan area: buildings under the box cannot be tapped, the box handles still can */
 .picking path.leaflet-interactive{pointer-events:none}
+
+/* filming help: tips card, live hint, weak-GPS chip, and a ring that fills to "enough footage" */
+.tips{position:absolute;inset:0;z-index:5;background:#000c;display:flex;align-items:center;justify-content:center;padding:16px}
+.tipsCard{background:var(--surf);color:var(--ink);border-radius:20px;padding:20px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:14px}
+.tipsCard ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.camMsg{position:absolute;left:50%;top:128px;transform:translateX(-50%);background:#000c;color:#fff;border-radius:16px;padding:10px 16px;font-weight:600;text-align:center;max-width:calc(100% - 32px);pointer-events:none}
+.chip.bad{background:#B3261Ecc}
+.rec{position:relative}
+.rec svg{position:absolute;inset:-5px;width:84px;height:84px;transform:rotate(-90deg);pointer-events:none}
+.rec circle{fill:none;stroke:var(--acc);stroke-width:5;transition:stroke-dashoffset 1s linear}
+.rec.enough circle{stroke:#2E9E4F}
+/* driving mode: no "enough footage" ring, since a drive has no length goal */
+.rec.drive svg{display:none}

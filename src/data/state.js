@@ -2,6 +2,7 @@
 export const state = {
   me: null,            // {lat, lng, acc} from GPS
   clip: null,          // the video being worked on
+  drive: null,         // pictures from a drive, until they are read
   ai: null,            // AI answer for that video
   match: null,         // building matched to that video
   selectedId: null,    // building the user tapped
