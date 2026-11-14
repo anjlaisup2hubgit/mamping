@@ -9,12 +9,14 @@ import { map, liftIntoView, currentBase, setBaseLayer } from "./mapView.js";
 import { loadBuildings, refreshStyles } from "./buildingLayer.js";
 import { showSuggestion } from "./suggestSheet.js";
 import { showBatch } from "./batchSheet.js";
+import { markBox } from "./removeMode.js";
 import { editCorners, stopEditing } from "./cornerEditor.js";
 import { startDrawing } from "./drawBuilding.js";
 import { toast } from "./toast.js";
 import { loadScan, saveScan } from "../data/savedScan.js";
 import { readyIn } from "../data/readyBuildings.js";
 import { pickArea } from "./areaPicker.js";
+import { saveTrainingSet } from "../data/trainingSet.js";
 
 const MAX_VIEWS = 6, MIN_ZOOM = 17, MAX_READY = 60; // more than 60 boxes at once is too many to check
 let layer = null, boxes = [], area = null, squares = []; // boxes = the orange outlines now on the map; area = the last area scanned, squares = its chosen pictures
@@ -48,6 +50,16 @@ export function findMissing() {
   pickArea((box, chosen) => { area = box; squares = chosen; busy(async () => { if (!(await showReady())) await scan(); }); }, MAX_VIEWS);
 }
 export const scanWithAi = () => busy(scan); // same area as the last scan
+
+// "Save for AI training": keeps the pictures of the last scan, with the buildings you ticked as the answers.
+export async function saveForTraining(ticked) {
+  if (!squares.length) return toast("Scan an area first, then save.");
+  // Any roof left out would teach the AI to ignore roofs, so the user must confirm every one is boxed and ticked.
+  if (!confirm("Is EVERY roof in the scanned pictures boxed and ticked? (Draw the ones the AI missed, then tick them.) A roof left out teaches the AI to ignore roofs.")) return;
+  toast("Saving pictures…");
+  try { const n = await saveTrainingSet(squares, ticked); toast(n ? `Saved ${n} picture${n > 1 ? "s" : ""} to the training folder.` : "None of the ticked buildings are in the scanned area."); }
+  catch (e) { toast("Could not save. Run the app with node dev-server.js on your computer."); }
+}
 
 // Adds new boxes next to the ones already found, so an earlier scan is never lost. Skips any that sit on an old box.
 function addBoxes(list) {
@@ -96,32 +108,39 @@ async function scan() {
 
 const STYLE = { color: "#E8470F", weight: 2, dashArray: "6 6", fillColor: "#E8470F", fillOpacity: 0.15 };
 const PICKED = { color: "#FFD166", weight: 4, dashArray: null, fillColor: "#FFD166", fillOpacity: 0.3 }; // the one being looked at
+const MARKED = { color: "#FFFFFF", weight: 3, dashArray: null, fillColor: "#E8470F", fillOpacity: 0.55 }; // chosen for removal
+let focused = null;
+const styleOf = o => o === focused ? PICKED : o.marked ? MARKED : STYLE;
+export const restyle = () => boxes.forEach(o => o.shape && o.shape.setStyle(styleOf(o)));
 
 function drawBox(b) {
   layer ||= L.layerGroup().addTo(map);
   b.shape = L.polygon(b.coords, STYLE).addTo(layer)
     .bindTooltip("", { permanent: true, direction: "center", className: "boxnum" })
-    .on("click", e => { if (state.drawing) return; L.DomEvent.stopPropagation(e); state.selectedId = null; refreshStyles(); focusBox(b); showSuggestion(b); liftIntoView(b.center); });
+    .on("click", e => { if (state.drawing) return; L.DomEvent.stopPropagation(e); if (markBox(b)) return; state.selectedId = null; refreshStyles(); focusBox(b); showSuggestion(b); liftIntoView(b.center); });
 }
 
 // Each box shows its number, the same as in the list.
 const renumber = () => boxes.forEach((b, i) => b.shape && b.shape.setTooltipContent(String(i + 1)));
 
-// Turns one box yellow (the others back to orange) and shows its corner handles.
+// Turns one box yellow (the others back to orange, or white-edged if chosen for removal) and shows its corner handles.
 export function focusBox(b) {
-  boxes.forEach(o => o.shape && o.shape.setStyle(o === b ? PICKED : STYLE));
+  focused = b;
+  restyle();
   editBox(b);
 }
 
+export const unfocus = () => { focused = null; stopEditing(); restyle(); }; // no box yellow, no corner handles
 export const currentBoxes = () => boxes;
 // Ready-made outlines are not saved: they load again in a moment.
 export const saveBoxes = () => saveScan(boxes.filter(b => !b.from)).catch(() => toast("Could not save your boxes to your account."));
 export const editBox = b => editCorners(b, saveBoxes); // shape fixes are saved as you make them
 
-// "Not a building": takes a wrong box off the map.
-export function removeBox(b) {
-  boxes = boxes.filter(x => x !== b);
-  if (b.shape) b.shape.remove();
+// "Not a building": takes wrong boxes off the map (one or many at once).
+export const removeBox = b => removeBoxes([b]);
+export function removeBoxes(list) {
+  boxes = boxes.filter(x => !list.includes(x));
+  list.forEach(b => b.shape && b.shape.remove());
   stopEditing();
   renumber();
   saveBoxes();

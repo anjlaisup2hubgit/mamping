@@ -7,10 +7,12 @@ import { toast } from "./toast.js";
 import { osmConfirm, osmAllowed } from "./osmConfirm.js";
 import { sendOrQueue } from "../data/osmSend.js";
 import { overlapsExisting } from "../data/buildings.js";
-import { focusBox, removeBox, currentBoxes, drawYourself, scanWithAi } from "./missingLayer.js";
+import { startRemoving } from "./removeMode.js";
+import { focusBox, removeBox, currentBoxes, drawYourself, scanWithAi, saveForTraining } from "./missingLayer.js";
 
 const drawBtn = `<button class="big ghost" id="drawSelf" style="min-height:48px">AI missed one? Draw it yourself</button>`;
-const aiBtn = `<button class="big ghost" id="aiScan" style="min-height:48px">Scan with our AI instead</button>`;
+const trainBtn = `<button class="big ghost" id="saveTrain" style="min-height:48px">Save ticked for AI training</button>`;
+const aiBtn =`<button class="big ghost" id="aiScan" style="min-height:48px">Scan with our AI instead</button>`;
 const short = from => from.split(" ")[0]; // "Microsoft ML Buildings" -> "Microsoft"
 const sourceOf = list => [...new Set(list.map(b => b.from).filter(Boolean)), "Esri World Imagery"].join("; ");
 const label = b => b.from ? short(b.from) : b.confidence ? `${Math.round(b.confidence * 100)}% sure` : "drawn by you";
@@ -30,8 +32,8 @@ export function showBatch(list) {
   openSheet(`<div><h2>${list.length} missing building${list.length > 1 ? "s" : ""}</h2><p class="mid" style="margin:2px 0 0;font-size:14px">Tick the ones that match the picture. Tap a row to see it.</p></div>
     <div class="mlist">${list.map(row).join("")}</div>
     <div id="confirmWrap" hidden>${osmConfirm()}</div>
-    <div class="row"><button class="big primary" id="addAll" style="min-height:48px;flex:1;font-size:16px"></button><button class="ghost pill" id="moreB" aria-expanded="false">More</button></div>
-    <div id="moreMenu" class="moreMenu" hidden>${ready ? aiBtn : ""}${drawBtn}</div>`);
+    <div class="row"><button class="big primary" id="addAll" style="min-height:48px;flex:1;font-size:16px"></button><button class="ghost pill" id="rmMany">Remove several</button><button class="ghost pill" id="moreB" aria-expanded="false">More</button></div>
+    <div id="moreMenu" class="moreMenu" hidden>${ready ? aiBtn : ""}${drawBtn}${trainBtn}</div>`);
   const picks = () => [...document.querySelectorAll(".pick:checked")].map(c => list[c.dataset.i]);
   const count = () => { const n = picks().length; $("#addAll").textContent = n ? `Add ${n} ticked to OpenStreetMap` : "Tick buildings to add"; };
   count();
@@ -47,9 +49,11 @@ export function showBatch(list) {
     };
   });
   document.querySelectorAll(".rm").forEach(b => { b.onclick = () => { removeBox(list[b.dataset.i]); showBatch(currentBoxes()); }; });
+  $("#rmMany").onclick = startRemoving;
   $("#moreB").onclick = () => { const m = $("#moreMenu"); m.hidden = !m.hidden; $("#moreB").setAttribute("aria-expanded", !m.hidden); };
   if ($("#aiScan")) $("#aiScan").onclick = scanWithAi;
   $("#drawSelf").onclick = drawYourself;
+  $("#saveTrain").onclick = () => picks().length ? saveForTraining(picks()) : toast("Tick the buildings that match the picture first.");
   let warned = false; // the overlap warning shows once; tapping again adds anyway
   $("#addAll").onclick = async () => {
     const picked = picks();
