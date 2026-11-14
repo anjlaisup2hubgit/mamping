@@ -104,15 +104,18 @@ async function scan() {
   if (boxes.length) showReview(); else showNoneFound(); // with none found, it offers to draw one yourself
 }
 
-const STYLE = { color: "#E8470F", weight: 2, dashArray: "6 6", fillColor: "#E8470F", fillOpacity: 0.15 };
-const PICKED = { color: "#FFD166", weight: 4, dashArray: null, fillColor: "#FFD166", fillOpacity: 0.3 }; // the one being looked at
-const KEPT = { color: "#2EA043", weight: 3, dashArray: null, fillColor: "#2EA043", fillOpacity: 0.35 }; // checked: add it
+// thin lines so the roof underneath stays visible
+const STYLE = { color: "#E8470F", weight: 1.5, dashArray: "6 6", fillColor: "#E8470F", fillOpacity: 0.15 };
+const PICKED = { color: "#FFD166", weight: 1.5, dashArray: null, fillColor: "#FFD166", fillOpacity: 0.08 }; // the one being looked at
+const KEPT = { color: "#2EA043", weight: 1.5, dashArray: null, fillColor: "#2EA043", fillOpacity: 0.35 }; // checked: add it
 let focused = null;
 const styleOf = o => o === focused ? PICKED : o.keep ? KEPT : STYLE;
 export const restyle = () => boxes.forEach(o => o.shape && o.shape.setStyle(styleOf(o)));
 
+const leaveFix = () => { if (focused && !state.drawing && !state.picking) unfocus(); }; // a tap on empty map ends fixing
+
 function drawBox(b) {
-  layer ||= L.layerGroup().addTo(map);
+  if (!layer) { layer = L.layerGroup().addTo(map); map.on("click", leaveFix); }
   b.shape = L.polygon(b.coords, styleOf(b)).addTo(layer)
     .on("click", e => { if (state.drawing) return; L.DomEvent.stopPropagation(e); tapBox(b); });
 }

@@ -111,20 +111,26 @@ button:disabled{opacity:.5;cursor:default}
 
 /* corner handles: a big invisible touch area around a small visible dot */
 .corner-hit{display:flex;align-items:center;justify-content:center}
-.corner{width:22px;height:22px}
+.corner{width:12px;height:12px;border-width:2px}
 
 /* links inside cards (edit history) */
 .item a{color:var(--acc)}
 
 /* outline fixing: white dots add a corner, the middle handle moves the whole shape */
-.corner.add{width:14px;height:14px;background:#fff;border:2px solid #E8470F;opacity:.9}
-.mover{width:28px;height:28px;border-radius:50%;background:#E8470F;border:3px solid #fff;box-shadow:0 1px 4px #0006;cursor:move;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;line-height:1}
+.corner.add{width:7px;height:7px;background:#fff;border:none;opacity:.8}
+.mover{width:18px;height:18px;border-radius:50%;background:#E8470F;border:2px solid #fff;box-shadow:0 1px 4px #0006;cursor:move;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;line-height:1;opacity:.85}
 .mover::after{content:"✥"}
 /* round arrow outside a wall slides that wall; round handle above the shape turns it; label shows size or angle while dragging */
 .push,.turn{width:26px;height:26px;border-radius:50%;background:#fff;border:1.5px solid #222;box-shadow:0 1px 4px #0006;cursor:grab;display:flex;align-items:center;justify-content:center;color:#222;font-size:16px;line-height:1}
 .push::after{content:"⇕"}
 .turn{width:30px;height:30px}
 .turn::after{content:"↻";font-size:19px}
+/* copying an outline: banner at the top with a clear stop button, and a hint next to the mouse */
+.copyBar{position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:2500;display:flex;align-items:center;gap:10px;background:var(--surf);color:var(--ink);padding:6px 6px 6px 14px;border-radius:26px;box-shadow:0 1px 6px #0006;font-size:15px;white-space:nowrap}
+.copyBar>svg,.copyBar button svg{width:20px;height:20px;fill:none;stroke:var(--acc);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.copyBar button{display:flex;align-items:center;gap:6px;background:var(--acc);color:var(--onacc);font-weight:700;font-size:15px;padding:8px 14px;border-radius:20px;min-height:40px}
+.copyBar button svg{stroke:currentColor;width:16px;height:16px;stroke-width:2.6}
+.copyHint{background:#222d;color:#fff;font-size:12px;padding:4px 10px;border-radius:12px;white-space:nowrap;width:max-content;pointer-events:none}
 .shapeTag{background:#fff;color:#333;font-weight:700;font-size:14px;padding:6px 12px;border-radius:16px;box-shadow:0 1px 4px #0005;white-space:nowrap;width:max-content}
 /* drawing a building yourself: taps go to the map, not to buildings under the finger */
 .drawing.leaflet-grab{cursor:crosshair}

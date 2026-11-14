@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Three small fixes for "Tap = fix".
+       1. Tapping empty map (no building) leaves fix mode: yellow outline, handles and floating tools go away.
+       2. Thinner outline (1.5px solid, almost no fill) and smaller handles, so the roof shows through.
+       3. Copying shows a clear "Stop copying" button at the top, and the ghost under the mouse says how to stop. -->
+  <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#fff"/></marker></defs>
+  <rect width="1200" height="675" fill="#5f6b55"/>
+  <g stroke="#fff" stroke-opacity="0.4" stroke-width="2"><line x1="400" y1="70" x2="400" y2="650"/><line x1="800" y1="70" x2="800" y2="650"/></g>
+
+  <!-- ===== 1: tap empty map to leave ===== -->
+  <text x="200" y="50" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">1 · Tap empty map to stop fixing</text>
+  <!-- before -->
+  <text x="40" y="100" font-size="14" fill="#fff">While fixing</text>
+  <rect x="80" y="130" width="150" height="100" fill="#9a5a4a"/>
+  <rect x="80" y="130" width="150" height="100" fill="#ffd166" fill-opacity="0.08" stroke="#ffd166" stroke-width="1.5"/>
+  <g fill="#fff" stroke="#e8460a" stroke-width="2"><circle cx="80" cy="130" r="6"/><circle cx="230" cy="130" r="6"/><circle cx="230" cy="230" r="6"/><circle cx="80" cy="230" r="6"/></g>
+  <rect x="240" y="96" width="130" height="30" rx="15" fill="#fff"/>
+  <g fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"><rect x="252" y="105" width="16" height="11" rx="1.5"/><path d="M286 108 h9 a5 5 0 0 1 0 10 h-5"/><path d="M289 104 l-4 4 l4 4"/><rect x="316" y="106" width="10" height="10" rx="1"/><path d="M320 106 v-4 h10 v10 h-4"/><path d="M346 104 l10 10 M356 104 l-10 10" stroke="#c0392b"/></g>
+  <!-- the tap on empty ground -->
+  <circle cx="300" cy="290" r="16" fill="#fff" fill-opacity="0.25" stroke="#fff" stroke-width="2"/>
+  <circle cx="300" cy="290" r="5" fill="#fff"/>
+  <text x="300" y="325" font-size="14" fill="#fff" text-anchor="middle">tap here (no building)</text>
+  <path d="M200 350 L200 395" stroke="#fff" stroke-width="2" marker-end="url(#a)"/>
+  <!-- after -->
+  <text x="40" y="420" font-size="14" fill="#fff">Fix mode ends</text>
+  <rect x="80" y="450" width="150" height="100" fill="#9a5a4a"/>
+  <rect x="80" y="450" width="150" height="100" fill="none" stroke="#e8460a" stroke-width="1.5" stroke-dasharray="6 6"/>
+  <g font-size="13" fill="#fff"><text x="40" y="590">Handles and tools go away.</text><text x="40" y="610">Box goes back to normal.</text><text x="40" y="630">Tapping another building still fixes that one.</text></g>
+
+  <!-- ===== 2: thinner outline ===== -->
+  <text x="600" y="50" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">2 · See the roof while fixing</text>
+  <!-- today -->
+  <text x="430" y="100" font-size="14" fill="#fff">Now: 4px, yellow fill, big dots</text>
+  <g><rect x="480" y="130" width="200" height="140" fill="#9a5a4a"/><rect x="520" y="160" width="40" height="30" fill="#6e3e33"/><line x1="480" y1="200" x2="680" y2="200" stroke="#b57262" stroke-width="3"/></g>
+  <rect x="480" y="130" width="200" height="140" fill="#ffd166" fill-opacity="0.3" stroke="#ffd166" stroke-width="7"/>
+  <g fill="#fff" stroke="#e8460a" stroke-width="4"><circle cx="480" cy="130" r="12"/><circle cx="680" cy="130" r="12"/><circle cx="680" cy="270" r="12"/><circle cx="480" cy="270" r="12"/></g>
+  <g fill="#fff" stroke="#e8460a" stroke-width="2"><circle cx="580" cy="130" r="8"/><circle cx="680" cy="200" r="8"/><circle cx="580" cy="270" r="8"/><circle cx="480" cy="200" r="8"/></g>
+  <circle cx="580" cy="200" r="15" fill="#e8460a" stroke="#fff" stroke-width="3"/>
+  <!-- new -->
+  <text x="430" y="350" font-size="14" fill="#fff">New: 1.5px line, faint fill, small dots</text>
+  <g><rect x="480" y="380" width="200" height="140" fill="#9a5a4a"/><rect x="520" y="410" width="40" height="30" fill="#6e3e33"/><line x1="480" y1="450" x2="680" y2="450" stroke="#b57262" stroke-width="3"/></g>
+  <rect x="480" y="380" width="200" height="140" fill="#ffd166" fill-opacity="0.08" stroke="#ffd166" stroke-width="1.5"/>
+  <g fill="#fff" stroke="#e8460a" stroke-width="2"><circle cx="480" cy="380" r="6"/><circle cx="680" cy="380" r="6"/><circle cx="680" cy="520" r="6"/><circle cx="480" cy="520" r="6"/></g>
+  <g fill="#fff" fill-opacity="0.8"><circle cx="580" cy="380" r="3.5"/><circle cx="680" cy="450" r="3.5"/><circle cx="580" cy="520" r="3.5"/><circle cx="480" cy="450" r="3.5"/></g>
+  <circle cx="580" cy="450" r="9" fill="#e8460a" fill-opacity="0.85" stroke="#fff" stroke-width="2"/>
+  <g font-size="13" fill="#fff"><text x="430" y="565">Line sits on the roof edge, not over it.</text><text x="430" y="585">Touch areas stay big, only the drawn dots shrink.</text><text x="430" y="605">Other boxes: same thin 1.5px line.</text></g>
+
+  <!-- ===== 3: stop copying ===== -->
+  <text x="1000" y="50" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">3 · Clear way to stop copying</text>
+  <!-- top banner replaces the bottom panel -->
+  <rect x="830" y="80" width="340" height="52" rx="26" fill="#fff"/>
+  <rect x="842" y="94" width="20" height="20" rx="2" fill="none" stroke="#e8460a" stroke-width="2.2"/>
+  <path d="M848 94 v-5 h17 v17 h-3" fill="none" stroke="#e8460a" stroke-width="2.2"/>
+  <text x="874" y="112" font-size="15" fill="#333">Copying · <tspan font-weight="700">2</tspan> placed</text>
+  <rect x="1010" y="88" width="152" height="36" rx="18" fill="#e8460a"/>
+  <path d="M1026 99 l14 14 M1040 99 l-14 14" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
+  <text x="1104" y="112" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">Stop copying</text>
+  <!-- row of roofs with copies -->
+  <path d="M820 380 L1190 380" stroke="#3d4038" stroke-width="24"/>
+  <g fill="#9a5a4a"><rect x="840" y="220" width="70" height="110"/><rect x="930" y="220" width="70" height="110"/><rect x="1020" y="220" width="70" height="110"/><rect x="1110" y="220" width="70" height="110"/></g>
+  <g fill="#e8460a" fill-opacity="0.08" stroke="#e8460a" stroke-width="1.5"><rect x="840" y="220" width="70" height="110"/><rect x="930" y="220" width="70" height="110"/><rect x="1020" y="220" width="70" height="110"/></g>
+  <!-- ghost following the mouse with a hint -->
+  <rect x="1110" y="220" width="70" height="110" fill="#fff" fill-opacity="0.1" stroke="#fff" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <path d="M1145 275 l0 18 l5 -5 l4 9 l3 -1.5 l-4 -9 l7 0 z" fill="#fff" stroke="#222" stroke-width="1.2"/>
+  <rect x="1038" y="160" width="150" height="26" rx="13" fill="#222" fill-opacity="0.85"/>
+  <text x="1113" y="178" font-size="12" fill="#fff" text-anchor="middle">Click to drop · Esc to stop</text>
+  <g font-size="13" fill="#fff">
+    <text x="830" y="430">Banner at the top, where you are already looking,</text>
+    <text x="830" y="450">instead of a panel at the bottom.</text>
+    <text x="830" y="480">Red button says exactly what it does.</text>
+    <text x="830" y="510">Hint rides next to the mouse (computer only).</text>
+    <text x="830" y="540">Right-click also stops, like most drawing apps.</text>
+    <text x="830" y="570">When it stops: toast "3 copies added".</text>
+  </g>
+</svg>
