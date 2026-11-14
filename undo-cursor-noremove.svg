@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Three more review-mode fixes.
+       1. Ctrl+Z (Cmd+Z on Mac) undoes the last shape change; if there is none, it brings back the boxes last removed.
+       2. In Select, the mouse is a normal arrow (a hand over a box) instead of a crosshair that looked like drawing.
+       3. The red ✕ "Not a building" is gone from the floating tools; remove boxes with the Remove mode at the top. -->
+  <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#fff"/></marker></defs>
+  <rect width="1200" height="675" fill="#5f6b55"/>
+  <g stroke="#fff" stroke-opacity="0.4" stroke-width="2"><line x1="400" y1="70" x2="400" y2="650"/><line x1="800" y1="70" x2="800" y2="650"/></g>
+
+  <!-- ===== 1: Ctrl+Z ===== -->
+  <text x="200" y="50" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">1 · Ctrl + Z undoes</text>
+  <g transform="translate(120 85)">
+    <rect width="70" height="50" rx="8" fill="#fff"/><text x="35" y="32" font-size="16" font-weight="700" text-anchor="middle" fill="#1c1c1c">Ctrl</text>
+    <text x="85" y="33" font-size="22" fill="#fff">+</text>
+    <rect x="105" width="50" height="50" rx="8" fill="#fff"/><text x="130" y="33" font-size="18" font-weight="700" text-anchor="middle" fill="#1c1c1c">Z</text>
+  </g>
+  <text x="40" y="180" font-size="14" fill="#fff" font-weight="700">While fixing a shape</text>
+  <polygon points="70,215 160,200 170,265 80,275" fill="#ffd166" fill-opacity="0.15" stroke="#ffd166" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <path d="M180 240 L225 240" stroke="#fff" stroke-width="2" marker-end="url(#a)"/>
+  <rect x="245" y="205" width="100" height="65" fill="#ffd166" fill-opacity="0.15" stroke="#ffd166" stroke-width="1.5"/>
+  <text x="40" y="305" font-size="13" fill="#fff">The last drag, turn or rectangle goes back.</text>
+  <text x="40" y="365" font-size="14" fill="#fff" font-weight="700">After removing boxes</text>
+  <rect x="70" y="390" width="70" height="50" fill="none" stroke="#fff" stroke-opacity="0.5" stroke-dasharray="4 4"/>
+  <text x="105" y="420" font-size="11" fill="#fff" text-anchor="middle">removed</text>
+  <path d="M180 415 L225 415" stroke="#fff" stroke-width="2" marker-end="url(#a)"/>
+  <rect x="250" y="390" width="70" height="50" fill="#e8470f" fill-opacity="0.15" stroke="#e8470f" stroke-width="1.5" stroke-dasharray="6 6"/>
+  <text x="40" y="475" font-size="13" fill="#fff">The removed boxes come back</text>
+  <text x="40" y="495" font-size="13" fill="#fff">(same as the "Undo remove" button).</text>
+  <text x="40" y="560" font-size="13" fill="#fff">Nothing left to undo? A note says so.</text>
+  <text x="40" y="580" font-size="13" fill="#fff">Typing in the Name box is not affected.</text>
+
+  <!-- ===== 2: cursor ===== -->
+  <text x="600" y="50" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">2 · Clearer mouse in Select</text>
+  <text x="430" y="100" font-size="14" fill="#fff">Before: crosshair (looks like drawing)</text>
+  <rect x="470" y="125" width="260" height="140" rx="10" fill="#4b5743" stroke="#fff" stroke-opacity="0.5"/>
+  <rect x="510" y="160" width="70" height="50" fill="#2ea043" fill-opacity="0.35" stroke="#2ea043" stroke-width="1.5"/>
+  <g stroke="#fff" stroke-width="2"><line x1="650" y1="175" x2="650" y2="215"/><line x1="630" y1="195" x2="670" y2="195"/></g>
+  <path d="M600 285 L600 325" stroke="#fff" stroke-width="2" marker-end="url(#a)"/>
+  <text x="430" y="355" font-size="14" fill="#fff">After</text>
+  <rect x="470" y="375" width="260" height="140" rx="10" fill="#4b5743" stroke="#fff" stroke-opacity="0.5"/>
+  <rect x="510" y="410" width="70" height="50" fill="#2ea043" fill-opacity="0.35" stroke="#2ea043" stroke-width="1.5"/>
+  <!-- normal arrow on the map -->
+  <path d="M650 420 L650 452 L658 445 L664 458 L669 456 L663 443 L673 443 Z" fill="#fff" stroke="#000" stroke-width="1.2"/>
+  <text x="662" y="480" font-size="12" fill="#fff" text-anchor="middle">on the map</text>
+  <!-- hand over a box -->
+  <g transform="translate(540 425)" fill="#fff" stroke="#000" stroke-width="1.2"><path d="M4 0 v14 l-4 -3 l-2 3 l8 9 h10 l3 -8 v-8 h-3 v4 h-1 v-6 h-3 v6 h-1 v-7 h-3 v7 h-1 v-14 z"/></g>
+  <text x="545" y="490" font-size="12" fill="#fff" text-anchor="middle">over a box</text>
+  <text x="430" y="560" font-size="13" fill="#fff">Arrow on the map, pointing hand over a</text>
+  <text x="430" y="580" font-size="13" fill="#fff">box: hold and drag over boxes as before.</text>
+
+  <!-- ===== 3: no red X ===== -->
+  <text x="1000" y="50" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">3 · No red ✕ on the tools</text>
+  <text x="830" y="100" font-size="14" fill="#fff">Before: 5 tools, ✕ removed the box</text>
+  <g transform="translate(860 120)">
+    <rect width="250" height="44" rx="22" fill="#fff"/>
+    <g fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"><rect x="15" y="16" width="20" height="12" rx="1.5"/><path d="M68 12 l-4 20 M80 12 l4 20"/><path d="M118 18 l-5 5 l5 5 M113 23 h12 a5 5 0 0 1 0 10 h-4"/><rect x="157" y="17" width="12" height="12" rx="1"/><path d="M161 17 v-4 h12 v12 h-4"/><path d="M207 14 l16 16 M223 14 l-16 16" stroke="#c0392b" stroke-width="2.5"/></g>
+    <circle cx="215" cy="22" r="19" fill="none" stroke="#ff6a33" stroke-width="2"/>
+  </g>
+  <path d="M985 185 L985 230" stroke="#fff" stroke-width="2" marker-end="url(#a)"/>
+  <text x="830" y="260" font-size="14" fill="#fff">After: 4 tools</text>
+  <g transform="translate(885 280)">
+    <rect width="200" height="44" rx="22" fill="#fff"/>
+    <g fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"><rect x="15" y="16" width="20" height="12" rx="1.5"/><path d="M68 12 l-4 20 M80 12 l4 20"/><path d="M118 18 l-5 5 l5 5 M113 23 h12 a5 5 0 0 1 0 10 h-4"/><rect x="157" y="17" width="12" height="12" rx="1"/><path d="M161 17 v-4 h12 v12 h-4"/></g>
+  </g>
+  <g font-size="12" fill="#fff" text-anchor="middle"><text x="910" y="345">Rectangle</text><text x="960" y="365">Street</text><text x="1005" y="345">Undo</text><text x="1050" y="365">Copy</text></g>
+  <text x="830" y="420" font-size="14" fill="#fff" font-weight="700">To remove a box now</text>
+  <g transform="translate(860 440)">
+    <rect width="250" height="40" rx="20" fill="#fff"/>
+    <text x="16" y="25" font-size="13" fill="#1c1c1c">Fix shape</text>
+    <rect x="84" y="5" width="72" height="30" rx="15" fill="#e8470f"/><text x="120" y="25" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">Remove</text>
+    <text x="168" y="25" font-size="13" fill="#1c1c1c">Keep</text>
+  </g>
+  <text x="830" y="520" font-size="13" fill="#fff">Pick Remove at the top, then tap the box.</text>
+  <text x="830" y="540" font-size="13" fill="#fff">No more removing by accident while fixing.</text>
+</svg>

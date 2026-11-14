@@ -1,5 +1,5 @@
 // Roads near where the user is working, loaded once per area so outlines can line up with them.
-import { fetchRoadsNear } from "./overpass.js";
+import { roadsNear } from "./roadTiles.js";
 import { dist, metreFrame } from "./geo.js";
 
 let roads = [], at = null, loading = Promise.resolve();
@@ -10,6 +10,7 @@ let chosen = null; // one street the user tapped; new outlines line up with it i
 export const roadsNow = () => (chosen ? [chosen] : roads);
 export const roadReach = () => (chosen ? Infinity : 60);
 export const hasStreet = () => !!chosen;
+export const hasRoads = () => roads.length > 0;
 export const clearStreet = () => { chosen = null; };
 
 // Chooses the loaded road closest to a point. Returns it (list of [lat, lng]) or null if none are loaded.
@@ -30,6 +31,6 @@ export function chooseStreetNear(lat, lng) {
 export function loadRoads(lat, lng) {
   if (at && dist(lat, lng, at[0], at[1]) < 150) return loading;
   at = [lat, lng];
-  loading = fetchRoadsNear(lat, lng, 300).then(r => { roads = r; }).catch(() => { at = null; }); // busy server: try again next time
+  loading = roadsNear(lat, lng, 300).then(r => { roads = r; }).catch(() => { at = null; }); // busy server: try again next time
   return loading;
 }

@@ -10,6 +10,7 @@ import { sendOrQueue } from "../data/osmSend.js";
 import { overlapsExisting } from "../data/buildings.js";
 import { showSentBuildings } from "./buildingLayer.js";
 import { inside } from "../data/geo.js";
+import { undoShape } from "./cornerEditor.js";
 import { currentBoxes, removeBoxes, restoreBoxes, restyle, saveBoxes, fixBox, unfocus, drawYourself, scanWithAi, saveForTraining } from "./missingLayer.js";
 
 const MODES = { fix: "Fix shape", remove: "Remove", keep: "Keep" };
@@ -51,9 +52,11 @@ function showChips() {
     chips = L.DomUtil.create("div", "modeChips", map.getContainer());
     L.DomEvent.disableClickPropagation(chips); // a tap here is not a tap on the map
     chips.innerHTML = Object.entries(MODES).map(([k, t]) => `<button class="chip" data-mode="${k}">${t}</button>`).join("")
-      + `<span class="chipLine"></span><button class="chip sel" id="selB" aria-pressed="false">Select</button>`;
+      + `<span class="chipLine"></span><button class="chip sel" id="selB" aria-pressed="false">Select</button>`
+      + `<button class="chip chipX" id="chipsX" aria-label="Done checking" data-tip="Done checking">✕</button>`;
     chips.querySelectorAll("[data-mode]").forEach(c => { c.onclick = () => { mode = c.dataset.mode; if (mode === "fix") setSelecting(false); showReview(); }; }); // also brings the bar back after fixing a shape
     chips.querySelector("#selB").onclick = () => { setSelecting(!selecting); if (mode === "fix") mode = "keep"; showReview(); };
+    chips.querySelector("#chipsX").onclick = () => { closeSheet(); stopReview(); };
   }
   chips.querySelectorAll("[data-mode]").forEach(c => c.classList.toggle("on", c.dataset.mode === mode));
 }
@@ -92,6 +95,14 @@ function startSelectDrag() {
     showReview();
   });
 }
+
+// Ctrl+Z (Cmd+Z on Mac): undo the last shape change, or else bring back the last removed boxes.
+document.addEventListener("keydown", e => {
+  if (!chips || !(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "z" || /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+  e.preventDefault();
+  if (undoShape()) return;
+  if (undo.length) { restoreBoxes(undo); undo = []; showReview(); } else toast("Nothing to undo.");
+});
 
 export function showNoneFound() {
   stopReview();

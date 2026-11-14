@@ -5,7 +5,7 @@
 import { map } from "./mapView.js";
 import { state } from "../data/state.js";
 import { mid, squareUp } from "../data/geo.js";
-import { pushWall, turn, bearing, snapTurn, sizeText } from "../data/shapeMoves.js";
+import { pushWall, turn, bearing, snapTurn, sizeText, lineUp } from "../data/shapeMoves.js";
 import { wallAngle } from "../data/rectangle.js";
 import { loadRoads, roadsNow, roadReach } from "../data/roads.js";
 
@@ -124,6 +124,14 @@ export function squareShape() {
   show(squareUp(current.coords));
   done();
   return true;
+}
+
+// Turns the outline so its walls run along the chosen street (or nearest road). Can be undone.
+export function lineUpShape() {
+  if (!current) return;
+  remember();
+  show(lineUp(current.coords, wallAngle(current.center, roadsNow(), [], roadReach())));
+  done();
 }
 
 // Goes back one change. Returns false if there is nothing to undo.

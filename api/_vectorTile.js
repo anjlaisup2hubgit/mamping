@@ -1,4 +1,4 @@
-// Turns one map tile (Mapbox vector tile format) into building outlines in [lat, lng] with their details.
+// Turns one map tile (Mapbox vector tile format) into building outlines or road lines in [lat, lng] with their details.
 
 function reader(buf) {
   let pos = 0;
@@ -45,11 +45,20 @@ function rings(cmds) {
       ring.push([x, y]);
     }
   }
+  if (ring) out.push(ring); // lines are never closed, so the last one ends here
   return out;
 }
 
 // Returns [{ props, coords: [[lat, lng], ...] }] for the outer ring of every building in the layer.
-export function readBuildings(buf, z, tx, ty, layerName = "building") {
+export const readBuildings = (buf, z, tx, ty, layerName = "building") =>
+  readLayer(buf, z, tx, ty, layerName, 3).map(f => ({ props: f.props, coords: f.parts[0] })).filter(f => f.coords.length >= 3);
+
+// Returns [{ props, coords: [[lat, lng], ...] }] for every line (e.g. road) in the layer.
+export const readLines = (buf, z, tx, ty, layerName) =>
+  readLayer(buf, z, tx, ty, layerName, 2).flatMap(f => f.parts.filter(p => p.length > 1).map(coords => ({ props: f.props, coords })));
+
+// Every feature of one shape type in the layer (2 = lines, 3 = polygons), as { props, parts: [[[lat, lng], ...], ...] }.
+function readLayer(buf, z, tx, ty, layerName, wanted) {
   const out = [], t = reader(buf);
   while (t.more()) {
     const [f, type] = t.key();
@@ -77,18 +86,17 @@ export function readBuildings(buf, z, tx, ty, layerName = "building") {
         else if (ff === 4) geom = packed(fr.bytes());
         else fr.skip(ft);
       }
-      if (gtype !== 3) continue; // polygons only
+      if (gtype !== wanted) continue;
       const props = {};
       for (let k = 0; k < tags.length; k += 2) props[keys[tags[k]]] = values[tags[k + 1]];
-      const outer = rings(geom)[0];
-      if (!outer || outer.length < 3) continue;
+      const parts = rings(geom);
+      if (!parts.length) continue;
       const n = 2 ** z;
-      const coords = outer.map(([px, py]) => {
+      out.push({ props, parts: parts.map(part => part.map(([px, py]) => {
         const lng = ((tx + px / extent) / n) * 360 - 180;
         const lat = (Math.atan(Math.sinh(Math.PI * (1 - (2 * (ty + py / extent)) / n))) * 180) / Math.PI;
         return [+lat.toFixed(7), +lng.toFixed(7)];
-      });
-      out.push({ props, coords });
+      })) });
     }
   }
   return out;

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" font-family="Segoe UI, Arial, sans-serif">
+  <!-- "Choose a street" now works.
+       Why it did nothing: streets came only from the free Overpass servers, which were timing out, so no street was ever found.
+       Now: streets are read from the street map's own tiles (OpenFreeMap) by our server, in under a second. OpenStreetMap, then Overpass, are only backups.
+       And after you tap a street, the building turns to line up with it straight away (Ctrl+Z or Undo turns it back). -->
+  <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#fff"/></marker></defs>
+  <rect width="1200" height="675" fill="#5f6b55"/>
+  <g stroke="#fff" stroke-opacity="0.4" stroke-width="2"><line x1="400" y1="70" x2="400" y2="650"/><line x1="800" y1="70" x2="800" y2="650"/></g>
+
+  <!-- ===== 1: tap the street tool ===== -->
+  <text x="200" y="50" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">1 · Tap the street tool</text>
+  <g transform="translate(100 110)">
+    <rect width="200" height="44" rx="22" fill="#fff"/>
+    <g fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"><rect x="15" y="16" width="20" height="12" rx="1.5"/><path d="M68 12 l-4 20 M80 12 l4 20"/><path d="M118 18 l-5 5 l5 5 M113 23 h12 a5 5 0 0 1 0 10 h-4"/><rect x="157" y="17" width="12" height="12" rx="1"/><path d="M161 17 v-4 h12 v12 h-4"/></g>
+    <circle cx="74" cy="22" r="19" fill="none" stroke="#ff6a33" stroke-width="2.5"/>
+  </g>
+  <rect x="80" y="200" width="240" height="40" rx="20" fill="#1c1c1c"/>
+  <text x="200" y="225" font-size="13" fill="#fff" text-anchor="middle">Tap a street to line up with.</text>
+  <text x="40" y="300" font-size="14" fill="#fff" font-weight="700">Why it did nothing before</text>
+  <g font-size="13" fill="#fff"><text x="40" y="325">Streets came only from the free Overpass</text><text x="40" y="345">servers. They were busy and timed out,</text><text x="40" y="365">so no street was ever found.</text></g>
+  <text x="40" y="420" font-size="14" fill="#fff" font-weight="700">Now</text>
+  <g transform="translate(40 435)">
+    <rect width="320" height="44" rx="10" fill="#fff"/><text x="16" y="27" font-size="13" fill="#1c1c1c"><tspan font-weight="700">1st</tspan>  Street map tiles (under 1 second)</text>
+    <rect y="54" width="320" height="44" rx="10" fill="#fff" fill-opacity="0.6"/><text x="16" y="81" font-size="13" fill="#1c1c1c"><tspan font-weight="700">Backup</tspan>  OpenStreetMap, then Overpass</text>
+  </g>
+  <text x="40" y="580" font-size="13" fill="#fff">The same tiles the street map draws with.</text>
+
+  <!-- ===== 2: tap a street ===== -->
+  <text x="600" y="50" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">2 · Tap a street</text>
+  <rect x="440" y="90" width="320" height="400" rx="10" fill="#4b5743" stroke="#fff" stroke-opacity="0.5"/>
+  <path d="M470 470 L740 150" stroke="#8a8a80" stroke-width="22" stroke-linecap="round"/>
+  <path d="M470 470 L740 150" stroke="#1E7BE8" stroke-width="8" stroke-opacity="0.7" stroke-linecap="round"/>
+  <polygon points="520,190 600,185 605,240 525,245" fill="#ffd166" fill-opacity="0.15" stroke="#ffd166" stroke-width="1.5"/>
+  <circle cx="660" cy="245" r="16" fill="#fff" fill-opacity="0.25" stroke="#fff" stroke-width="2"/><circle cx="660" cy="245" r="5" fill="#fff"/>
+  <text x="680" y="275" font-size="13" fill="#fff">your tap</text>
+  <rect x="465" y="510" width="270" height="40" rx="20" fill="#1c1c1c"/>
+  <text x="600" y="535" font-size="12" fill="#fff" text-anchor="middle">Street chosen. The building now lines up with it.</text>
+  <g font-size="13" fill="#fff"><text x="430" y="590">The chosen street turns blue.</text><text x="430" y="610">Tap away from streets to clear it.</text></g>
+
+  <!-- ===== 3: building lines up ===== -->
+  <text x="1000" y="50" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">3 · Building lines up</text>
+  <rect x="840" y="90" width="320" height="400" rx="10" fill="#4b5743" stroke="#fff" stroke-opacity="0.5"/>
+  <path d="M870 470 L1140 150" stroke="#8a8a80" stroke-width="22" stroke-linecap="round"/>
+  <path d="M870 470 L1140 150" stroke="#1E7BE8" stroke-width="8" stroke-opacity="0.7" stroke-linecap="round"/>
+  <polygon points="920,190 1000,185 1005,240 925,245" fill="none" stroke="#fff" stroke-opacity="0.4" stroke-dasharray="4 4"/>
+  <g transform="rotate(-49.8 962 215)"><rect x="920" y="188" width="84" height="54" fill="#ffd166" fill-opacity="0.15" stroke="#ffd166" stroke-width="1.5"/></g>
+  <path d="M1010 180 a40 40 0 0 1 10 40" fill="none" stroke="#fff" stroke-width="2" marker-end="url(#a)"/>
+  <g font-size="13" fill="#fff"><text x="830" y="530">The building turns the smallest amount</text><text x="830" y="550">needed so its walls run along the street.</text><text x="830" y="590">Turning it later with the round handle</text><text x="830" y="610">also clicks into line with this street.</text><text x="830" y="640">Undo or Ctrl+Z turns it back.</text></g>
+</svg>

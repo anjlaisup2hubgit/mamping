@@ -50,6 +50,12 @@ export function snapTurn(c, ang, target) {
   return Math.abs(off) < 4 * Math.PI / 180 ? { ang: ang + off, lined: true } : { ang, lined: false };
 }
 
+// The outline turned the least amount needed so its walls run along direction `target`.
+export function lineUp(c, target) {
+  const q = Math.PI / 2, d = target - mainAngle(c);
+  return turn(c, d - q * Math.round(d / q));
+}
+
 // The same outline with its middle moved to `at`.
 export function moveTo(c, at) {
   const f = metreFrame(mid(c)), g = metreFrame(at);

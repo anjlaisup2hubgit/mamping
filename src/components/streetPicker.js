@@ -1,7 +1,7 @@
 // Lets the user tap one street; new and turned outlines then line up with it instead of the nearest road.
 import { map } from "./mapView.js";
 import { state } from "../data/state.js";
-import { loadRoads, chooseStreetNear } from "../data/roads.js";
+import { loadRoads, chooseStreetNear, hasRoads } from "../data/roads.js";
 import { toast } from "./toast.js";
 
 let line = null; // blue highlight on the chosen street
@@ -16,11 +16,13 @@ export function pickStreet(changed) {
   toast("Tap a street to line up with. Tap away from streets to clear.");
   state.picking = true; // so this tap does not close the panel or leave the building being fixed
   map.once("click", async e => {
+    toast("Finding the street…");
     await loadRoads(e.latlng.lat, e.latlng.lng);
-    const road = chooseStreetNear(e.latlng.lat, e.latlng.lng);
     state.picking = false;
+    if (!hasRoads()) return toast("Could not load streets. Check your internet and try again.");
+    const road = chooseStreetNear(e.latlng.lat, e.latlng.lng);
     show(road);
-    toast(road ? "Street chosen" : "Street cleared");
-    if (changed) changed();
+    toast(road ? "Street chosen. The building now lines up with it." : "No street there. Street cleared.");
+    if (road && changed) changed();
   });
 }
