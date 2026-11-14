@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" font-family="system-ui, Segoe UI, sans-serif">
+  <!-- map backdrop -->
+  <rect width="960" height="540" fill="#5b6b4f"/>
+  <g fill="#3f9b4a" fill-opacity="0.75" stroke="#2fbf3f" stroke-width="2">
+    <polygon points="200,150 330,110 360,170 230,215"/>
+    <polygon points="420,200 560,150 590,215 450,265"/>
+    <polygon points="620,260 760,210 790,275 650,325"/>
+    <polygon points="250,300 380,260 410,325 280,370"/>
+  </g>
+
+  <!-- TOP TOOLBAR: Fix shape, Remove, Keep | Select (pressed = orange) -->
+  <rect x="292" y="16" width="376" height="48" rx="24" fill="#fff"/>
+  <g font-size="15" text-anchor="middle" fill="#222">
+    <text x="348" y="46" font-weight="600">Fix shape</text>
+    <text x="440" y="46">Remove</text>
+    <text x="518" y="46">Keep</text>
+  </g>
+  <line x1="566" y1="28" x2="566" y2="52" stroke="#ddd" stroke-width="2"/>
+  <rect x="578" y="22" width="84" height="36" rx="18" fill="#f2561d"/>
+  <text x="620" y="46" font-size="15" font-weight="700" text-anchor="middle" fill="#fff">Select</text>
+
+  <!-- BOTTOM ISLAND: one slim row -->
+  <rect x="280" y="466" width="400" height="52" rx="26" fill="#fff"/>
+  <text x="302" y="498" font-size="14" fill="#222"><tspan font-weight="700" fill="#2e9e3a">16</tspan> keep · <tspan font-weight="700">6</tspan> to check</text>
+  <rect x="442" y="474" width="128" height="36" rx="18" fill="#f2561d"/>
+  <text x="506" y="497" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">Add 16 to OSM</text>
+  <circle cx="598" cy="492" r="15" fill="#f1f1f1"/>
+  <g fill="#222"><circle cx="591" cy="492" r="2"/><circle cx="598" cy="492" r="2"/><circle cx="605" cy="492" r="2"/></g>
+  <circle cx="648" cy="492" r="15" fill="#f1f1f1"/>
+  <path d="M642 486 L654 498 M654 486 L642 498" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+</svg>

@@ -12,7 +12,7 @@ import { showSentBuildings } from "./buildingLayer.js";
 import { inside } from "../data/geo.js";
 import { currentBoxes, removeBoxes, restoreBoxes, restyle, saveBoxes, fixBox, unfocus, drawYourself, scanWithAi, saveForTraining } from "./missingLayer.js";
 
-const MODES = { keep: "Keep", remove: "Remove", fix: "Fix shape" };
+const MODES = { fix: "Fix shape", remove: "Remove", keep: "Keep" };
 const drawBtn = `<button class="big ghost" id="drawSelf" style="min-height:48px">AI missed one? Draw it yourself</button>`;
 const short = from => from.split(" ")[0]; // "Microsoft ML Buildings" -> "Microsoft"
 const sourceOf = list => [...new Set(list.map(b => b.from).filter(Boolean)), "Esri World Imagery"].join("; ");

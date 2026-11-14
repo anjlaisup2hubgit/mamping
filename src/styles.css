@@ -156,9 +156,9 @@ button:disabled{opacity:.5;cursor:default}
 .rec.drive svg{display:none}
 
 /* scan area: a short bar instead of a tall panel, a hint at the top, numbered picture squares */
-.sheet.barSheet{flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));border:1px solid var(--line);border-radius:32px;padding:10px 12px 10px 20px}
+.sheet.barSheet{flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px;left:50%;right:auto;transform:translateX(-50%);width:min(440px,calc(100% - 24px));bottom:max(12px,env(safe-area-inset-bottom));border:1px solid var(--line);border-radius:28px;padding:8px 10px 8px 18px}
 .sheet.barSheet .x{position:static;flex:none}
-.pill{min-height:44px;border-radius:22px;padding:0 16px;font-weight:600;flex:none}
+.pill{min-height:36px;border-radius:18px;padding:0 14px;font-weight:600;flex:none;font-size:14px}
 .pickHint{position:absolute;top:36px;left:50%;transform:translateX(-50%);z-index:900;background:var(--surf);color:var(--ink);border-radius:20px;padding:8px 16px;font-size:14px;max-width:calc(100% - 32px);text-align:center;box-shadow:0 1px 4px #0003;pointer-events:none}
 .sqnum{width:24px;height:24px;border-radius:50%;background:#1F6FEB;color:#fff;font:700 13px/24px system-ui,sans-serif;text-align:center}
 
@@ -176,7 +176,6 @@ button:disabled{opacity:.5;cursor:default}
 .modeChips .chip{border:0;border-radius:20px;padding:8px 14px;min-height:40px;background:transparent;color:var(--ink);font-size:14px;cursor:pointer}
 .modeChips .chip.on{background:var(--acc);color:#fff;font-weight:700}
 .modeChips .chipLine{width:1px;margin:8px 2px;background:var(--line)}
-.modeChips .chip.sel.on{background:var(--ink);color:var(--surf)}
 .selecting,.selecting path.leaflet-interactive{cursor:crosshair;touch-action:none}
 .picking .modeChips{display:none}
 .rcount{flex:1;font-size:15px;min-width:140px}
