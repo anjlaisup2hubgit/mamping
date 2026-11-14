@@ -36,7 +36,11 @@ function send() {
 export async function loadScan() {
   if (isLoggedIn() && isUnsent()) { send().catch(() => {}); return loadLocal(); } // the phone has newer boxes than the server
   if (isLoggedIn()) {
-    try { return await getScan(); } catch (e) { console.error("[scan] could not load from server:", e); }
+    try {
+      const saved = await getScan(), local = loadLocal();
+      if (!saved.length && local.length) { markUnsent(true); send().catch(() => {}); return local; } // made before logging in: keep them and send them up
+      return saved;
+    } catch (e) { console.error("[scan] could not load from server:", e); }
   }
   return loadLocal();
 }
