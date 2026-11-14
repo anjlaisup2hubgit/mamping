@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" font-family="Segoe UI, Arial, sans-serif">
+  <!-- A "Flat view" button that shows only while the map is tilted or turned. One tap puts it back top-down, so outlines return. -->
+  <rect width="1200" height="675" fill="#f4f2ec"/>
+  <g font-size="20" font-weight="700" fill="#222">
+    <text x="30" y="48">1. Tilted: outlines are hidden</text><text x="640" y="48">2. Tap Flat view: top-down, outlines back</text>
+  </g>
+
+  <!-- panel 1: tilted map, grey 3D blocks, no outlines -->
+  <rect x="30" y="70" width="540" height="480" rx="14" fill="#e9e6dc" stroke="#d2cec2"/>
+  <g stroke="#fff" stroke-width="16" fill="none"><path d="M60 330 L540 400"/><path d="M300 90 L250 540"/></g>
+  <g fill="#cfcdc6" stroke="#b9b6ad" stroke-width="2">
+    <path d="M90 140 l110 -20 v60 l-110 20z"/><path d="M340 130 l150 -20 v70 l-150 25z"/><path d="M90 420 l120 15 v55 l-120 -10z"/>
+  </g>
+  <!-- the new button, top right -->
+  <g>
+    <circle cx="520" cy="115" r="26" fill="#fff" stroke="#e8460a" stroke-width="3"/>
+    <!-- "2D" = flat top-down map, the same word other map apps use -->
+    <text x="520" y="123" font-size="22" font-weight="800" fill="#e8460a" text-anchor="middle">2D</text>
+    <text x="520" y="162" font-size="14" font-weight="700" fill="#e8460a" text-anchor="middle">Flat view</text>
+  </g>
+  <!-- bottom toolbar, as in the app -->
+  <rect x="150" y="470" width="300" height="56" rx="28" fill="#fff" stroke="#d2cec2"/><circle cx="300" cy="470" r="30" fill="#e8460a"/>
+
+  <!-- arrow -->
+  <g fill="#888"><path d="M585 300 l30 15 l-30 15z"/></g>
+
+  <!-- panel 2: flat map, grey outlines back, new building orange -->
+  <rect x="630" y="70" width="540" height="480" rx="14" fill="#e9e6dc" stroke="#d2cec2"/>
+  <g stroke="#fff" stroke-width="16" fill="none"><path d="M660 300 L1140 360"/><path d="M880 90 L850 540"/></g>
+  <g fill="#9a9a94" fill-opacity="0.25" stroke="#7a7a74" stroke-width="2">
+    <rect x="670" y="110" width="110" height="70"/><rect x="940" y="120" width="150" height="80"/><rect x="670" y="400" width="120" height="75"/>
+  </g>
+  <rect x="940" y="400" width="110" height="60" fill="#e8460a" fill-opacity="0.3" stroke="#e8460a" stroke-width="4"/>
+  <text x="995" y="490" font-size="14" font-weight="700" fill="#e8460a" text-anchor="middle">your new building</text>
+  <rect x="750" y="470" width="300" height="56" rx="28" fill="#fff" stroke="#d2cec2"/><circle cx="900" cy="470" r="30" fill="#e8460a"/>
+  <text x="900" y="95" font-size="13" fill="#555" text-anchor="middle">button disappears when flat</text>
+
+  <!-- note -->
+  <rect x="30" y="580" width="1140" height="70" rx="14" fill="#fff" stroke="#d2cec2"/>
+  <text x="55" y="610" font-size="16" fill="#222"><tspan font-weight="700">Now:</tspan> the only ways back are right-drag, arrow keys or a two-finger drag, which are easy to miss.</text>
+  <text x="55" y="635" font-size="16" fill="#222"><tspan font-weight="700">New:</tspan> one round button, top right, shown only when tilted or turned. Tap = pitch 0 and north up.</text>
+</svg>

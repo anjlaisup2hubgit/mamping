@@ -106,9 +106,18 @@ function startTiltGestures(el) {
   el.addEventListener("touchend", () => { startY = null; });
 }
 
+// Round "2D" button, shown only while tilted or turned (see styles.css): one tap puts the map flat with north up.
+function addFlatButton() {
+  const btn = L.DomUtil.create("button", "round", map.getContainer());
+  btn.id = "flatBtn"; btn.textContent = "2D"; btn.setAttribute("aria-label", "Flat view"); btn.dataset.tip = "Flat view";
+  L.DomEvent.disableClickPropagation(btn);
+  btn.addEventListener("click", () => { pitch = 0; bearing = 0; applyTilt(); });
+}
+
 export function startMap() {
   map = L.map("map", { zoomControl: false, maxZoom: MAX_ZOOM }).setView(HAI_PHONG, 17);
   setBaseLayer("street");
+  addFlatButton();
   startTiltGestures(map.getContainer());
   startSpinKeys();
   startTiltedDrag(map.getContainer());
