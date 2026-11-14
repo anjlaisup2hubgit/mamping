@@ -124,6 +124,7 @@ button:disabled{opacity:.5;cursor:default}
 
 /* choosing the scan area: buildings under the box cannot be tapped, the box handles still can */
 .picking path.leaflet-interactive{pointer-events:none}
+.picking path.sq.leaflet-interactive{pointer-events:auto}
 .picking .nav{visibility:hidden}
 
 /* filming help: tips card, live hint, weak-GPS chip, and a ring that fills to "enough footage" */
@@ -156,6 +157,13 @@ button:disabled{opacity:.5;cursor:default}
 .mname small{font-size:12px;margin-left:8px}
 .moreMenu{display:flex;flex-direction:column;gap:8px}
 .moreMenu[hidden]{display:none}
+.modeChips{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:900;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;background:var(--surf);border-radius:24px;padding:4px;box-shadow:0 1px 4px #0003;max-width:calc(100% - 32px)}
+.modeChips .chip{border:0;border-radius:20px;padding:8px 14px;min-height:40px;background:transparent;color:var(--ink);font-size:14px;cursor:pointer}
+.modeChips .chip.on{background:var(--acc);color:#fff;font-weight:700}
+.modeChips .chipTip{flex-basis:100%;text-align:center;font-size:12px;color:var(--mid,#777);padding-bottom:2px}
+.rcount{flex:1;font-size:15px;min-width:140px}
+.rcount .kept{color:#2EA043}
+.rwide{flex-basis:100%}
 .leaflet-tooltip.boxnum{background:#E8470F;color:#fff;border:2px solid #fff;border-radius:50%;width:24px;height:24px;padding:0;font:700 12px/20px system-ui,sans-serif;text-align:center;box-shadow:none}
 .leaflet-tooltip.boxnum::before{display:none}
 

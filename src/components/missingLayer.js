@@ -8,8 +8,7 @@ import { mid, inside, dist } from "../data/geo.js";
 import { map, liftIntoView, currentBase, setBaseLayer } from "./mapView.js";
 import { loadBuildings, refreshStyles } from "./buildingLayer.js";
 import { showSuggestion } from "./suggestSheet.js";
-import { showBatch } from "./batchSheet.js";
-import { markBox } from "./removeMode.js";
+import { showReview, showNoneFound, tapBox } from "./reviewBar.js";
 import { editCorners, stopEditing } from "./cornerEditor.js";
 import { startDrawing } from "./drawBuilding.js";
 import { toast } from "./toast.js";
@@ -18,7 +17,7 @@ import { readyIn } from "../data/readyBuildings.js";
 import { pickArea } from "./areaPicker.js";
 import { saveTrainingSet } from "../data/trainingSet.js";
 
-const MAX_VIEWS = 6, MIN_ZOOM = 17, MAX_READY = 60; // more than 60 boxes at once is too many to check
+const MAX_VIEWS = 6, MIN_ZOOM = 17, MAX_READY = 500; // a few hundred is fine to check by tapping on the map
 let layer = null, boxes = [], area = null, squares = []; // boxes = the orange outlines now on the map; area = the last area scanned, squares = its chosen pictures
 
 // True if a point [lat, lng] sits in one of the chosen picture squares.
@@ -67,7 +66,6 @@ function addBoxes(list) {
   const fresh = list.filter(b => !boxes.some(o => near(b.center, o)));
   boxes = boxes.concat(fresh);
   fresh.forEach(drawBox);
-  renumber();
   saveBoxes();
 }
 
@@ -82,7 +80,7 @@ async function showReady() {
   if (!list.length) return false;
   addBoxes(list.slice(0, MAX_READY));
   toast(list.length > MAX_READY ? `Showing the ${MAX_READY} nearest of ${list.length}. Move the map to see more.` : `${list.length} ready-made outline${list.length > 1 ? "s" : ""} found.`);
-  showBatch(boxes);
+  showReview();
   return true;
 }
 
@@ -103,25 +101,30 @@ async function scan() {
   if (failed === results.length) return toast(WHY[results[0].reason?.message] || "Could not read the satellite image. Check your internet and try again.");
   addBoxes(missing);
   toast(`${missing.length ? `${missing.length} missing found.` : "No missing buildings found here."}${failed ? ` ${failed} picture(s) failed.` : ""}`);
-  showBatch(boxes); // with none found, it offers to draw one yourself
+  if (boxes.length) showReview(); else showNoneFound(); // with none found, it offers to draw one yourself
 }
 
 const STYLE = { color: "#E8470F", weight: 2, dashArray: "6 6", fillColor: "#E8470F", fillOpacity: 0.15 };
 const PICKED = { color: "#FFD166", weight: 4, dashArray: null, fillColor: "#FFD166", fillOpacity: 0.3 }; // the one being looked at
-const MARKED = { color: "#FFFFFF", weight: 3, dashArray: null, fillColor: "#E8470F", fillOpacity: 0.55 }; // chosen for removal
+const KEPT = { color: "#2EA043", weight: 3, dashArray: null, fillColor: "#2EA043", fillOpacity: 0.35 }; // checked: add it
 let focused = null;
-const styleOf = o => o === focused ? PICKED : o.marked ? MARKED : STYLE;
+const styleOf = o => o === focused ? PICKED : o.keep ? KEPT : STYLE;
 export const restyle = () => boxes.forEach(o => o.shape && o.shape.setStyle(styleOf(o)));
 
 function drawBox(b) {
   layer ||= L.layerGroup().addTo(map);
-  b.shape = L.polygon(b.coords, STYLE).addTo(layer)
-    .bindTooltip("", { permanent: true, direction: "center", className: "boxnum" })
-    .on("click", e => { if (state.drawing) return; L.DomEvent.stopPropagation(e); if (markBox(b)) return; state.selectedId = null; refreshStyles(); focusBox(b); showSuggestion(b); liftIntoView(b.center); });
+  b.shape = L.polygon(b.coords, styleOf(b)).addTo(layer)
+    .on("click", e => { if (state.drawing) return; L.DomEvent.stopPropagation(e); tapBox(b); });
 }
 
-// Each box shows its number, the same as in the list.
-const renumber = () => boxes.forEach((b, i) => b.shape && b.shape.setTooltipContent(String(i + 1)));
+// "Fix shape": the box turns yellow with corner handles, and its own panel opens.
+export function fixBox(b) {
+  state.selectedId = null;
+  refreshStyles();
+  focusBox(b);
+  showSuggestion(b);
+  liftIntoView(b.center);
+}
 
 // Turns one box yellow (the others back to orange, or white-edged if chosen for removal) and shows its corner handles.
 export function focusBox(b) {
@@ -132,8 +135,9 @@ export function focusBox(b) {
 
 export const unfocus = () => { focused = null; stopEditing(); restyle(); }; // no box yellow, no corner handles
 export const currentBoxes = () => boxes;
-// Ready-made outlines are not saved: they load again in a moment.
-export const saveBoxes = () => saveScan(boxes.filter(b => !b.from)).catch(() => toast("Could not save your boxes to your account."));
+export const saveBoxes = () => saveScan(boxes).catch(e => toast(e.message === "401"
+  ? "Your login ran out. Log in again; your boxes are kept on this phone until then."
+  : "No connection to your account right now. Your boxes are kept on this phone and will be sent later."));
 export const editBox = b => editCorners(b, saveBoxes); // shape fixes are saved as you make them
 
 // "Not a building": takes wrong boxes off the map (one or many at once).
@@ -142,7 +146,12 @@ export function removeBoxes(list) {
   boxes = boxes.filter(x => !list.includes(x));
   list.forEach(b => b.shape && b.shape.remove());
   stopEditing();
-  renumber();
+  saveBoxes();
+}
+// Puts removed boxes back ("Undo remove").
+export function restoreBoxes(list) {
+  boxes = boxes.concat(list);
+  list.forEach(drawBox);
   saveBoxes();
 }
 
@@ -153,7 +162,6 @@ export function drawYourself() {
     const b = { coords, center: mid(coords), confidence: null };
     boxes.push(b);
     drawBox(b);
-    renumber();
     saveBoxes();
     focusBox(b);
     showSuggestion(b);
@@ -165,5 +173,4 @@ export function drawYourself() {
 export async function restoreMissing() {
   boxes = await loadScan();
   boxes.forEach(drawBox);
-  renumber();
 }

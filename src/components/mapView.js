@@ -7,6 +7,8 @@ import { toast } from "./toast.js";
 export let map = null;
 export const meIcon = L.divIcon({ className: "", html: '<div class="pinicon"></div>', iconSize: [26, 26], iconAnchor: [8, 26] });
 
+// Pictures only go to level 19; past that they are stretched bigger, so you can zoom in closer on a roof.
+const MAX_ZOOM = 21;
 let meMarker = null, followed = false, base = null, baseName = "street", pitch = 0, bearing = 0;
 
 const BASES = {
@@ -20,7 +22,7 @@ export function setBaseLayer(name) {
   baseName = name;
   // Street uses the free vector map (shows buildings); fall back to plain tiles if it did not load.
   const vector = name === "street" && L.maplibreGL;
-  base = (vector ? L.maplibreGL({ style: STREET_STYLE_URL, attribution: BASES.street.credit }) : L.tileLayer(BASES[name].url, { maxZoom: 19, attribution: BASES[name].credit })).addTo(map);
+  base = (vector ? L.maplibreGL({ style: STREET_STYLE_URL, attribution: BASES.street.credit }) : L.tileLayer(BASES[name].url, { maxNativeZoom: 19, maxZoom: MAX_ZOOM, attribution: BASES[name].credit })).addTo(map);
   if (base.bringToBack) base.bringToBack();
   applyTilt();
   map.getContainer().classList.toggle("street", name === "street");
@@ -61,7 +63,7 @@ function startTiltGestures(el) {
 }
 
 export function startMap() {
-  map = L.map("map", { zoomControl: false }).setView(HAI_PHONG, 17);
+  map = L.map("map", { zoomControl: false, maxZoom: MAX_ZOOM }).setView(HAI_PHONG, 17);
   setBaseLayer("street");
   startTiltGestures(map.getContainer());
   startSpinKeys();

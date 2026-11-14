@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Option C: the list moves to a thin side panel (computer) that only lists what is on the screen right now. -->
+  <rect width="1200" height="675" fill="#5f6b55"/>
+  <g stroke="#3d4038" stroke-width="22" fill="none"><path d="M0 180 L1200 360"/><path d="M600 0 L500 675"/></g>
+  <g fill="#e8460a" fill-opacity="0.15" stroke="#e8460a" stroke-width="3" stroke-dasharray="8 5">
+    <rect x="380" y="60" width="120" height="70"/><rect x="620" y="70" width="110" height="65"/><rect x="760" y="400" width="130" height="75"/>
+  </g>
+  <rect x="640" y="250" width="140" height="80" fill="#ffd166" fill-opacity="0.3" stroke="#ffd166" stroke-width="4"/>
+  <g font-size="13" font-weight="700" fill="#fff" text-anchor="middle">
+    <circle cx="440" cy="95" r="12" fill="#e8460a"/><text x="440" y="100">1</text>
+    <circle cx="675" cy="102" r="12" fill="#e8460a"/><text x="675" y="107">2</text>
+    <circle cx="710" cy="290" r="13" fill="#ffd166"/><text x="710" y="295" fill="#222">3</text>
+    <circle cx="825" cy="437" r="12" fill="#e8460a"/><text x="825" y="442">4</text>
+  </g>
+
+  <!-- side panel: 280 wide, map keeps the rest -->
+  <rect x="0" y="0" width="290" height="675" fill="#fff"/>
+  <text x="20" y="38" font-size="19" font-weight="700" fill="#222">4 on screen</text>
+  <text x="20" y="60" font-size="13" fill="#777">340 in total · move the map for more</text>
+  <g font-size="14" fill="#222">
+    <rect x="12" y="80" width="266" height="36" rx="8" fill="#fafafa"/><text x="24" y="103">☐  1  Building · Microsoft</text>
+    <rect x="12" y="122" width="266" height="36" rx="8" fill="#fafafa"/><text x="24" y="145">☑  2  Building · Microsoft</text>
+    <rect x="12" y="164" width="266" height="36" rx="8" fill="#fff6dc" stroke="#ffd166"/><text x="24" y="187">☐  3  Building · Google</text>
+    <rect x="12" y="206" width="266" height="36" rx="8" fill="#fafafa"/><text x="24" y="229">☐  4  Building · 82% sure</text>
+  </g>
+  <rect x="12" y="560" width="266" height="40" rx="12" fill="#f1f1f1"/><text x="145" y="586" font-size="15" fill="#333" text-anchor="middle">Tick all on screen</text>
+  <rect x="12" y="610" width="266" height="48" rx="14" fill="#e8460a"/><text x="145" y="640" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">Add 1 ticked</text>
+  <text x="270" y="40" font-size="18" fill="#999">«</text>
+
+  <!-- phone version note -->
+  <g font-size="14" fill="#fff"><text x="320" y="620">On a phone: the same panel becomes a slim bar at the bottom</text><text x="320" y="642">that you pull up only when you want the list.</text></g>
+</svg>

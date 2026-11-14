@@ -8,7 +8,8 @@ const point = p => (Array.isArray(p) && num(p[0]) !== null && num(p[1]) !== null
 function cleanBox(b) {
   const coords = (Array.isArray(b?.coords) ? b.coords.slice(0, 40) : []).map(point).filter(Boolean);
   const center = point(b?.center);
-  return coords.length >= 3 && center ? { coords, center, confidence: num(b.confidence) } : null;
+  const from = typeof b.from === "string" ? b.from.slice(0, 60) : undefined; // ready-made outline source, e.g. Microsoft
+  return coords.length >= 3 && center ? { coords, center, confidence: num(b.confidence), from, keep: b.keep === true } : null;
 }
 
 export default async function handler(req, res) {
@@ -25,7 +26,7 @@ export default async function handler(req, res) {
       return res.json(await saved.json());
     }
     if (req.method === "POST") {
-      const boxes = (Array.isArray(req.body?.boxes) ? req.body.boxes.slice(0, 200) : []).map(cleanBox).filter(Boolean);
+      const boxes = (Array.isArray(req.body?.boxes) ? req.body.boxes.slice(0, 1000) : []).map(cleanBox).filter(Boolean);
       await put(path, JSON.stringify(boxes), { access: "public", contentType: "application/json", addRandomSuffix: false });
       return res.json({ ok: true, saved: boxes.length });
     }
