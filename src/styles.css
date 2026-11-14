@@ -157,10 +157,13 @@ button:disabled{opacity:.5;cursor:default}
 .mname small{font-size:12px;margin-left:8px}
 .moreMenu{display:flex;flex-direction:column;gap:8px}
 .moreMenu[hidden]{display:none}
-.modeChips{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:900;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;background:var(--surf);border-radius:24px;padding:4px;box-shadow:0 1px 4px #0003;max-width:calc(100% - 32px)}
+.modeChips{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:900;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;background:var(--surf);border-radius:24px;padding:4px;box-shadow:0 1px 4px #0003;width:max-content;max-width:calc(100% - 32px)}
 .modeChips .chip{border:0;border-radius:20px;padding:8px 14px;min-height:40px;background:transparent;color:var(--ink);font-size:14px;cursor:pointer}
 .modeChips .chip.on{background:var(--acc);color:#fff;font-weight:700}
-.modeChips .chipTip{flex-basis:100%;text-align:center;font-size:12px;color:var(--mid,#777);padding-bottom:2px}
+.modeChips .chipLine{width:1px;margin:8px 2px;background:var(--line)}
+.modeChips .chip.sel.on{background:var(--ink);color:var(--surf)}
+.selecting,.selecting path.leaflet-interactive{cursor:crosshair;touch-action:none}
+.picking .modeChips{display:none}
 .rcount{flex:1;font-size:15px;min-width:140px}
 .rcount .kept{color:#2EA043}
 .rwide{flex-basis:100%}
@@ -197,3 +200,12 @@ button.mrow{width:100%;background:var(--surf);color:var(--ink);text-align:left}
 .seg button{display:flex;flex-direction:column;gap:2px;text-align:left;padding:12px;border:1px solid var(--line);border-radius:12px;color:var(--ink)}
 .seg button span{font-size:12px;color:var(--mid)}
 .seg button.on{border-color:var(--acc);outline:2px solid var(--acc);background:color-mix(in srgb,var(--acc) 8%,transparent)}
+
+/* fixing a missing building: small tools float next to the shape, a short bar sends it */
+.shapeTools{display:flex;background:var(--surf);border-radius:22px;box-shadow:0 1px 4px #0005;padding:2px;width:max-content}
+.shapeTools button{width:44px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.shapeTools button+button{border-left:1px solid var(--line)}
+.shapeTools svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.shapeTools .rmTool{color:#C0392B}
+.sname{flex:1;min-width:120px;border-radius:22px!important;padding:10px 14px!important}
+#bsheet label.okTick{display:flex;align-items:center;gap:6px;margin:0;font-size:14px;min-height:44px}

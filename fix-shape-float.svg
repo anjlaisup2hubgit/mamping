@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Option B: no panel at all. Tools float right next to the building; a tiny pill at the bottom sends it. -->
+  <rect width="1200" height="675" fill="#5f6b55"/>
+  <g stroke="#3d4038" stroke-width="30" fill="none"><path d="M0 120 L1200 330"/><path d="M880 0 L760 675"/></g>
+  <g fill="#7d7468"><rect x="120" y="360" width="170" height="110"/><rect x="930" y="420" width="190" height="110"/><rect x="380" y="400" width="150" height="90"/></g>
+
+  <!-- top mode picker stays as it is -->
+  <rect x="400" y="18" width="400" height="44" rx="22" fill="#fff"/>
+  <text x="470" y="46" font-size="15" fill="#333" text-anchor="middle">Tap = keep</text>
+  <text x="590" y="46" font-size="15" fill="#333" text-anchor="middle">Tap = remove</text>
+  <rect x="660" y="22" width="136" height="36" rx="18" fill="#e8460a"/><text x="728" y="46" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">Tap = fix</text>
+
+  <!-- the building being fixed -->
+  <polygon points="520,190 680,220 660,340 500,310" fill="#ffd166" fill-opacity="0.25" stroke="#ffd166" stroke-width="4"/>
+  <g fill="#e8460a" stroke="#fff" stroke-width="3"><circle cx="520" cy="190" r="11"/><circle cx="680" cy="220" r="11"/><circle cx="660" cy="340" r="11"/><circle cx="500" cy="310" r="11"/></g>
+  <g fill="#fff" stroke="#e8460a" stroke-width="2"><circle cx="600" cy="205" r="6"/><circle cx="670" cy="280" r="6"/><circle cx="580" cy="325" r="6"/><circle cx="510" cy="250" r="6"/></g>
+  <circle cx="590" cy="265" r="14" fill="#e8460a" stroke="#fff" stroke-width="3"/>
+
+  <!-- floating tools, stuck to the building's top-right corner -->
+  <rect x="700" y="160" width="166" height="48" rx="24" fill="#fff"/>
+  <g fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="716" y="176" width="22" height="16" rx="2"/>
+    <path d="M770 180 h14 a7 7 0 0 1 0 14 h-8"/><path d="M774 174 l-6 6 l6 6"/>
+    <path d="M826 175 l18 18 M844 175 l-18 18" stroke="#c0392b"/>
+  </g>
+  <g stroke="#e5e5e5" stroke-width="1.5"><path d="M754 170 v28"/><path d="M810 170 v28"/></g>
+  <g font-size="12" fill="#fff" text-anchor="middle"><text x="727" y="226">Rectangle</text><text x="780" y="226">Undo</text><text x="835" y="226">Not one</text></g>
+
+  <!-- bottom: one small pill. Tap the name to type; the button shows the tick inside it. -->
+  <rect x="330" y="580" width="540" height="60" rx="30" fill="#fff"/>
+  <text x="362" y="616" font-size="15" fill="#999">✎  Name (optional)</text>
+  <rect x="610" y="588" width="210" height="44" rx="22" fill="#e8460a"/>
+  <path d="M630 610 l5 5 l10 -11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+  <text x="732" y="616" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">Add to OSM</text>
+  <circle cx="842" cy="610" r="20" fill="#f2f2f2"/><g fill="#333"><circle cx="834" cy="610" r="2.5"/><circle cx="842" cy="610" r="2.5"/><circle cx="850" cy="610" r="2.5"/></g>
+  <g font-size="12" fill="#fff" text-anchor="middle"><text x="842" y="656">Save outline, help</text></g>
+</svg>

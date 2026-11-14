@@ -4,11 +4,15 @@
 import { map } from "./mapView.js";
 import { mid, squareUp } from "../data/geo.js";
 
-let dots = [], current = null, past = [], onChange = null, lastTap = { i: -1, at: 0 };
+let dots = [], current = null, past = [], onChange = null, lastTap = { i: -1, at: 0 }, watcher = null;
+
+// watcher(b) runs whenever the shape being edited moves, and with null when editing stops (used by the floating tools).
+export const watchShape = f => { watcher = f; };
 
 export function stopEditing() {
   dots.forEach(d => d.remove());
   dots = []; current = null; past = [];
+  if (watcher) watcher(null);
 }
 
 const icon = (cls, size) => L.divIcon({ className: "corner-hit", html: `<div class="${cls}"></div>`, iconSize: [size, size], iconAnchor: [size / 2, size / 2] });
@@ -18,6 +22,7 @@ function show(coords) { // redraws the outline while a handle is being dragged
   current.coords = coords;
   current.center = mid(coords);
   current.shape.setLatLngs(coords);
+  if (watcher) watcher(current);
 }
 const remember = () => past.push(current.coords.map(c => [...c]));
 function done() { draw(); if (onChange) onChange(current); }
@@ -58,6 +63,7 @@ export function editCorners(b, changed) {
   current = b;
   onChange = changed;
   draw();
+  if (watcher) watcher(b);
 }
 
 // Turns the outline into a neat rectangle. Returns false if nothing is being edited.

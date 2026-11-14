@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Left: checking boxes with Select on. Right: picking pictures to scan, with the check buttons hidden so nothing overlaps. -->
+  <rect width="1200" height="760" fill="#fff"/>
+  <text x="300" y="30" font-size="18" font-weight="700" fill="#222" text-anchor="middle">Checking buildings (Select on)</text>
+  <text x="900" y="30" font-size="18" font-weight="700" fill="#222" text-anchor="middle">Picking pictures to scan</text>
+
+  <!-- LEFT FRAME -->
+  <clipPath id="l"><rect x="10" y="45" width="580" height="700" rx="16"/></clipPath>
+  <g clip-path="url(#l)">
+    <rect x="10" y="45" width="580" height="700" fill="#5f6b55"/>
+    <g stroke="#3d4038" stroke-width="26" fill="none"><path d="M10 600 L590 260"/><path d="M200 45 L80 745"/></g>
+    <!-- orange boxes to check -->
+    <g fill="#e8460a" fill-opacity="0.15" stroke="#e8460a" stroke-width="3" stroke-dasharray="8 5">
+      <rect x="250" y="200" width="90" height="55"/><rect x="360" y="190" width="80" height="60"/>
+      <rect x="470" y="300" width="80" height="55"/><rect x="230" y="420" width="90" height="55"/>
+    </g>
+    <!-- kept boxes -->
+    <g fill="#2ea043" fill-opacity="0.3" stroke="#2ea043" stroke-width="3">
+      <rect x="250" y="290" width="90" height="55"/><rect x="360" y="290" width="80" height="55"/>
+    </g>
+    <!-- drag box: everything inside gets removed -->
+    <rect x="215" y="400" width="250" height="110" fill="#fff" fill-opacity="0.12" stroke="#fff" stroke-width="2.5" stroke-dasharray="6 5"/>
+    <g fill="#e8460a" fill-opacity="0.15" stroke="#e8460a" stroke-width="3" stroke-dasharray="8 5"><rect x="350" y="440" width="80" height="50"/></g>
+    <path d="M465 510 l0 22 l6 -6 l8 14 l5 -3 l-8 -13 l9 -1 z" fill="#fff" stroke="#222" stroke-width="1.5"/>
+
+    <!-- top bar: one row, short words, no help text -->
+    <rect x="95" y="65" width="410" height="52" rx="26" fill="#fff"/>
+    <rect x="101" y="71" width="86" height="40" rx="20" fill="#fff"/>
+    <text x="144" y="97" font-size="16" fill="#333" text-anchor="middle">✓ Keep</text>
+    <rect x="191" y="71" width="104" height="40" rx="20" fill="#e8460a"/>
+    <text x="243" y="97" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">✕ Remove</text>
+    <text x="352" y="97" font-size="16" fill="#333" text-anchor="middle">Fix shape</text>
+    <line x1="410" y1="78" x2="410" y2="104" stroke="#ddd" stroke-width="2"/>
+    <!-- Select toggle, on -->
+    <rect x="418" y="71" width="81" height="40" rx="20" fill="#222"/>
+    <rect x="429" y="83" width="16" height="16" rx="2" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="3 2"/>
+    <text x="475" y="97" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">Select</text>
+
+    <!-- bottom bar, unchanged -->
+    <rect x="40" y="660" width="520" height="64" rx="32" fill="#fff"/>
+    <text x="70" y="698" font-size="16" fill="#333"><tspan fill="#2ea043" font-weight="700">2</tspan> keep · <tspan font-weight="700">5</tspan> to check</text>
+    <rect x="330" y="672" width="215" height="40" rx="20" fill="#e8460a"/>
+    <text x="437" y="698" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">Add 2 to OpenStreetMap</text>
+  </g>
+
+  <!-- RIGHT FRAME -->
+  <clipPath id="r"><rect x="610" y="45" width="580" height="700" rx="16"/></clipPath>
+  <g clip-path="url(#r)">
+    <rect x="610" y="45" width="580" height="700" fill="#5f6b55"/>
+    <g stroke="#3d4038" stroke-width="26" fill="none"><path d="M610 600 L1190 260"/><path d="M800 45 L680 745"/></g>
+    <!-- picture squares -->
+    <g stroke="#fff" stroke-width="1.5" stroke-dasharray="6 5" fill="#fff" fill-opacity="0.05">
+      <rect x="640" y="160" width="170" height="170"/><rect x="980" y="160" width="170" height="170"/>
+      <rect x="640" y="340" width="170" height="170"/><rect x="810" y="340" width="170" height="170"/><rect x="980" y="340" width="170" height="170"/>
+    </g>
+    <rect x="810" y="160" width="170" height="170" fill="#1f6feb" fill-opacity="0.35" stroke="#fff" stroke-width="2.5"/>
+    <circle cx="828" cy="178" r="12" fill="#1f6feb" stroke="#fff" stroke-width="2"/><text x="828" y="183" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+
+    <!-- only one hint at the top; the check buttons are hidden while picking -->
+    <rect x="745" y="70" width="310" height="44" rx="22" fill="#fff"/>
+    <text x="900" y="98" font-size="16" fill="#333" text-anchor="middle">Tap pictures to scan (up to 6)</text>
+
+    <!-- bottom bar -->
+    <rect x="740" y="660" width="320" height="64" rx="32" fill="#fff"/>
+    <rect x="752" y="672" width="240" height="40" rx="20" fill="#e8460a"/>
+    <text x="872" y="698" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">Scan 1 picture</text>
+    <circle cx="1025" cy="692" r="20" fill="#eee"/><text x="1025" y="699" font-size="20" fill="#555" text-anchor="middle">✕</text>
+  </g>
+</svg>

@@ -1,5 +1,5 @@
 // Checking the orange boxes right on the map, with no list in the way. Pick what a tap does at the top
-// (keep, remove or fix shape), then tap boxes. On a computer, hold Shift and drag to do it to many at once.
+// (keep, remove or fix shape), then tap boxes. Turn on Select to hold and drag over many boxes at once.
 // A slim bar at the bottom counts them and adds the kept ones to OpenStreetMap together.
 import { $ } from "./dom.js";
 import { map } from "./mapView.js";
@@ -8,17 +8,19 @@ import { toast } from "./toast.js";
 import { osmConfirm, osmAllowed } from "./osmConfirm.js";
 import { sendOrQueue } from "../data/osmSend.js";
 import { overlapsExisting } from "../data/buildings.js";
+import { inside } from "../data/geo.js";
 import { currentBoxes, removeBoxes, restoreBoxes, restyle, saveBoxes, fixBox, unfocus, drawYourself, scanWithAi, saveForTraining } from "./missingLayer.js";
 
-const MODES = { keep: "Tap = keep", remove: "Tap = remove", fix: "Tap = fix shape" };
+const MODES = { keep: "Keep", remove: "Remove", fix: "Fix shape" };
 const drawBtn = `<button class="big ghost" id="drawSelf" style="min-height:48px">AI missed one? Draw it yourself</button>`;
 const short = from => from.split(" ")[0]; // "Microsoft ML Buildings" -> "Microsoft"
 const sourceOf = list => [...new Set(list.map(b => b.from).filter(Boolean)), "Esri World Imagery"].join("; ");
-let mode = "keep", chips = null, dragReady = false, undo = []; // undo = the boxes the last remove took off
+let mode = "keep", chips = null, dragReady = false, selecting = false, undo = []; // undo = the boxes the last remove took off
 
 // A box on the map was tapped.
 export function tapBox(b) {
   if (!chips) return showReview(); // the first tap only opens the review, it changes nothing
+  if (selecting) return; // in Select, the drag already did it
   if (mode === "fix") return fixBox(b);
   apply([b]);
 }
@@ -37,39 +39,56 @@ export function stopReview() {
   if (chips) chips.remove();
   chips = null;
   mode = "keep";
+  setSelecting(false);
   unfocus();
 }
 
 // The buttons at the top that choose what a tap does.
 function showChips() {
-  if (!dragReady) { dragReady = true; startShiftDrag(); }
+  if (!dragReady) { dragReady = true; startSelectDrag(); }
   if (!chips) {
     chips = L.DomUtil.create("div", "modeChips", map.getContainer());
     L.DomEvent.disableClickPropagation(chips); // a tap here is not a tap on the map
-    const tip = matchMedia("(pointer: fine)").matches ? `<span class="chipTip">Shift + drag to do many at once</span>` : "";
-    chips.innerHTML = Object.entries(MODES).map(([k, t]) => `<button class="chip" data-mode="${k}">${t}</button>`).join("") + tip;
-    chips.querySelectorAll("[data-mode]").forEach(c => { c.onclick = () => { mode = c.dataset.mode; showReview(); }; }); // also brings the bar back after fixing a shape
+    chips.innerHTML = Object.entries(MODES).map(([k, t]) => `<button class="chip" data-mode="${k}">${t}</button>`).join("")
+      + `<span class="chipLine"></span><button class="chip sel" id="selB" aria-pressed="false">Select</button>`;
+    chips.querySelectorAll("[data-mode]").forEach(c => { c.onclick = () => { mode = c.dataset.mode; if (mode === "fix") setSelecting(false); showReview(); }; }); // also brings the bar back after fixing a shape
+    chips.querySelector("#selB").onclick = () => { setSelecting(!selecting); if (mode === "fix") mode = "keep"; showReview(); };
   }
   chips.querySelectorAll("[data-mode]").forEach(c => c.classList.toggle("on", c.dataset.mode === mode));
 }
 
-// Shift + drag on a computer: draws a box, and everything whose middle is inside gets the tap.
-function startShiftDrag() {
-  map.boxZoom.disable(); // Shift + drag used to zoom; now it marks boxes
-  let start = null, rect = null;
-  map.getContainer().addEventListener("mousedown", e => {
-    if (!e.shiftKey || e.button !== 0 || !chips || mode === "fix") return;
-    e.stopPropagation(); e.preventDefault(); // so the map does not move
-    start = map.mouseEventToLatLng(e);
-    rect = L.rectangle([start, start], { color: "#fff", weight: 2, dashArray: "4 4", fill: false, interactive: false }).addTo(map);
+// Select on: the map stops moving, and holding the mouse (or finger) down and dragging over boxes does the tap to each one.
+function setSelecting(on) {
+  selecting = on;
+  if (on) map.dragging.disable(); else map.dragging.enable();
+  map.getContainer().classList.toggle("selecting", on);
+  const b = chips && chips.querySelector("#selB");
+  if (b) { b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); }
+}
+
+function startSelectDrag() {
+  let touched = null, turnOn = true; // touched = boxes this drag went over
+  const hit = e => {
+    const p = map.mouseEventToLatLng(e), pt = [p.lat, p.lng];
+    const b = currentBoxes().find(o => !touched.has(o) && inside(pt, o.coords));
+    if (!b) return;
+    if (!touched.size) turnOn = !b.keep; // the first box decides: keep all, or unkeep all
+    touched.add(b);
+    if (mode === "keep") { b.keep = turnOn; restyle(); } else b.shape.setStyle({ opacity: 0.2, fillOpacity: 0 }); // fades until let go
+  };
+  map.getContainer().addEventListener("pointerdown", e => {
+    if (!selecting || e.button !== 0 || e.target.closest(".modeChips")) return;
+    touched = new Set();
+    hit(e);
   }, true);
-  window.addEventListener("mousemove", e => { if (start) rect.setBounds([start, map.mouseEventToLatLng(e)]); });
-  window.addEventListener("mouseup", () => {
-    if (!start) return;
-    const area = rect.getBounds();
-    rect.remove(); start = null;
-    const inside = currentBoxes().filter(b => area.contains(b.center));
-    if (inside.length) apply(inside);
+  window.addEventListener("pointermove", e => { if (touched) hit(e); });
+  window.addEventListener("pointerup", () => {
+    if (!touched) return;
+    const list = [...touched];
+    touched = null;
+    if (!list.length) return;
+    if (mode === "keep") { saveBoxes(); undo = []; } else { undo = list; removeBoxes(list); }
+    showReview();
   });
 }
 
