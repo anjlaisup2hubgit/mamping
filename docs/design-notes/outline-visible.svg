@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Before: orange thin dashed outline vanishes on orange roofs. After: cyan, thicker, with a dark edge. -->
+  <rect width="1200" height="520" fill="#f5f5f2"/>
+  <defs>
+    <g id="roofs">
+      <rect width="520" height="360" fill="#3f5a3a"/>
+      <rect x="30" y="40" width="130" height="90" fill="#c8532f"/><rect x="190" y="50" width="120" height="80" fill="#b9462a"/>
+      <rect x="340" y="40" width="140" height="95" fill="#d2603a"/><rect x="40" y="190" width="120" height="85" fill="#bf4d2c"/>
+      <rect x="200" y="200" width="130" height="90" fill="#cf5a35"/><rect x="360" y="195" width="120" height="85" fill="#4a6fa8"/>
+    </g>
+  </defs>
+
+  <text x="40" y="40" font-size="22" font-weight="700" fill="#222">Before: hard to see</text>
+  <g transform="translate(40,60)">
+    <use href="#roofs"/>
+    <g fill="#e8470f" fill-opacity="0.15" stroke="#e8470f" stroke-width="1.5" stroke-dasharray="6 6">
+      <rect x="30" y="40" width="130" height="90"/><rect x="190" y="50" width="120" height="80"/><rect x="340" y="40" width="140" height="95"/>
+      <rect x="40" y="190" width="120" height="85"/><rect x="200" y="200" width="130" height="90"/><rect x="360" y="195" width="120" height="85"/>
+    </g>
+  </g>
+
+  <text x="640" y="40" font-size="22" font-weight="700" fill="#222">After: cyan, thicker, dark edge</text>
+  <g transform="translate(640,60)">
+    <use href="#roofs"/>
+    <!-- dark edge underneath (stays visible on pale roofs), cyan line on top -->
+    <g fill="none" stroke="#000" stroke-opacity="0.6" stroke-width="5">
+      <rect x="30" y="40" width="130" height="90"/><rect x="190" y="50" width="120" height="80"/><rect x="340" y="40" width="140" height="95"/>
+      <rect x="40" y="190" width="120" height="85"/><rect x="200" y="200" width="130" height="90"/><rect x="360" y="195" width="120" height="85"/>
+    </g>
+    <g fill="#22d3ee" fill-opacity="0.15" stroke="#22d3ee" stroke-width="2.5">
+      <rect x="30" y="40" width="130" height="90"/><rect x="190" y="50" width="120" height="80"/><rect x="340" y="40" width="140" height="95"/>
+      <rect x="40" y="190" width="120" height="85"/><rect x="200" y="200" width="130" height="90"/><rect x="360" y="195" width="120" height="85"/>
+    </g>
+  </g>
+
+  <g font-size="16" fill="#333">
+    <text x="40" y="450">Orange (#E8470F), 1.5px, dashed, on orange roofs.</text>
+    <text x="640" y="450">Cyan (#22D3EE), 2.5px, solid, plus a dark edge. Code: STYLE in missingLayer.js.</text>
+    <text x="640" y="476">Orange stays for buttons; green "keep" and yellow "picked" are unchanged.</text>
+  </g>
+</svg>
