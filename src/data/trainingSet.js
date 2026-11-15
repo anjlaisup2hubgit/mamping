@@ -1,6 +1,6 @@
 // Builds the training set for a detector: each satellite picture saved with a label file listing the ticked buildings in it.
 import { getSatelliteView } from "./satellite.js";
-import { post } from "./api.js";
+import { writeTraining } from "./trainingApi.js";
 import { inSquare } from "./geo.js";
 
 const SIZE = 768; // a picture is 3x3 tiles of 256 pixels
@@ -14,15 +14,15 @@ function labelLine(coords, toPixel) {
   return `0 ${((x0 + x1) / 2).toFixed(6)} ${((y0 + y1) / 2).toFixed(6)} ${(x1 - x0).toFixed(6)} ${(y1 - y0).toFixed(6)}`;
 }
 
-// Saves every picture square that has at least one of the boxes. Returns how many pictures were saved.
+// Save whole scenes, including empty scenes; every picture still needs complete-scene review.
 export async function saveTrainingSet(squares, boxes) {
   let saved = 0;
   for (const p of squares) {
     const mine = boxes.filter(b => inSquare(b.center, p));
-    if (!mine.length) continue;
     const view = await getSatelliteView(...p.centre);
-    const labels = mine.map(b => labelLine(b.coords, view.toPixel)).join("\n") + "\n";
-    await post("/api/training", { name: `${p.centre[0].toFixed(6)}_${p.centre[1].toFixed(6)}`, image: view.image, labels });
+    const labels = [...new Set(mine.map(b => labelLine(b.coords, view.toPixel)))].join("\n");
+    await writeTraining({ name: `${p.centre[0].toFixed(6)}_${p.centre[1].toFixed(6)}`, image: view.image, labels,
+      centre: p.centre, bounds: [p.nw, p.se] });
     saved++;
   }
   return saved;

@@ -1,48 +1,97 @@
-// The panel for one missing building (AI-drawn or drawn by you): fix its shape, name it and submit it, or remove it.
-// b = {coords, center, confidence}; the user may still drag its corners.
+// One building inspector: drafts save as you type; shape tools and details share the same panel.
 import { sendContribution } from "../data/api.js";
-import { $ } from "./dom.js";
+import { $, esc } from "./dom.js";
 import { openSheet, closeSheet } from "./sheet.js";
 import { toast } from "./toast.js";
 import { osmAllowed } from "./osmConfirm.js";
-import { removeBox } from "./missingLayer.js";
+import { removeBox, saveBoxes, restyle, unfocus } from "./missingLayer.js";
 import { sendOrQueue } from "../data/osmSend.js";
 import { overlapsExisting } from "../data/buildings.js";
+import { validatePolygon } from "../data/geometry.js";
+import { validateBuildingTags } from "../data/buildingTags.js";
 import { showSentBuildings } from "./buildingLayer.js";
-import "./shapeTools.js"; // the Rectangle / Undo / Not a building buttons float next to the shape
+import { detailsFields, bindDetails, readDetails } from "./detailsFields.js";
+import { mountShapeTools, placeEditor } from "./shapeTools.js";
+import { getSaveStatus, watchSaveStatus } from "../data/saveStatus.js";
+
+const FIELDS = { rh: "height", rf: "building:levels", rs: "roof:shape", rrh: "roof:height", rwc: "building:colour", rrc: "roof:colour" };
+const paintSave = status => {
+  const label = document.querySelector(".draftSaveStatus");
+  if (label) { label.textContent = status.message; label.dataset.state = status.state; }
+};
+watchSaveStatus(paintSave);
+
+function readTags(b) {
+  const values = readDetails();
+  b.tags.name = $("#sn").value.trim();
+  for (const [id, tag] of Object.entries(FIELDS)) {
+    const input = document.getElementById(id), raw = input.value.trim();
+    const numeric = ["rh", "rf", "rrh"].includes(id);
+    const valid = !numeric || !raw || (Number.isFinite(Number(raw.replace(",", "."))) && Number(raw.replace(",", ".")) > 0 && (id !== "rf" || Number.isInteger(Number(raw))));
+    input.setCustomValidity(valid ? "" : `Enter a positive ${id === "rf" ? "whole number of floors" : "number in metres"}.`);
+    if (raw) b.tags[tag] = valid ? values[tag] : raw;
+    else delete b.tags[tag];
+  }
+  if (!b.tags.name) delete b.tags.name;
+  b.reviewed = false;
+  $("#osmOk").checked = false;
+  $(".reviewStatus").textContent = b.keep ? "Unreviewed" : "Dropped";
+  restyle(); saveBoxes();
+}
 
 export function showSuggestion(b) {
-  const from = b.from ? `Outline from ${b.from}. ` : b.confidence ? `AI ${Math.round(b.confidence * 100)}% sure. ` : "";
-  openSheet(`<input type="text" id="sn" class="sname" placeholder="✎ Name (optional)" aria-label="Name">
-    <label class="okTick" data-tip="I checked this against the picture"><input type="checkbox" id="osmOk"> Checked</label>
-    <button class="primary pill" id="toOsm">Add to OSM</button>
-    <button class="round" id="moreB" aria-label="More" data-tip="More">⋯</button>
-    <div class="rwide moreMenu" id="moreM" hidden>
-      <p class="mid" style="margin:0;font-size:13px">${from}Drag orange dots to fit the roof. Drag a white dot to add a corner; double-tap an orange dot to remove it. Drag the middle handle to move it all, a round arrow outside a wall to slide that wall, or the round handle above to turn it.</p>
-      <button class="ghost pill" id="subO">Save outline</button>
-    </div>`, true);
-  $("#moreB").onclick = () => { $("#moreM").hidden = !$("#moreM").hidden; };
-  let warned = false; // the overlap warning shows once; tapping again adds anyway
+  b.tags ||= {};
+  const from = b.from ? `Outline from ${b.from}.` : b.confidence ? `AI ${Math.round(b.confidence * 100)}% sure.` : "Drawn by you.";
+  openSheet(`<section class="outlineInspector"><div id="shapeToolsMount"></div>
+    <div class="inspectorStatus"><span class="reviewStatus">${b.keep ? b.reviewed ? "Checked" : "Unreviewed" : "Dropped"}</span><span class="draftSaveStatus" role="status"></span></div>
+    <details id="outlineDetails"><summary>Building details</summary><div class="editorDetailsFields">
+      <label for="sn">Name (optional)<input type="text" id="sn" class="sname" placeholder="Building name" value="${esc(b.tags.name || "")}"></label>
+      ${detailsFields(esc(b.tags.height || ""), esc(b.tags["building:levels"] || ""))}</div></details>
+    <div class="editorSubmit"><label class="okTick"><input type="checkbox" id="osmOk"${b.reviewed ? " checked" : ""}> Checked</label><button class="primary" id="toOsm">Add to OpenStreetMap</button></div>
+    <details class="editorMore"><summary>Help and sharing</summary><p class="inspectorHelp">${esc(from)} Drag a corner to fit the roof, a white dot to add a corner, or the middle handle to move it. More shape tools has turn, copy and remove.</p><button class="ghost pill" id="subO">Share outline with Mamping</button></details>
+  </section>`, true);
+  $("#bsheet").classList.add("editorSheet");
+  mountShapeTools($("#shapeToolsMount"));
+  $("#bsheet .x").onclick = () => { unfocus(); closeSheet(); };
+  paintSave(getSaveStatus());
+  for (const [id, tag] of Object.entries(FIELDS)) document.getElementById(id).value = b.tags[tag] ?? "";
+  bindDetails(() => readTags(b));
+  $("#sn").oninput = () => readTags(b);
+  $("#outlineDetails").addEventListener("toggle", placeEditor);
+  $(".editorMore").addEventListener("toggle", placeEditor);
+  $("#osmOk").onchange = () => {
+    const invalid = $("#bsheet input:invalid");
+    const problem = validatePolygon(b.coords) || validateBuildingTags(b.tags);
+    if ($("#osmOk").checked && (invalid || problem)) { $("#osmOk").checked = false; if (invalid) invalid.reportValidity(); else toast(problem); return; }
+    b.reviewed = $("#osmOk").checked;
+    if (b.reviewed) b.keep = true;
+    $(".reviewStatus").textContent = b.reviewed ? "Checked" : "Unreviewed";
+    restyle(); saveBoxes();
+  };
+  let warned = false;
   $("#toOsm").onclick = async () => {
+    const invalid = $("#bsheet input:invalid"), problem = validatePolygon(b.coords) || validateBuildingTags(b.tags);
+    if (invalid) return invalid.reportValidity();
+    if (problem) return toast(problem);
     if (!osmAllowed()) return;
     if (overlapsExisting(b.coords) && !warned) { warned = true; return toast("This overlaps a building already on the map. Fix the corners, or tap again to add anyway."); }
-    $("#toOsm").disabled = true; // no double send
+    const button = $("#toOsm"); button.disabled = true;
     try {
-      const items = [{ corners: b.coords, tags: { name: $("#sn").value.trim() } }];
+      const items = [{ corners: b.coords, tags: { ...b.tags } }];
       const r = await sendOrQueue({ kind: "create", items,
         source: [b.from, "Esri World Imagery"].filter(Boolean).join("; "),
         comment: b.from ? `Add missing building from ${b.from}, checked against satellite imagery` : "Add missing building traced from satellite imagery" });
       showSentBuildings(items, r.result);
-      toast(r.queued ? "No internet. It will be sent when you are back online." : "Building added to OpenStreetMap");
-      removeBox(b); // it is on the map now, so the orange box has done its job
-      closeSheet();
-    } catch (e) { $("#toOsm").disabled = false; toast("Could not reach OpenStreetMap: " + e.message); }
+      toast(r.queued ? "Edit saved on this device; check Pending edits for sending status." : "Building added to OpenStreetMap");
+      removeBox(b); closeSheet();
+    } catch (e) { if (button.isConnected) button.disabled = false; toast(e.message || "Could not send this building."); }
   };
   $("#subO").onclick = async () => {
+    const problem = validatePolygon(b.coords);
+    if (problem) return toast(problem);
     try {
-      await sendContribution({ kind: "outline", lat: b.center[0], lng: b.center[1], name: $("#sn").value, polygon: b.coords });
-      toast("Outline submitted");
-      closeSheet();
-    } catch (e) { toast("Could not submit"); }
+      await sendContribution({ kind: "outline", lat: b.center[0], lng: b.center[1], name: b.tags.name || "", polygon: b.coords });
+      toast("Outline submitted"); closeSheet();
+    } catch { toast("Could not submit"); }
   };
 }

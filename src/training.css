@@ -1,0 +1,27 @@
+/* A label editor that stays usable on short phones and larger screens. */
+.trainingPage .head{flex:none}
+.trainingPage #train{padding-bottom:16px}
+.trainingPage #trainBox{flex:none;border-top:1px solid var(--line);max-height:36vh;overflow:auto;padding-top:10px;padding-bottom:12px;background:var(--surf)}
+.trainingPage #trainBox:empty{display:none}
+.trainingSave{font-size:13px;min-height:20px;margin:0;color:var(--mid)}
+.trainingSave[data-state=error]{color:#b3261e}
+.trainingTools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.trainingTools button{min-height:36px;padding:6px 10px;font-size:13px}
+.trainingTools button.on{background:var(--acc);color:var(--onacc)}
+.trainingViewport{position:relative;align-self:center;width:min(100%,54vh);aspect-ratio:1;overflow:hidden;border-radius:12px;background:var(--line);touch-action:none}
+.trainingWorld{position:absolute;inset:0;transform-origin:0 0}
+.trainingWorld img,.trainingWorld svg{position:absolute;width:100%;height:100%;inset:0}
+.trainingWorld svg{touch-action:none;cursor:crosshair}
+.trainingViewport[data-mode=pan] svg{cursor:grab}
+.trainingWorld rect{stroke:var(--acc);fill:#0000;stroke-width:2;vector-effect:non-scaling-stroke;pointer-events:all}
+.trainingWorld rect.selected{stroke:#00d2ee;fill:#00d2ee22}
+.trainingWorld circle{fill:#fff;stroke:#111;stroke-width:1;vector-effect:non-scaling-stroke;cursor:nwse-resize}
+.trainingHint{font-size:12px;text-align:center;margin:6px 0}
+.trainingActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.trainingActions button{flex:1;min-width:100px;min-height:44px;font-size:15px}
+.modelSummary{font-size:13px;margin:6px 0}
+.modelSummary p{margin:4px 0}
+.trainingModelActions{display:flex;gap:8px;flex-wrap:wrap}
+.trainingModelActions button{font-size:13px;min-height:38px;padding:8px 12px}
+@media(min-width:900px){.trainingPage #train{max-width:1000px;width:100%;margin:0 auto}.trainingViewport{width:min(100%,58vh)}.trainingPage #trainBox{max-height:25vh}}
+@media(max-height:650px){.trainingViewport{width:min(100%,45vh)}.trainingPage #trainBox{max-height:26vh}}

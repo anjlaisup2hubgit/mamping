@@ -1,14 +1,15 @@
 // Log in to OpenStreetMap with OAuth 2 (PKCE). No password or secret is stored by us.
 import { OSM_SITE, OSM_API, OSM_CLIENT_ID } from "./config.js";
 
-const TOKEN = "osm_token", VERIFIER = "osm_verifier", NAME = "osm_name";
+const TOKEN = "osm_token", VERIFIER = "osm_verifier", NAME = "osm_name", USER_ID = "osm_user_id";
 const redirect = () => location.origin + location.pathname;
 const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
 export const osmReady = () => !!OSM_CLIENT_ID;
 export const getToken = () => { try { return localStorage.getItem(TOKEN); } catch (e) { return null; } };
 export const isLoggedIn = () => !!getToken();
-export const logout = () => { try { localStorage.removeItem(TOKEN); localStorage.removeItem(NAME); } catch (e) { /* nothing to clear */ } };
+export const accountStorageId = () => { try { return localStorage.getItem(USER_ID); } catch { return null; } };
+export const logout = () => { try { [TOKEN, NAME, USER_ID].forEach(k => localStorage.removeItem(k)); } catch (e) { /* nothing to clear */ } };
 
 export async function login() {
   const verifier = b64(crypto.getRandomValues(new Uint8Array(32)));
@@ -34,6 +35,8 @@ export async function finishLogin() {
   sessionStorage.removeItem(VERIFIER);
   if (!r.ok) throw new Error("login failed");
   const token = (await r.json()).access_token;
+  localStorage.removeItem(NAME);
+  localStorage.removeItem(USER_ID);
   localStorage.setItem(TOKEN, token);
   await accountName(); // remember the username for the account picture
   return true;
@@ -42,8 +45,12 @@ export async function finishLogin() {
 // The logged-in OpenStreetMap username, asked once and then remembered on this phone. "" if unknown.
 export async function accountName() {
   try {
-    if (localStorage.getItem(NAME)) return localStorage.getItem(NAME);
-    const d = await (await fetch(`${OSM_API}/api/0.6/user/details.json`, { headers: { Authorization: "Bearer " + getToken() } })).json();
+    if (localStorage.getItem(NAME) && accountStorageId()) return localStorage.getItem(NAME);
+    const r = await fetch(`${OSM_API}/api/0.6/user/details.json`, { headers: { Authorization: "Bearer " + getToken() } });
+    if (!r.ok) return "";
+    const d = await r.json();
+    if (!Number.isSafeInteger(d.user?.id) || d.user.id <= 0) return "";
+    localStorage.setItem(USER_ID, String(d.user.id));
     localStorage.setItem(NAME, d.user.display_name);
     return d.user.display_name;
   } catch (e) { return ""; }

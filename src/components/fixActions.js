@@ -5,6 +5,8 @@ import { dropOne } from "./reviewBar.js";
 import { startCopying } from "./copyShape.js";
 import { pickStreet } from "./streetPicker.js";
 import { toast } from "./toast.js";
+import { validatePolygon } from "../data/geometry.js";
+import { validateBuildingTags } from "../data/buildingTags.js";
 
 // again = true for the repeats while a turn button is held down.
 export function doFix(name, again = false) {
@@ -21,6 +23,12 @@ export function doFix(name, again = false) {
   else if (name === "copy") { const coords = b.coords; unfocus(); startCopying(coords, addBox); }
   else if (name === "next") fixAt(i + 1);
   else if (name === "prev") fixAt(i - 1);
-  else if (name === "keep") { b.keep = true; restyle(); saveBoxes(); fixAt(i + 1); }
+  else if (name === "keep") {
+    const invalid = document.querySelector("#bsheet input:invalid");
+    if (invalid) return invalid.reportValidity();
+    const problem = validatePolygon(b.coords) || validateBuildingTags(b.tags || {});
+    if (problem) return toast(problem);
+    b.keep = true; b.reviewed = true; restyle(); saveBoxes(); fixAt(i + 1);
+  }
   else if (name === "remove") { dropOne(b); fixAt(i); } // the next box slides into this spot
 }

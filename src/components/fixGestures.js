@@ -6,9 +6,14 @@ import { focusedBox } from "./missingLayer.js";
 
 let roof = null, onDouble = null, onWheel = null;
 
+export function stopGestures() {
+  if (roof) { roof.off("dblclick", onDouble); roof.getElement()?.removeEventListener("wheel", onWheel); }
+  roof = null; onDouble = onWheel = null;
+}
+
 // shape = the roof polygon being fixed; act.square() and act.turn(deg, again) are the editor's own moves.
 export function watchGestures(shape, act) {
-  if (roof) { roof.off("dblclick", onDouble); roof.getElement()?.removeEventListener("wheel", onWheel); }
+  stopGestures();
   roof = shape;
   listenForTaps();
   onDouble = e => { L.DomEvent.stop(e); act.square(); };

@@ -1,4 +1,5 @@
 // Finds roofs in a satellite picture with the free Grounding DINO model, running inside the user's browser (no key, no server).
+import { bounded, checkCancelled } from "./tasks.js";
 const LIB = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.2";
 const MODEL = "onnx-community/grounding-dino-tiny-ONNX";
 const MAX_SHARE = 0.4; // a box covering more than this share of the picture is not one roof
@@ -22,8 +23,10 @@ function dropOverlaps(list) {
 }
 
 // image: the picture's base64 jpeg. Returns [{ points, confidence }] with corners in picture pixels.
-async function detect(image) {
-  const detector = await load();
+async function detect(image, signal) {
+  checkCancelled(signal);
+  const detector = await bounded(load(), { signal, timeout: 60000, label: "Roof model download" });
+  checkCancelled(signal);
   const found = await detector("data:image/jpeg;base64," + image, ["a roof."], { threshold: 0.17 }); // low on purpose: 0.3 missed most houses
   const size = 768 * 768; // same picture size the roof tracer expects
   return dropOverlaps(found.filter(f => area(f.box) < size * MAX_SHARE))
@@ -32,4 +35,8 @@ async function detect(image) {
 
 // One picture at a time, like the roof tracer, so the phone is not overloaded.
 let line = Promise.resolve();
-export const dinoFind = image => (line = line.then(() => detect(image), () => detect(image)));
+export const dinoFind = (image, { signal } = {}) => {
+  const next = line.then(() => detect(image, signal), () => detect(image, signal));
+  line = next.catch(() => {});
+  return bounded(next, { signal, timeout: 120000, label: "Device roof detection" });
+};

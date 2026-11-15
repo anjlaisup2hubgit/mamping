@@ -1,6 +1,7 @@
 // Questions about the buildings already loaded.
 import { state } from "./state.js";
 import { inside, dist, inSquare } from "./geo.js";
+import { polygonsOverlap } from "./geometry.js";
 
 // The loaded OpenStreetMap buildings whose middle sits in a picture square.
 export const buildingsIn = square => [...state.buildings.values()].filter(b => inSquare(b.center, square));
@@ -22,6 +23,5 @@ export function candidatesNear(lat, lng, count = 15) {
     .sort((a, b) => a.dist - b.dist).slice(0, count);
 }
 
-// Does a new outline overlap a building already on the map? (a corner of one sits inside the other)
-export const overlapsExisting = coords => [...state.buildings.values()].some(b =>
-  coords.some(c => inside(c, b.coords)) || b.coords.some(c => inside(c, coords)));
+// Shared walls are fine, but crossed walls and contained buildings need review.
+export const overlapsExisting = coords => [...state.buildings.values()].some(b => polygonsOverlap(coords, b.coords));

@@ -10,12 +10,13 @@ import { sendOrQueue } from "../data/osmSend.js";
 import { overlapsExisting } from "../data/buildings.js";
 import { showSentBuildings } from "./buildingLayer.js";
 import { inside } from "../data/geo.js";
+import { validatePolygon } from "../data/geometry.js";
+import { validateBuildingTags } from "../data/buildingTags.js";
 import { undoShape } from "./cornerEditor.js";
 import { tidy, undoTidy, canUndoTidy } from "./tidyBoxes.js";
-import { getSettings, saveSetting } from "../data/settings.js";
 import { currentBoxes, removeBoxes, restoreBoxes, restyle, saveBoxes, fixBox, unfocus, drawYourself, scanWithAi, saveForTraining, showSure, hideSure } from "./missingLayer.js";
 
-const MODES = { fix: "Fix shape", tidy: "Tidy", remove: "Remove", keep: "Check" };
+const MODES = { keep: "Review", fix: "Edit", tidy: "Tidy", remove: "Remove" };
 const drawBtn = `<button class="big ghost" id="drawSelf" style="min-height:48px">AI missed one? Draw it yourself</button>`;
 const short = from => from.split(" ")[0]; // "Microsoft ML Buildings" -> "Microsoft"
 const sourceOf = list => [...new Set(list.map(b => b.from).filter(Boolean)), "Esri World Imagery"].join("; ");
@@ -26,7 +27,7 @@ export function tapBox(b) {
   if (!chips) return showReview(); // the first tap only opens the review, it changes nothing
   if (selecting) return; // in Select, the drag already did it
   if (mode === "fix") return fixBox(b);
-  if (mode === "keep") return showSure(b);
+  if (mode === "keep") return fixBox(b);
   apply([b]);
 }
 
@@ -36,19 +37,22 @@ export const isReviewing = () => !!chips;
 export function dropOne(b) { undo = [b]; removeBoxes([b]); showReview(); }
 
 // Tidy: squares the boxes and lines them up with the road.
-const tidyThen = async list => { await tidy(list); showReview(); };
+const tidyThen = async list => {
+  try { await tidy(list); list.forEach(b => { b.reviewed = false; }); await saveBoxes(); showReview(); }
+  catch (e) { toast(e.message || "Could not tidy these buildings."); }
+};
 
 // A box was double tapped: drop it, or bring a dropped one back.
 export function doubleTapBox(b) {
-  if (chips && !selecting && mode === "keep") apply([b]);
+  if (chips && !selecting && mode === "keep") { b.keep = !b.keep; b.reviewed = false; restyle(); saveBoxes(); showReview(); }
 }
 
 // Check: drops them (or brings them back, if all were dropped already). Remove: takes them off the map.
 function apply(list) {
   if (mode === "tidy") return tidyThen(list);
   if (mode === "keep") {
-    const on = !list.every(b => b.keep);
-    list.forEach(b => { b.keep = on; });
+    const on = !list.every(b => b.keep && b.reviewed);
+    list.forEach(b => { b.keep = on; b.reviewed = on && !validatePolygon(b.coords) && !validateBuildingTags(b.tags || {}); });
     restyle(); saveBoxes(); undo = [];
   } else { undo = list; removeBoxes(list); }
   showReview();
@@ -94,9 +98,9 @@ function startSelectDrag() {
     const p = map.mouseEventToLatLng(e), pt = [p.lat, p.lng];
     const b = currentBoxes().find(o => !touched.has(o) && inside(pt, o.coords));
     if (!b) return;
-    if (!touched.size) turnOn = !b.keep; // the first box decides: keep all, or unkeep all
+    if (!touched.size) turnOn = !(b.keep && b.reviewed); // the first box decides: check all, or drop all
     touched.add(b);
-    if (mode === "keep") { b.keep = turnOn; restyle(); } else b.shape.setStyle({ opacity: 0.2, fillOpacity: 0 }); // fades until let go
+    if (mode === "keep") { b.keep = turnOn; b.reviewed = turnOn && !validatePolygon(b.coords) && !validateBuildingTags(b.tags || {}); restyle(); } else b.shape.setStyle({ opacity: 0.2, fillOpacity: 0 }); // fades until let go
   };
   map.getContainer().addEventListener("pointerdown", e => {
     if (!selecting || e.button !== 0 || e.target.closest(".modeChips")) return;
@@ -136,38 +140,42 @@ export function showReview() {
   if (!boxes.length) { stopReview(); return closeSheet(); }
   unfocus();
   showChips();
-  const kept = boxes.filter(b => b.keep), ready = boxes.some(b => b.from);
-  openSheet(`<span class="rcount"><b class="kept">${kept.length}</b> kept · <b>${boxes.length - kept.length}</b> dropped</span>
+  const kept = boxes.filter(b => b.keep && b.reviewed), unreviewed = boxes.filter(b => b.keep && !b.reviewed), ready = boxes.some(b => b.from);
+  openSheet(`<span class="rcount editorReviewCounts"><b>${unreviewed.length}</b> unreviewed · <b class="kept">${kept.length}</b> checked · <b>${boxes.filter(b => !b.keep).length}</b> dropped</span>
+    <button class="ghost pill" id="reviewNext">${unreviewed.length ? "Review next" : "Review buildings"}</button>
     ${undo.length ? `<button class="ghost pill" id="undoRm">Undo remove</button>` : ""}
     ${canUndoTidy() ? `<button class="ghost pill" id="undoTidy">Undo tidy</button>` : ""}
     <button class="ghost pill" id="moreB" aria-expanded="false">More</button>
-    <button class="primary pill" id="addKept"${kept.length ? "" : " disabled"}>Add ${kept.length} to OpenStreetMap</button>
-    <div id="confirmWrap" class="rwide" hidden>${osmConfirm()}</div>
+    <button class="primary pill" id="addKept"${kept.length ? "" : " disabled"}>Add ${kept.length} checked</button>
+    <div id="confirmWrap" class="rwide" hidden><p class="reviewSummary">Send ${kept.length} checked building${kept.length === 1 ? "" : "s"}; ${unreviewed.length} unreviewed remain here.</p>${osmConfirm()}</div>
     <div id="moreMenu" class="moreMenu rwide" hidden>${ready ? `<button class="big ghost" id="aiScan" style="min-height:48px">Scan with our AI instead</button>` : ""}${drawBtn}
-      <button class="big ghost" id="autoTidy" style="min-height:48px" aria-pressed="${!!getSettings().autoTidy}">Auto-tidy new outlines: ${getSettings().autoTidy ? "On" : "Off"}</button>
-      <button class="big ghost" id="saveTrain" style="min-height:48px">Save kept ones for AI training</button></div>`, true);
+      <button class="big ghost" id="tidyChecked" style="min-height:48px"${kept.length ? "" : " disabled"}>Tidy checked outlines (with undo)</button>
+      <button class="big ghost" id="saveTrain" style="min-height:48px">Save checked ones for AI training</button></div>`, true);
+  $("#reviewNext").onclick = () => fixBox(unreviewed[0] || boxes.find(b => b.keep) || boxes[0]);
   if ($("#undoTidy")) $("#undoTidy").onclick = () => { undoTidy(); showReview(); };
-  $("#autoTidy").onclick = () => { saveSetting("autoTidy", !getSettings().autoTidy); toast(`Auto-tidy ${getSettings().autoTidy ? "on" : "off"}: new AI outlines are squared, and turned to the street if within 15°.`); showReview(); };
+  $("#tidyChecked").onclick = () => tidyThen(kept);
   $("#bsheet .x").onclick = () => { closeSheet(); stopReview(); };
   if ($("#undoRm")) $("#undoRm").onclick = () => { restoreBoxes(undo); undo = []; showReview(); };
   $("#moreB").onclick = () => { const m = $("#moreMenu"); m.hidden = !m.hidden; $("#moreB").setAttribute("aria-expanded", !m.hidden); };
   if ($("#aiScan")) $("#aiScan").onclick = scanWithAi;
   $("#drawSelf").onclick = drawYourself;
-  $("#saveTrain").onclick = () => kept.length ? saveForTraining(kept) : toast("Every building is dropped. Double tap one to keep it.");
+  $("#saveTrain").onclick = () => kept.length ? saveForTraining(kept) : toast("Review the buildings and choose Check and next first.");
   let warned = false; // the overlap warning shows once; tapping again adds anyway
   $("#addKept").onclick = async () => {
     if ($("#confirmWrap").hidden) { $("#confirmWrap").hidden = false; return toast("Tick the box to confirm you checked them, then tap Add again."); }
     if (!osmAllowed()) return;
+    const problem = kept.map(b => validatePolygon(b.coords) || validateBuildingTags(b.tags || {})).find(Boolean);
+    if (problem) return toast(problem);
     const clash = kept.filter(b => overlapsExisting(b.coords)).length;
     if (clash && !warned) { warned = true; return toast(`${clash} kept building${clash > 1 ? "s overlap ones" : " overlaps one"} already on the map. Tap Add again to add anyway.`); }
     $("#addKept").disabled = true; // no double send
     try {
       const n = `${kept.length} building${kept.length > 1 ? "s" : ""}`;
-      const items = kept.map(b => ({ corners: b.coords, tags: {} }));
+      const items = kept.map(b => ({ corners: b.coords, tags: { ...b.tags } }));
       const r = await sendOrQueue({ kind: "create", items, source: sourceOf(kept),
         comment: kept.some(b => b.from) ? `Add missing buildings from ${[...new Set(kept.map(b => b.from).filter(Boolean).map(short))].join("/")} outlines, checked against satellite imagery` : "Add missing buildings traced from satellite imagery" });
       showSentBuildings(items, r.result);
-      toast(r.queued ? `No internet. ${n} will be sent when you are back online.` : `${n} added to OpenStreetMap`);
+      toast(r.queued ? "Edit saved on this device; check Pending edits for sending status." : `${n} added to OpenStreetMap`);
       undo = [];
       removeBoxes(kept); // the rest stay, so you can keep checking
       showReview();

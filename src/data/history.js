@@ -1,12 +1,15 @@
 // Remembers the edits you sent to OpenStreetMap on this phone, newest first.
 // An entry is { at, kind: "tags", wayId, added, cs, version } or { at, kind: "create", ways, cs }, plus undone: true once undone.
 
+import { storageScope, readStored, writeStored, migrateGuest } from "./accountStorage.js";
+import { setSaveStatus } from "./saveStatus.js";
+
 const KEY = "osm_history";
 
-export const getHistory = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } };
-const save = list => { try { localStorage.setItem(KEY, JSON.stringify(list.slice(0, 200))); } catch (e) { /* cannot save */ } };
+export const getHistory = () => { try { migrateGuest(KEY); return readStored(KEY, []); } catch (e) { setSaveStatus("failed", e.message); return []; } };
+const save = (list, scope = storageScope()) => { try { writeStored(KEY, list.slice(0, 200), scope); } catch (e) { setSaveStatus("failed", "The map edit succeeded, but its history could not be saved on this device."); } };
 
-export const addHistory = entry => save([{ at: Date.now(), ...entry }, ...getHistory()]);
+export const addHistory = (entry, scope = storageScope()) => save([{ at: Date.now(), ...entry }, ...readStored(KEY, [], scope)], scope);
 export const markUndone = at => save(getHistory().map(e => (e.at === at ? { ...e, undone: true } : e)));
 
 // Counts what you added in the last 7 days, for the "this week" message.

@@ -1,16 +1,22 @@
 // Every call to our own server lives here.
 import { getSettings } from "./settings.js";
 import { getToken } from "./osmAuth.js";
+import { requestSignal } from "./tasks.js";
 
-export async function post(url, body) {
+export async function post(url, body, { signal } = {}) {
   const key = getSettings().geminiKey; // the user's own Gemini key, if they added one
   const headers = { "Content-Type": "application/json", ...(key && { "x-gemini-key": key }) };
-  const r = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
-  if (!r.ok) throw new Error(r.status);
-  return r.json();
+  const request = requestSignal(signal, 90000);
+  try {
+    const r = await fetch(url, { method: "POST", headers, body: JSON.stringify(body), signal: request.signal });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw Object.assign(new Error(String(r.status)), { status: r.status, detail: data.error || `Request failed (${r.status}).`, code: data.code });
+    return data;
+  } finally { request.close(); }
 }
 export const analyzeVideo = body => post("/api/analyze", body);
-export const findOutlines = image => post("/api/outline", { image });
+export const findOutlines = (image, options) => post("/api/outline", { image }, options);
+export const findTrainedRoofs = (image, options) => post("/api/detect", { image }, options);
 export const sendContribution = body => post("/api/contribute", body);
 
 // Pictures saved for AI training: [{ name, labels, status }]. Empty on the live site, where the folder does not exist.

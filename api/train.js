@@ -1,34 +1,53 @@
-// Starts teaching the roof detector on your own computer (POST) and tells how far it is (GET). Never on the live site.
+// Starts a durable local training process and preserves failures until the next attempt.
 import fs from "node:fs";
-import path from "node:path";
 import { spawn } from "node:child_process";
+import { at, readJSON, writeJSON } from "./_trainingFiles.js";
+import { pythonPath, capabilities } from "./_trainingRuntime.js";
+import { forwardTraining } from "./_trainingProxy.js";
 
-const STATE = path.join("training", "train.json");
-const PYTHON = path.join(".venv", process.platform === "win32" ? "Scripts/python.exe" : "bin/python");
 const alive = pid => { try { process.kill(pid, 0); return true; } catch { return false; } };
-const failed = error => ({ state: "failed", error });
-
-function readState() {
-  let s;
-  try { s = JSON.parse(fs.readFileSync(STATE, "utf8")); } catch { return { state: "idle" }; }
-  return s.state === "running" && !alive(s.pid) ? failed("Training stopped early. See training/train.log.") : s;
+function state() {
+  const now = readJSON(at("train.json"), { state: "idle" });
+  if (now.state === "running" && !alive(now.pid)) {
+    const failed = { ...now, state: "failed", error: "Training stopped early. See training/train.log.", finishedAt: new Date().toISOString() };
+    writeJSON(at("train.json"), failed); return failed;
+  }
+  return now;
 }
-
+function fail(error) {
+  const value = { state: "failed", error, finishedAt: new Date().toISOString() };
+  writeJSON(at("train.json"), value); return value;
+}
 function start() {
-  if (!fs.existsSync(PYTHON)) return failed("The training tools are not installed.");
-  let status = {};
-  try { status = JSON.parse(fs.readFileSync(path.join("training", "status.json"), "utf8")); } catch {}
-  if (!Object.values(status).includes("kept")) return failed("Keep some pictures first.");
-  const log = fs.openSync(path.join("training", "train.log"), "w");
-  const child = spawn(PYTHON, ["train.py"], { detached: true, stdio: ["ignore", log, log] }); // keeps going even if this server restarts
-  child.unref();
-  const state = { state: "running", pid: child.pid, epoch: 0, epochs: 0 };
-  fs.writeFileSync(STATE, JSON.stringify(state));
-  return state;
+  if (state().state === "running") return state();
+  const status = readJSON(at("status.json"));
+  if (Object.values(status).filter(s => s === "kept").length < 2) return fail("Keep complete pictures from at least two separate geographic areas before training.");
+  fs.mkdirSync(at(), { recursive: true });
+  let lock;
+  try { lock = fs.openSync(at("train.lock"), "wx"); }
+  catch {
+    const old = state();
+    if (old.state === "running") return old;
+    fs.rmSync(at("train.lock"), { force: true });
+    lock = fs.openSync(at("train.lock"), "wx");
+  }
+  const log = fs.openSync(at("train.log"), "w");
+  const child = spawn(pythonPath(), ["train.py"], { detached: true, stdio: ["ignore", log, log], env: { ...process.env, YOLO_AUTOINSTALL: "False" } });
+  fs.closeSync(log); fs.closeSync(lock);
+  const running = { state: "running", pid: child.pid, epoch: 0, epochs: 50, startedAt: new Date().toISOString() };
+  writeJSON(at("train.json"), running);
+  child.once("error", error => { fail("Could not start training: " + error.message); fs.rmSync(at("train.lock"), { force: true }); });
+  child.once("exit", code => {
+    if (code && state().state === "running") fail(`Training exited with code ${code}. See training/train.log.`);
+    fs.rmSync(at("train.lock"), { force: true });
+  });
+  child.unref(); return running;
 }
-
 export default async function handler(req, res) {
-  if (process.env.VERCEL) return res.status(404).json({ error: "Only works on your own computer." });
-  const now = readState();
-  res.json(req.method === "POST" && now.state !== "running" ? start() : now);
+  if (await forwardTraining(req, res)) return;
+  if (!["GET", "POST"].includes(req.method)) return res.status(405).json({ error: "Use GET or POST." });
+  const tools = await capabilities();
+  let current = state();
+  if (req.method === "POST" && current.state !== "running") current = tools.available ? start() : process.env.VERCEL ? { state: "failed", error: tools.error } : fail(tools.error);
+  res.json({ ...current, capabilities: tools });
 }

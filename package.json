@@ -1,1 +1,1 @@
-{"name":"mamping","private":true,"type":"module","dependencies":{"@upstash/redis":"^1.41.0","@vercel/blob":"^0.27.0"}}
+{"name":"mamping","private":true,"type":"module","scripts":{"test":"node --experimental-vm-modules --test tests/*.test.js","test:browser":"playwright test","test:training":"python -m unittest discover -s tests -p \"test_*.py\""},"dependencies":{"@upstash/redis":"^1.41.0","@vercel/blob":"^0.27.0"},"devDependencies":{"@maplibre/maplibre-gl-leaflet":"0.0.22","@playwright/test":"1.65.1","leaflet":"1.9.4","maplibre-gl":"4.7.1"}}

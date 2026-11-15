@@ -8,6 +8,8 @@ Every new feature should help people get those facts into OSM faster, more corre
 ## Download
 For development `git clone https://github.com/anjlaisup2hubgit/mapping.git`.
 
+In the checkout, run `npm ci`, then `node dev-server.js` to serve the app and its API on port 3000. Use Node 24 or later. Run `npm test`, `npm run test:training`, and `npm run test:browser` for regressions (install Chromium with `npx playwright install chromium` first). Online roof detection needs a Gemini key in Scan options; picture clarification itself needs no key. See [Training and worker setup](docs/training.md) for CPU tools, complete datasets, evaluation, model activation and hosted workers.
+
 ## Features
 - You walk up to a building and film it with your phone.
 - The app notes where you stood, so it knows which building you filmed.
@@ -18,6 +20,12 @@ For development `git clone https://github.com/anjlaisup2hubgit/mapping.git`.
 - A search box helps you find a place.
 - You can switch the map between a street picture and a satellite picture.
 - Before scanning, you drag a blue box over the area you want, and it tells you how many satellite pictures the AI will read, so a slow or limited AI can scan just a small spot.
+- Optional satellite clarification runs on your device before AI finds and traces roofs, using [UpscalerJS](https://github.com/thekevinscott/UpscalerJS) and its MIT-licensed ESRGAN Slim 2x model (both pinned to 1.0.0, model weights under 1 MB). Original pictures are the faster default. Model files and tools come from `cdn.jsdelivr.net`; no extra key or image upload is needed for clarification. Enhancement can invent details, so check outlines against the original imagery; a model failure uses the original picture. Training pictures remain original.
+- Scans show persistent progress, Cancel and Retry failed pictures; finished pictures appear immediately so you can start editing.
+- Building names, 3D details, review state and shape undo are saved per building. The desktop inspector and compact mobile panel keep editing handles clear.
+- Unreviewed, checked and dropped outlines are distinct; only checked buildings can be sent. Tidy is explicit and undoable, and invalid/crossed outlines are blocked before upload.
+- Pending map edits stay attached to their account through connection/server errors, with explicit retry and interrupted-send review in Settings. Storage failures show an error instead of claiming success.
+- Training label edits autosave and support resizing, pan/zoom and undo. Trained candidates are evaluated on separate geographic areas, exported to ONNX, activated explicitly, and can be selected for scanning or rolled back.
 - The find-missing button first shows ready-made outlines that Microsoft's and Google's AI already found (from Overture Maps, instant and free) for buildings OpenStreetMap does not have yet. If there are none, our AI reads satellite pictures of the map you see instead. Either way, you tick the ones you checked and add them.
 - A list shows the buildings close to you.
 - Typing the floors fills in the height (and the other way round), and you can add roof shape, roof height and colours.

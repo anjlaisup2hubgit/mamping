@@ -1,62 +1,73 @@
-// The fix bar: every tool for the building being fixed, with words under the icons.
-// On a phone it sits above the bottom panel, in thumb reach; on a computer it sits at the top right.
-// Turn buttons keep turning while held. It goes away when editing stops.
-import { $ } from "./dom.js";
+// One compact editor: navigation and common actions stay visible; extra shape tools expand when needed.
 import { watchShape } from "./cornerEditor.js";
 import { boxPosition } from "./missingLayer.js";
 import { doFix } from "./fixActions.js";
-import "./fixKeys.js"; // the keyboard shortcuts for the same actions
+import { fitEditingView } from "./mapView.js";
+import "./fixKeys.js";
 import { sizeText } from "../data/shapeMoves.js";
 
-const icon = path => `<svg viewBox="0 0 24 24">${path}</svg>`;
-const TOOLS = [
-  ["rect", "Square", '<rect x="4" y="7" width="16" height="10" rx="1.5"/>'],
-  ["line", "Line up", '<path d="M8 3L5 21M16 3l3 18"/><path d="M12 5v2M12 11v2M12 17v2"/>'],
-  ["street", "Street", '<path d="M3 20L20 4"/><path d="M13 4h7v7"/>'],
-  ["turnL", "Turn", '<path d="M5 12a7 7 0 107-7"/><path d="M5 4v5h5"/>'],
-  ["turnR", "Turn", '<path d="M19 12a7 7 0 11-7-7"/><path d="M19 4v5h-5"/>'],
-  ["undo", "Undo", '<path d="M9 5L4 10l5 5"/><path d="M4 10h11a5 5 0 010 10h-4"/>'],
-  ["redo", "Redo", '<path d="M15 5l5 5-5 5"/><path d="M20 10H9a5 5 0 000 10h4"/>'],
-  ["copy", "Copy", '<rect x="4" y="8" width="12" height="12" rx="1.5"/><path d="M8 8V4h12v12h-4"/>'],
-  ["remove", "Remove", '<path d="M6 6l12 12M18 6L6 18"/>'],
-  ["keep", "Keep", '<path d="M5 12l5 5 9-10"/>']
-];
-const html = `<div class="fixHead"><button data-act="prev" aria-label="Previous building">${icon('<path d="M15 6l-6 6 6 6"/>')}</button>
-    <span class="fixCount"></span><button data-act="next" aria-label="Next building">${icon('<path d="M9 6l6 6-6 6"/>')}</button></div>
-  <div class="fixGrid">${TOOLS.map(([a, t, p]) => `<button data-act="${a}"${a === "keep" ? ' class="go"' : ""} aria-label="${t}">${icon(p)}<span>${t}</span></button>`).join("")}</div>`;
-
-let bar = null, repeat = null;
-
+const tool = (name, title, symbol, cls = "") => `<button data-act="${name}" class="${cls}" aria-label="${title}">${symbol}<span>${title}</span></button>`;
+const html = `<div class="fixHead"><button data-act="prev" aria-label="Previous building">‹</button><span class="fixCount"></span><button data-act="next" aria-label="Next building">›</button></div>
+  <div class="editorCommon">${tool("rect", "Square", "□")}${tool("undo", "Undo", "↶")}${tool("keep", "Check and next", "✓", "go")}</div>
+  <details class="editorAdvanced"><summary>More shape tools</summary><div class="fixGrid">
+    ${tool("line", "Line up", "⇥")}${tool("street", "Pick street", "↗")}${tool("turnL", "Turn left", "↶")}${tool("turnR", "Turn right", "↷")}${tool("redo", "Redo", "↷")}${tool("copy", "Copy", "▣")}${tool("remove", "Remove", "×")}
+  </div></details>`;
+let bar = null, repeat = null, selected = null, observer = null, fitting = false;
 const stopRepeat = () => { clearTimeout(repeat); clearInterval(repeat); repeat = null; };
+
+export function placeEditor() {
+  const view = window.visualViewport;
+  document.documentElement.style.setProperty("--editor-height", `${view?.height || innerHeight}px`);
+  document.documentElement.style.setProperty("--keyboard-bottom", `${Math.max(0, innerHeight - (view?.height || innerHeight) - (view?.offsetTop || 0))}px`);
+  if (fitting) return;
+  fitting = true;
+  requestAnimationFrame(() => { fitting = false; if (selected && document.querySelector("#bsheet.editorSheet.on")) fitEditingView(selected.coords); });
+}
 
 function build() {
   bar = document.createElement("div");
   bar.className = "fixBar";
   bar.innerHTML = html;
-  $("#bsheet").parentElement.appendChild(bar);
-  bar.addEventListener("click", e => { const a = e.target.closest("[data-act]")?.dataset.act; if (a && !a.startsWith("turn")) doFix(a); });
-  bar.addEventListener("pointerdown", e => { // holding a turn button keeps turning
-    const a = e.target.closest("[data-act]")?.dataset.act;
-    if (!a || !a.startsWith("turn")) return;
-    doFix(a);
-    repeat = setTimeout(() => { repeat = setInterval(() => doFix(a, true), 80); }, 400);
+  bar.addEventListener("click", e => {
+    const act = e.target.closest("[data-act]")?.dataset.act;
+    if (act && !act.startsWith("turn")) doFix(act);
   });
-  ["pointerup", "pointerleave", "pointercancel"].forEach(t => bar.addEventListener(t, stopRepeat));
-  window.addEventListener("resize", place);
+  bar.addEventListener("pointerdown", e => {
+    const act = e.target.closest("[data-act]")?.dataset.act;
+    if (!act?.startsWith("turn")) return;
+    doFix(act);
+    repeat = setTimeout(() => { repeat = setInterval(() => doFix(act, true), 80); }, 400);
+  });
+  ["pointerup", "pointerleave", "pointercancel"].forEach(type => bar.addEventListener(type, stopRepeat));
+  bar.querySelector("details").addEventListener("toggle", placeEditor);
+  window.addEventListener("resize", placeEditor);
+  window.visualViewport?.addEventListener("resize", placeEditor);
+  window.visualViewport?.addEventListener("scroll", placeEditor);
 }
 
-// Sits just above the bottom panel on a phone (the panel's height changes), so measure it after it has opened.
-function place() {
-  if (!bar) return;
-  const sheet = $("#bsheet");
-  bar.style.bottom = `${(sheet.classList.contains("on") ? sheet.offsetHeight : 0) + 20}px`;
+// openSheet replaces its contents, so move the same tool bar into each new building inspector.
+export function mountShapeTools(container) {
+  if (!bar) build();
+  container.appendChild(bar);
+  if (observer) observer.disconnect();
+  if (typeof ResizeObserver !== "undefined") {
+    observer = new ResizeObserver(placeEditor);
+    observer.observe(document.querySelector("#bsheet"));
+  }
+  placeEditor();
 }
 
 watchShape(b => {
-  if (!bar) { if (!b) return; build(); }
-  bar.classList.toggle("on", !!b);
-  if (!b) return stopRepeat();
+  const changed = selected !== b;
+  selected = b;
+  document.body.classList.toggle("editingOutline", !!b);
+  if (!b) {
+    stopRepeat();
+    if (observer) observer.disconnect();
+    return;
+  }
+  if (!bar) build();
   const { i, n } = boxPosition();
   bar.querySelector(".fixCount").textContent = `${i + 1} of ${n} · ${sizeText(b.coords)}`;
-  setTimeout(place, 0);
+  if (changed) placeEditor();
 });

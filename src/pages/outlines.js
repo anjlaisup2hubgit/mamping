@@ -19,7 +19,7 @@ export const outlines = {
       r.onclick = async () => {
         const b = boxes[r.dataset.i];
         await go("map");
-        centerOn(b.center, 19);
+        centerOn(b.center, 19, { animate: false });
         focusBox(b);
         showSuggestion(b);
       };

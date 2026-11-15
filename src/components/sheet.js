@@ -4,6 +4,7 @@ import { $ } from "./dom.js";
 // bar = true shows it as one short row at the bottom, so the map stays visible.
 export function openSheet(html, bar = false) {
   const s = $("#bsheet");
+  s.classList.remove("editorSheet");
   s.classList.toggle("barSheet", bar);
   s.innerHTML = html + '<button class="x" aria-label="Close panel">✕</button>';
   s.querySelector(".x").onclick = closeSheet;

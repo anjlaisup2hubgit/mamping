@@ -1,6 +1,8 @@
 // Writes to OpenStreetMap: add missing details to a building, or add a new building.
 import { OSM_API } from "./config.js";
 import { getToken } from "./osmAuth.js";
+import { validatePolygon } from "./geometry.js";
+import { validateBuildingTags } from "./buildingTags.js";
 
 const x = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" }[c]));
 
@@ -22,6 +24,8 @@ export async function withChangeset(comment, source, work) {
 // Adds only tags the building does not have yet. Never overwrites.
 // Returns { added: {key: value}, cs, version } so the edit can be listed and undone.
 export function addMissingTags(wayId, wanted, comment) {
+  const error = validateBuildingTags(wanted);
+  if (error) throw new Error(error);
   return withChangeset(comment, "survey", async cs => {
     const doc = new DOMParser().parseFromString(await call("GET", `way/${wayId}`), "text/xml");
     const way = doc.querySelector("way");
@@ -43,6 +47,11 @@ export function addMissingTags(wayId, wanted, comment) {
 // Returns { cs, ways: [{ id, v, nodes: [{ id, v, lat, lon }] }] } with the ids OpenStreetMap gave them.
 // source says where the outlines came from (shown on the changeset for other mappers).
 export function createBuildings(items, comment, source = "Esri World Imagery") {
+  if (!Array.isArray(items) || !items.length) throw new Error("There are no checked buildings to send.");
+  for (const item of items) {
+    const error = validatePolygon(item.corners) || validateBuildingTags(item.tags);
+    if (error) throw new Error(error);
+  }
   return withChangeset(comment, source, async cs => {
     let id = 0, parts = "";
     const made = [];

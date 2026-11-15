@@ -1,96 +1,117 @@
-// Training: check each picture saved for AI training. Tap a wrong roof to remove it, drag to add a missed one, then keep or drop the picture.
+// Review whole training scenes; every label change is saved before it can be lost to navigation.
 import { header, bindBack } from "../components/header.js";
 import { toast } from "../components/toast.js";
-import { getTraining, checkTraining } from "../data/api.js";
+import { listTraining } from "../data/trainingApi.js";
+import { trainingDraft } from "../data/trainingDrafts.js";
+import { trainingCanvas } from "../components/trainingCanvas.js";
 import { bindTrain, stopTrain } from "../components/trainButton.js";
 
-const empty = `<div class="empty"><h2>No training pictures</h2><p class="mid" style="margin:0">Scan an area on the map, then save the kept buildings for AI training.</p></div>`;
+const empty = `<div class="empty"><h2>No training pictures</h2><p class="mid">Scan an area, then save complete scenes for training. Include every visible roof before keeping a picture.</p></div>`;
+let pics = [], at = 0, drafts = new Map(), histories = new Map(), page = null, closed = false, checking = false;
+const reviewed = p => p.status === "kept" || p.status === "dropped";
+const beforeLeave = e => {
+  if ([...drafts.values()].some(d => { const s = d.state(); return s.dirty && !s.local; })) { e.preventDefault(); e.returnValue = ""; }
+};
 
-let pics = [], at = 0, off = new Set(); // off = the roofs removed from the picture on screen
-let dragged = false; // true right after drawing a roof, so the end of the drag does not also count as a tap
-
-const roofsOf = p => p.labels.split("\n").filter(Boolean);
-
-// One roof is a label line "0 x-middle y-middle width height" (all 0 to 1), drawn as a box over the picture.
-function roofBox(line, i) {
-  const [, x, y, w, h] = line.split(" ").map(Number);
-  return `<rect data-i="${i}" class="${off.has(i) ? "off" : ""}" x="${(x - w / 2) * 100}" y="${(y - h / 2) * 100}" width="${w * 100}" height="${h * 100}"/>`;
+function showSave() {
+  const node = page?.querySelector("#trainingSave"), draft = pics[at] && drafts.get(pics[at].name);
+  if (!node || !draft) return;
+  const s = draft.state();
+  node.dataset.state = s.error || (s.dirty && !s.local) || s.conflict ? "error" : "saved";
+  node.textContent = s.conflict ? "This picture changed on the server. A browser draft is still available below."
+    : s.error ? `${s.local ? "Draft saved in this browser. " : "Not saved. "}${s.error}`
+    : s.saving ? "Saving labels…" : s.dirty ? "Draft saved in this browser; waiting to sync." : "Labels saved";
+  const retry = page.querySelector("#retryLabels");
+  if (retry) retry.hidden = !s.dirty;
 }
 
-// Dragging on the picture draws a new roof box; done(line) gets its label line once the finger lifts.
-function letDraw(svg, done) {
-  let from = null, box = null, size = null;
-  const spot = e => { const r = svg.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * 100, (e.clientY - r.top) / r.height * 100]; };
-  const stop = () => { if (box) box.remove(); from = box = size = null; };
-  svg.onpointerdown = e => { from = spot(e); dragged = false; };
-  svg.onpointermove = e => {
-    if (!from) return;
-    const [x, y] = spot(e), w = Math.abs(x - from[0]), h = Math.abs(y - from[1]);
-    if (w < 1.5 || h < 1.5) return; // too small to be a roof: still a tap
-    if (!box) { box = svg.appendChild(document.createElementNS("http://www.w3.org/2000/svg", "rect")); box.classList.add("new"); }
-    size = { x: Math.min(x, from[0]), y: Math.min(y, from[1]), width: w, height: h };
-    for (const k in size) box.setAttribute(k, size[k]);
-  };
-  svg.onpointerup = () => {
-    const s = size;
-    stop();
-    if (!s) return;
-    dragged = true;
-    done(`0 ${((s.x + s.width / 2) / 100).toFixed(6)} ${((s.y + s.height / 2) / 100).toFixed(6)} ${(s.width / 100).toFixed(6)} ${(s.height / 100).toFixed(6)}`);
-  };
-  svg.onpointerleave = svg.onpointercancel = stop;
+async function safeMove(el, i) {
+  if (checking) return;
+  const draft = pics[at] && drafts.get(pics[at].name);
+  if (draft) {
+    try { await draft.flush(); }
+    catch { if (!draft.state().local) return toast("Labels could not be saved. Retry before leaving this picture."); }
+  }
+  if (!closed) { at = i; draw(el); }
 }
 
 function draw(el) {
   const body = el.querySelector("#train");
   if (!pics.length) { body.innerHTML = empty; return; }
-  const p = pics[at], roofs = roofsOf(p), checked = pics.filter(x => x.status).length;
-  body.innerHTML = `
-    <div class="row" style="align-items:center"><button class="round" id="prev" aria-label="Previous picture">‹</button>
-      <span class="rcount" style="text-align:center">${at + 1} / ${pics.length}${p.status ? ` <span class="tag">${p.status}</span>` : ""}</span>
-      <button class="round" id="next" aria-label="Next picture">›</button></div>
-    <div class="bar"><i style="width:${checked / pics.length * 100}%"></i></div>
-    <div class="tpic"><img src="/training/images/${p.name}.jpg" alt="Satellite picture"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${roofs.map(roofBox).join("")}</svg></div>
-    <p class="mid" style="margin:0;text-align:center"><span id="roofN">${roofs.length - off.size}</span> roofs · tap to remove, drag to add</p>
-    <div class="row"><button class="big ghost" id="drop">Drop</button><button class="big primary" id="keep">Keep</button></div>`;
-  body.querySelectorAll("rect").forEach(r => {
-    r.onclick = () => {
-      if (dragged) return;
-      const i = +r.dataset.i;
-      off.has(i) ? off.delete(i) : off.add(i);
-      r.classList.toggle("off");
-      body.querySelector("#roofN").textContent = roofs.length - off.size;
-    };
+  const p = pics[at], n = pics.filter(reviewed).length, draft = drafts.get(p.name);
+  body.innerHTML = `<div class="row" style="align-items:center"><button class="round" id="prev" aria-label="Previous picture">‹</button>
+    <span class="rcount" style="text-align:center">${at + 1} / ${pics.length} · <span id="pictureStatus"></span></span>
+    <button class="round" id="next" aria-label="Next picture">›</button></div>
+    <div class="bar"><i style="width:${n / pics.length * 100}%"></i></div>
+    <p id="trainingSave" class="trainingSave" role="status" aria-live="polite"></p>
+    <div id="labelCanvas"></div>
+    <div class="trainingActions"><button class="ghost big" id="saveDraft">Save draft</button><button class="ghost big" id="drop">Drop</button><button class="primary big" id="keep">Keep and next</button></div>
+    <p class="mid" style="font-size:12px;margin:4px 0">Keep only after every roof is labeled and every false box is removed; a checked picture with no roofs is a valid empty scene.</p>
+    <div class="trainingActions"><button class="ghost pill" id="retryLabels" hidden>Retry saving</button></div>
+    <div id="recoverDraft" hidden><p class="mid">A draft from an older picture version is kept in this browser.</p><button class="ghost pill" id="recoverLabels">Recover old labels</button><button class="ghost pill" id="discardLabels">Discard old draft</button></div>`;
+  body.querySelector("#pictureStatus").textContent = p.status === "kept" ? "Checked" : p.status === "dropped" ? "Dropped" : "Needs review";
+  trainingCanvas(body.querySelector("#labelCanvas"), p, histories.get(p.name), labels => {
+    draft.set(labels); body.querySelector("#pictureStatus").textContent = "Needs review";
   });
-  letDraw(body.querySelector("svg"), line => { p.labels = roofs.concat(line).join("\n") + "\n"; draw(el); });
-  body.querySelector("#prev").onclick = () => show(el, (at + pics.length - 1) % pics.length);
-  body.querySelector("#next").onclick = () => show(el, (at + 1) % pics.length);
+  body.querySelector("#prev").onclick = () => safeMove(el, (at + pics.length - 1) % pics.length);
+  body.querySelector("#next").onclick = () => safeMove(el, (at + 1) % pics.length);
+  const save = async () => { try { await draft.flush(); toast("Draft saved."); } catch (e) { toast(e.message); } };
+  body.querySelector("#saveDraft").onclick = save;
+  body.querySelector("#retryLabels").onclick = save;
   body.querySelector("#drop").onclick = () => check(el, "dropped");
   body.querySelector("#keep").onclick = () => check(el, "kept");
+  const recover = body.querySelector("#recoverDraft");
+  recover.hidden = !draft.state().conflict;
+  body.querySelector("#recoverLabels").onclick = () => {
+    if (confirm("Apply this old draft to the latest picture? Check every roof again before keeping it.")) { draft.recover(); draw(el); }
+  };
+  body.querySelector("#discardLabels").onclick = () => { draft.discard(); draw(el); };
+  showSave();
 }
 
-function show(el, i) { at = i; off = new Set(); draw(el); }
-
-// Saves the choice, then moves to the next picture that is not checked yet.
 async function check(el, status) {
-  const p = pics[at], labels = roofsOf(p).filter((_, i) => !off.has(i)).join("\n") + "\n";
-  try { await checkTraining(p.name, status, status === "kept" ? labels : undefined); }
-  catch { return toast("Could not save your choice."); }
-  p.status = status;
-  if (status === "kept") p.labels = labels;
-  const later = pics.findIndex((x, i) => i > at && !x.status), next = later < 0 ? pics.findIndex(x => !x.status) : later;
+  if (checking) return;
+  checking = true;
+  const p = pics[at], draft = drafts.get(p.name);
+  el.querySelector("#labelCanvas").inert = true;
+  el.querySelectorAll("#prev,#next").forEach(b => { b.disabled = true; });
+  el.querySelectorAll(".trainingActions button").forEach(b => { b.disabled = true; });
+  try { await draft.mark(status); }
+  catch (e) { checking = false; if (!closed) { toast(e.message); draw(el); } return; }
+  checking = false;
+  if (closed) return;
+  const later = pics.findIndex((x, i) => i > at && !reviewed(x)), next = later < 0 ? pics.findIndex(x => !reviewed(x)) : later;
   if (next < 0) toast(`All checked: ${pics.filter(x => x.status === "kept").length} kept.`);
-  show(el, next < 0 ? at : next);
+  at = next < 0 ? at : next; draw(el);
+  bindTrain(el.querySelector("#trainBox"));
 }
 
 export const training = {
   async open(el) {
-    el.innerHTML = header("Training") + `<div class="pad scroll" id="train"></div><div class="pad" id="trainBox" style="padding-bottom:16px"></div>`;
+    closed = false; checking = false; page = el; pics = []; drafts = new Map(); histories = new Map();
+    el.classList.add("trainingPage");
+    el.innerHTML = header("Training") + `<div class="pad scroll" id="train"><p class="mid">Loading training pictures…</p></div><div class="pad" id="trainBox"></div>`;
     bindBack(el, "settings");
-    pics = await getTraining().catch(() => []);
-    const first = pics.findIndex(x => !x.status);
-    show(el, first < 0 ? 0 : first);
-    if (pics.length) bindTrain(el.querySelector("#trainBox"));
+    el.querySelector("[data-back]").addEventListener("click", e => {
+      const s = pics[at] && drafts.get(pics[at].name)?.state();
+      if (s?.dirty && !s.local) { e.stopImmediatePropagation(); e.preventDefault(); toast("Retry saving your labels before leaving."); }
+    }, true);
+    addEventListener("beforeunload", beforeLeave);
+    try { pics = await listTraining(); }
+    catch (e) { el.querySelector("#train").textContent = e.message; bindTrain(el.querySelector("#trainBox")); return; }
+    if (closed) return;
+    for (const p of pics) {
+      histories.set(p.name, { past: [], future: [] });
+      drafts.set(p.name, trainingDraft(p, () => { if (!closed) showSave(); }));
+    }
+    const first = pics.findIndex(p => !reviewed(p));
+    at = first < 0 ? 0 : first; draw(el);
+    bindTrain(el.querySelector("#trainBox"));
   },
-  close: stopTrain
+  close() {
+    closed = true; removeEventListener("beforeunload", beforeLeave); stopTrain();
+    page?.classList.remove("trainingPage");
+    for (const draft of drafts.values()) draft.flush().catch(() => {});
+    page = null;
+  }
 };

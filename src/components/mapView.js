@@ -130,8 +130,38 @@ export function startMap() {
   watchMe(() => toast("Location is off. Showing Hai Phong."));
 }
 
-export const centerOn = (latlng, zoom = 18) => map.setView(latlng, zoom);
+export const centerOn = (latlng, zoom = 18, options) => map.setView(latlng, zoom, options);
 // Slides the map so a point sits in the middle of the screen.
 export const liftIntoView = latlng => map.panTo(latlng);
+// Put the roof and its handles in the part of the map left clear by the inspector and keyboard.
+export function fitEditingView(coords) {
+  if (!map || !coords?.length) return;
+  const rect = map.getContainer().getBoundingClientRect(), view = window.visualViewport;
+  let left = Math.max(rect.left, view?.offsetLeft || 0) + 16;
+  let right = Math.min(rect.right, (view?.offsetLeft || 0) + (view?.width || innerWidth)) - 16;
+  let top = Math.max(rect.top, view?.offsetTop || 0) + 20;
+  let bottom = Math.min(rect.bottom, (view?.offsetTop || 0) + (view?.height || innerHeight)) - 16;
+  const sheet = document.querySelector("#bsheet.editorSheet.on")?.getBoundingClientRect();
+  if (sheet) {
+    if (innerWidth >= 700) right = Math.min(right, sheet.left - 16);
+    else bottom = Math.min(bottom, sheet.top - 12);
+  }
+  const progress = document.querySelector(".scanProgress")?.getBoundingClientRect();
+  if (progress && progress.height) top = Math.max(top, progress.bottom + 12);
+  if (right - left < 100 || bottom - top < 100) return;
+  const bounds = L.latLngBounds(coords), size = map.getSize();
+  const availableWidth = right - left, availableHeight = bottom - top;
+  const padding = L.point(Math.max(0, size.x - availableWidth + Math.min(112, availableWidth - 40)),
+    Math.max(0, size.y - availableHeight + Math.min(128, availableHeight - 40)));
+  const snap = map.options.zoomSnap;
+  map.options.zoomSnap = 0; // Whole zoom levels can make short-screen handles overlap unnecessarily.
+  const zoom = Math.min(map.getZoom(), map.getBoundsZoom(bounds, false, padding));
+  const roof = map.project(bounds.getCenter(), zoom);
+  const desired = L.point((left + right) / 2 - rect.left, (top + bottom) / 2 - rect.top + 6);
+  const centre = map.unproject(roof.subtract(desired.subtract(size.divideBy(2))), zoom);
+  map.stop();
+  map.setView(centre, zoom, { animate: false });
+  map.options.zoomSnap = snap;
+}
 export const goHaiPhong = () => map.setView(HAI_PHONG, 17);
 export const viewCenter = () => (state.me ? { lat: state.me.lat, lng: state.me.lng } : map.getCenter());

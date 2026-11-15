@@ -1,0 +1,46 @@
+/* The inspector is one surface: desktop side panel, compact mobile bottom panel. */
+body.editingOutline .modeChips,body.editingOutline .nav{display:none}
+#bsheet.editorSheet{display:none;flex-direction:column;gap:8px;padding:10px 12px;max-height:calc(var(--editor-height,100dvh) * .48);bottom:calc(8px + var(--keyboard-bottom,0px));border:1px solid var(--line);border-radius:18px;overflow:auto}
+#bsheet.editorSheet.on{display:flex}
+#bsheet.editorSheet>.x{position:absolute;right:7px;top:7px;width:28px;height:28px;z-index:1}
+.outlineInspector{display:flex;flex-direction:column;gap:8px;min-width:0}
+.editorSheet .fixBar{position:static!important;display:block;transform:none;width:100%;padding:0;box-shadow:none;background:transparent;left:auto;right:auto;top:auto;bottom:auto!important;border-radius:0}
+.editorSheet .fixHead{padding-right:28px;gap:4px;min-height:28px}
+.editorSheet .fixHead button{width:36px;height:28px;font-size:24px}
+.editorSheet .fixCount{font-size:12px;text-align:center;flex:1}
+.editorCommon{display:grid;grid-template-columns:1fr 1fr 2fr;gap:6px}
+.editorCommon button,.editorSheet .fixGrid button{display:flex;align-items:center;justify-content:center;gap:6px;border-radius:10px;min-height:40px;background:var(--bg);font-size:16px}
+.editorCommon button span{font-size:12px}
+.editorCommon button.go{background:var(--acc);color:#fff;font-weight:700}
+.editorAdvanced summary,#outlineDetails>summary{font-size:13px;cursor:pointer;padding:5px 0;min-height:28px}
+.editorSheet .fixGrid{grid-template-columns:repeat(4,1fr);margin-top:4px;gap:5px}
+.editorSheet .fixGrid button{flex-direction:column;gap:0}
+.editorSheet .fixGrid button span{font-size:10px}
+.inspectorStatus{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:12px;color:var(--mid)}
+.reviewStatus{font-weight:600;color:var(--ink)}
+.draftSaveStatus[data-state=failed]{color:#b42318}
+.editorSubmit{display:flex;align-items:center;gap:8px}
+.editorSubmit .primary{border-radius:20px;padding:9px 14px;font-size:13px;font-weight:600;min-height:40px;flex:1}
+.editorSubmit .okTick{font-size:12px!important;min-height:36px!important}
+.editorSheet input[type=text],.editorSheet select{font-size:14px;padding:9px 10px}
+.editorDetailsFields{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.editorSheet .inspectorHelp{font-size:12px;color:var(--mid);margin:0}
+.editorSheet .editorMore{font-size:12px;min-height:30px}
+.editorReviewCounts{font-size:13px;flex:1}
+.reviewWarning{font-size:12px;color:var(--mid);margin:0}
+.reviewSummary{font-size:13px;margin:0}
+body.editingOutline .toast{top:auto;bottom:calc(var(--editor-height,100dvh) * .50 + var(--keyboard-bottom,0px));pointer-events:none}
+@media(min-width:700px){
+ #bsheet.editorSheet{left:auto;right:12px;top:76px;bottom:16px;margin:0;width:340px;max-width:340px;max-height:calc(var(--editor-height,100dvh) - 92px);height:max-content;border-radius:18px}
+ .editorSheet .fixGrid{grid-template-columns:repeat(4,1fr)}
+ .editorAdvanced[open],#outlineDetails[open]{border-top:1px solid var(--line);padding-top:5px}
+ body.editingOutline .toast{left:25%;bottom:24px;top:auto}
+}
+@media(max-height:600px) and (max-width:699px){
+ #bsheet.editorSheet{max-height:calc(var(--editor-height,100dvh) * .46);gap:5px;padding:7px 10px}
+ .outlineInspector{gap:4px}
+ .editorCommon button{min-height:34px}
+ .editorAdvanced summary,#outlineDetails>summary{min-height:24px;padding:2px 0}
+ .editorSubmit .primary{min-height:34px;padding:6px 12px}
+ .editorSheet .inspectorStatus{font-size:11px}
+}

@@ -11,14 +11,20 @@ import { map as mapPage } from "./pages/map.js";
 import { startTooltips } from "./components/tooltip.js";
 import { restoreMissing } from "./components/missingLayer.js";
 import { flushQueue } from "./data/osmSend.js";
+import { getSaveStatus } from "./data/saveStatus.js";
 
 // Sends edits that were saved while offline.
 async function sendWaiting() {
-  const { sent, failed } = await flushQueue();
-  if (sent) toast(`${sent} saved edit${sent > 1 ? "s" : ""} sent to OpenStreetMap`);
-  if (failed) toast(`${failed} saved edit${failed > 1 ? "s were" : " was"} refused by OpenStreetMap`);
+  try {
+    const { sent, failed } = await flushQueue();
+    if (sent) toast(`${sent} saved edit${sent > 1 ? "s" : ""} sent to OpenStreetMap`);
+    if (failed) toast(`${failed} edit${failed > 1 ? "s need" : " needs"} attention. They are kept in Settings, Pending edits.`);
+  } catch (e) { toast("Pending edits could not be saved: " + e.message); }
 }
 window.addEventListener("online", sendWaiting);
+window.addEventListener("beforeunload", e => {
+  if (getSaveStatus().state === "failed") { e.preventDefault(); e.returnValue = ""; }
+});
 
 startTooltips();
 const later = (file, name) => () => import(`./pages/${file}.js`).then(m => m[name]); // load only when opened

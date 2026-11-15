@@ -11,7 +11,7 @@ import { wallAngle } from "../data/rectangle.js";
 import { loadRoads, roadsNow, roadReach } from "../data/roads.js";
 import { showBubble, hideBubble } from "./zoomBubble.js";
 import { toast } from "./toast.js";
-import { watchGestures } from "./fixGestures.js";
+import { watchGestures, stopGestures } from "./fixGestures.js";
 
 let dots = [], current = null, past = [], future = [], onChange = null, lastTap = { i: -1, at: 0 }, watcher = null;
 
@@ -19,7 +19,8 @@ let dots = [], current = null, past = [], future = [], onChange = null, lastTap 
 export const watchShape = f => { watcher = f; };
 
 export function stopEditing() {
-  map.off("zoomend", redrawHandles);
+  map.off("zoomend moveend", redrawHandles);
+  stopGestures();
   hush();
   dots.forEach(d => d.remove());
   dots = []; current = null; past = []; future = [];
@@ -50,10 +51,17 @@ function hush() { if (tag) tag.remove(); tag = null; }
 function show(coords) { // redraws the outline while a handle is being dragged
   current.coords = coords;
   current.center = mid(coords);
+  current.reviewed = false;
+  const checked = document.querySelector("#osmOk");
+  if (checked) checked.checked = false;
   current.shape.setLatLngs(coords);
   if (watcher) watcher(current);
 }
-const remember = () => { past.push(current.coords.map(c => [...c])); future = []; };
+const remember = () => {
+  past.push(current.coords.map(c => [...c]));
+  if (past.length > 50) past.shift();
+  future = current.shapeFuture = [];
+};
 function done() { hush(); hideBubble(); draw(); if (onChange) onChange(current); }
 const ll = e => [e.latlng.lat, e.latlng.lng];
 
@@ -91,8 +99,9 @@ function draw() {
       .on("drag", e => { pushWall(start.coords, i, start.at, ll(e)).forEach((x, k) => { c[k] = x; }); show(c); say(e.latlng, sizeText(c)); })
       .on("dragend", done);
   });
-  const top = map.latLngToContainerPoint(current.center), highest = Math.min(...c.map(p => map.latLngToContainerPoint(p).y));
-  const knob = map.containerPointToLatLng([top.x, highest - 40]);
+  const pixels = c.map(p => map.latLngToContainerPoint(p)), highest = Math.min(...pixels.map(p => p.y));
+  // A diagonal handle avoids the top wall control without requiring a tall empty strip above the roof.
+  const knob = map.containerPointToLatLng([Math.max(...pixels.map(p => p.x)) + 38, highest - 38]);
   let spin = null;
   handle(knob, "turn", 44, 2100) // round handle above the shape: turn it around its middle
     .on("dragstart", e => {
@@ -123,8 +132,10 @@ function draw() {
 export function editCorners(b, changed) {
   stopEditing();
   current = b;
+  past = b.shapePast ||= [];
+  future = b.shapeFuture ||= [];
   onChange = changed;
-  map.on("zoomend", redrawHandles);
+  map.on("zoomend moveend", redrawHandles);
   draw();
   watchGestures(b.shape, { square: squareShape, turn: turnBy });
   if (b.coords.length === 3) toast("3 corners: tap the wall that is right to make a rectangle.");
@@ -143,8 +154,9 @@ export function squareShape() {
 // Turns the outline so its walls run along the chosen street (or nearest road). Can be undone.
 export async function lineUpShape() {
   if (!current) return;
-  await loadRoads(...current.center);
-  if (!current) return;
+  const building = current;
+  await loadRoads(...building.center);
+  if (current !== building) return;
   remember();
   show(lineUp(current.coords, wallAngle(current.center, roadsNow(), [], roadReach())));
   done();

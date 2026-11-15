@@ -8,6 +8,7 @@ import { state } from "../data/state.js";
 import { loadContribs } from "../data/contributions.js";
 import { weekCounts } from "../data/history.js";
 import { getSettings } from "../data/settings.js";
+import { pendingEdits, bindPendingEdits } from "../components/pendingEdits.js";
 
 const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
@@ -17,7 +18,7 @@ const row = (to, icon, title, sub, id = "") =>
 
 function page() {
   const boxes = currentBoxes().length, { heights, buildings } = weekCounts();
-  return `<div class="pad">${osmAccount()}
+  return `<div class="pad">${osmAccount()}${pendingEdits()}
   <div class="card list" style="margin-top:16px">
     ${row("videos", icons.video, "Recorded videos", "Loading…", "vidSub")}
     ${row("outlines", icons.scan, "Scanned outlines", boxes ? `${plural(boxes, "missing building")} to check` : "None yet")}
@@ -36,12 +37,15 @@ async function countVideos(el) {
   if (sub) sub.textContent = mine.length ? plural(mine.length, "video") + (waiting ? ` · ${waiting} not checked by AI` : "") : "None yet";
 }
 
+let stopPending = null;
 export const settings = {
   open(el) {
     el.innerHTML = header("Settings") + `<div class="scroll">${page()}</div>`;
     bindBack(el);
     el.querySelectorAll("[data-to]").forEach(b => { b.onclick = () => go(b.dataset.to); });
     bindOsmAccount();
+    stopPending = bindPendingEdits(el);
     countVideos(el);
-  }
+  },
+  close() { stopPending?.(); stopPending = null; }
 };
