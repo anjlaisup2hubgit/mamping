@@ -1,10 +1,10 @@
 // Builds the training set for a detector: each satellite picture saved with a label file listing the ticked buildings in it.
 import { getSatelliteView } from "./satellite.js";
 import { post } from "./api.js";
+import { inSquare } from "./geo.js";
 
 const SIZE = 768; // a picture is 3x3 tiles of 256 pixels
 const clamp = v => Math.min(1, Math.max(0, v));
-const inSquare = ([lat, lng], p) => lat <= p.nw[0] && lat >= p.se[0] && lng >= p.nw[1] && lng <= p.se[1];
 
 // One label line per building, in the standard YOLO format: class x-middle y-middle width height (all 0 to 1).
 function labelLine(coords, toPixel) {

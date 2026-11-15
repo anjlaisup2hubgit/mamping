@@ -1,5 +1,5 @@
-// Checking the orange boxes right on the map, with no list in the way. Pick what a tap does at the top
-// (keep, remove or fix shape), then tap boxes. Turn on Select to hold and drag over many boxes at once.
+// Checking the boxes right on the map, with no list in the way. Every box starts kept: tap one to see how sure
+// the AI is, double tap to drop it (or bring it back). The buttons at the top change a tap to remove or fix shape. Turn on Select to hold and drag over many boxes at once.
 // A slim bar at the bottom counts them and adds the kept ones to OpenStreetMap together.
 import { $ } from "./dom.js";
 import { map } from "./mapView.js";
@@ -11,9 +11,11 @@ import { overlapsExisting } from "../data/buildings.js";
 import { showSentBuildings } from "./buildingLayer.js";
 import { inside } from "../data/geo.js";
 import { undoShape } from "./cornerEditor.js";
-import { currentBoxes, removeBoxes, restoreBoxes, restyle, saveBoxes, fixBox, unfocus, drawYourself, scanWithAi, saveForTraining } from "./missingLayer.js";
+import { tidy, undoTidy, canUndoTidy } from "./tidyBoxes.js";
+import { getSettings, saveSetting } from "../data/settings.js";
+import { currentBoxes, removeBoxes, restoreBoxes, restyle, saveBoxes, fixBox, unfocus, drawYourself, scanWithAi, saveForTraining, showSure, hideSure } from "./missingLayer.js";
 
-const MODES = { fix: "Fix shape", remove: "Remove", keep: "Keep" };
+const MODES = { fix: "Fix shape", tidy: "Tidy", remove: "Remove", keep: "Check" };
 const drawBtn = `<button class="big ghost" id="drawSelf" style="min-height:48px">AI missed one? Draw it yourself</button>`;
 const short = from => from.split(" ")[0]; // "Microsoft ML Buildings" -> "Microsoft"
 const sourceOf = list => [...new Set(list.map(b => b.from).filter(Boolean)), "Esri World Imagery"].join("; ");
@@ -24,11 +26,26 @@ export function tapBox(b) {
   if (!chips) return showReview(); // the first tap only opens the review, it changes nothing
   if (selecting) return; // in Select, the drag already did it
   if (mode === "fix") return fixBox(b);
+  if (mode === "keep") return showSure(b);
   apply([b]);
 }
 
-// Keep: marks them green (or unmarks, if all were green already). Remove: takes them off the map.
+export const isReviewing = () => !!chips;
+
+// Fix-bar "Remove": takes one box off the map; "Undo remove" brings it back.
+export function dropOne(b) { undo = [b]; removeBoxes([b]); showReview(); }
+
+// Tidy: squares the boxes and lines them up with the road.
+const tidyThen = async list => { await tidy(list); showReview(); };
+
+// A box was double tapped: drop it, or bring a dropped one back.
+export function doubleTapBox(b) {
+  if (chips && !selecting && mode === "keep") apply([b]);
+}
+
+// Check: drops them (or brings them back, if all were dropped already). Remove: takes them off the map.
 function apply(list) {
+  if (mode === "tidy") return tidyThen(list);
   if (mode === "keep") {
     const on = !list.every(b => b.keep);
     list.forEach(b => { b.keep = on; });
@@ -42,6 +59,7 @@ export function stopReview() {
   chips = null;
   mode = "keep";
   setSelecting(false);
+  hideSure();
   unfocus();
 }
 
@@ -91,6 +109,7 @@ function startSelectDrag() {
     const list = [...touched];
     touched = null;
     if (!list.length) return;
+    if (mode === "tidy") return tidyThen(list);
     if (mode === "keep") { saveBoxes(); undo = []; } else { undo = list; removeBoxes(list); }
     showReview();
   });
@@ -101,6 +120,7 @@ document.addEventListener("keydown", e => {
   if (!chips || !(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "z" || /INPUT|TEXTAREA/.test(e.target.tagName)) return;
   e.preventDefault();
   if (undoShape()) return;
+  if (undoTidy()) return showReview();
   if (undo.length) { restoreBoxes(undo); undo = []; showReview(); } else toast("Nothing to undo.");
 });
 
@@ -117,19 +137,23 @@ export function showReview() {
   unfocus();
   showChips();
   const kept = boxes.filter(b => b.keep), ready = boxes.some(b => b.from);
-  openSheet(`<span class="rcount"><b class="kept">${kept.length}</b> keep · <b>${boxes.length - kept.length}</b> to check</span>
+  openSheet(`<span class="rcount"><b class="kept">${kept.length}</b> kept · <b>${boxes.length - kept.length}</b> dropped</span>
     ${undo.length ? `<button class="ghost pill" id="undoRm">Undo remove</button>` : ""}
+    ${canUndoTidy() ? `<button class="ghost pill" id="undoTidy">Undo tidy</button>` : ""}
     <button class="ghost pill" id="moreB" aria-expanded="false">More</button>
     <button class="primary pill" id="addKept"${kept.length ? "" : " disabled"}>Add ${kept.length} to OpenStreetMap</button>
     <div id="confirmWrap" class="rwide" hidden>${osmConfirm()}</div>
     <div id="moreMenu" class="moreMenu rwide" hidden>${ready ? `<button class="big ghost" id="aiScan" style="min-height:48px">Scan with our AI instead</button>` : ""}${drawBtn}
+      <button class="big ghost" id="autoTidy" style="min-height:48px" aria-pressed="${!!getSettings().autoTidy}">Auto-tidy new outlines: ${getSettings().autoTidy ? "On" : "Off"}</button>
       <button class="big ghost" id="saveTrain" style="min-height:48px">Save kept ones for AI training</button></div>`, true);
+  if ($("#undoTidy")) $("#undoTidy").onclick = () => { undoTidy(); showReview(); };
+  $("#autoTidy").onclick = () => { saveSetting("autoTidy", !getSettings().autoTidy); toast(`Auto-tidy ${getSettings().autoTidy ? "on" : "off"}: new AI outlines are squared and lined up.`); showReview(); };
   $("#bsheet .x").onclick = () => { closeSheet(); stopReview(); };
   if ($("#undoRm")) $("#undoRm").onclick = () => { restoreBoxes(undo); undo = []; showReview(); };
   $("#moreB").onclick = () => { const m = $("#moreMenu"); m.hidden = !m.hidden; $("#moreB").setAttribute("aria-expanded", !m.hidden); };
   if ($("#aiScan")) $("#aiScan").onclick = scanWithAi;
   $("#drawSelf").onclick = drawYourself;
-  $("#saveTrain").onclick = () => kept.length ? saveForTraining(kept) : toast("Keep the buildings that match the picture first.");
+  $("#saveTrain").onclick = () => kept.length ? saveForTraining(kept) : toast("Every building is dropped. Double tap one to keep it.");
   let warned = false; // the overlap warning shows once; tapping again adds anyway
   $("#addKept").onclick = async () => {
     if ($("#confirmWrap").hidden) { $("#confirmWrap").hidden = false; return toast("Tick the box to confirm you checked them, then tap Add again."); }

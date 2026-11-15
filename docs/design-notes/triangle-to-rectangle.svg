@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Fixing a triangle-shaped outline in 2 taps: tap the wall that is right, the other sides are rebuilt square to it.
+       Same orange corner dots, cyan outline and bottom bar as today; only the new "Pick wall" step is added. -->
+  <rect width="1200" height="675" fill="#5f6b55"/>
+  <g stroke="#fff" stroke-opacity="0.4" stroke-width="2"><line x1="400" y1="70" x2="400" y2="650"/><line x1="800" y1="70" x2="800" y2="650"/></g>
+  <g fill="#fff" font-size="20" font-weight="700" text-anchor="middle">
+    <text x="200" y="50">1 · Odd triangle</text><text x="600" y="50">2 · Tap the good wall</text><text x="1000" y="50">3 · Square, then Keep</text></g>
+  <g fill="#fff" font-size="14" text-anchor="middle">
+    <text x="200" y="92">The AI gave 3 corners at odd angles</text>
+    <text x="600" y="92">Longest wall is suggested (glows)</text>
+    <text x="1000" y="92">4th corner added, all corners 90°</text></g>
+
+  <!-- road under everything -->
+  <g stroke="#3d4038" stroke-width="26" fill="none"><path d="M20 330 L380 305"/><path d="M420 330 L780 305"/><path d="M820 330 L1180 305"/></g>
+
+  <!-- 1: triangle -->
+  <polygon points="60,260 340,235 220,130" fill="#cfe9ee" fill-opacity="0.25" stroke="#00e5ff" stroke-width="4" stroke-linejoin="round"/>
+  <g fill="#ff9800" stroke="#fff" stroke-width="2"><circle cx="60" cy="260" r="9"/><circle cx="340" cy="235" r="9"/><circle cx="220" cy="130" r="9"/></g>
+  <text x="200" y="365" font-size="14" fill="#fff" text-anchor="middle">Dragging 3 dots into a rectangle takes ~6 moves</text>
+
+  <!-- 2: pick wall + dashed preview -->
+  <g transform="translate(400,0)">
+    <polygon points="60,260 340,235 220,130" fill="none" stroke="#00e5ff" stroke-opacity="0.5" stroke-width="3"/>
+    <polygon points="60,260 340,235 330,120 50,145" fill="#cfe9ee" fill-opacity="0.15" stroke="#fff" stroke-width="2" stroke-dasharray="7 6"/>
+    <line x1="60" y1="260" x2="340" y2="235" stroke="#fff3c4" stroke-width="9" stroke-linecap="round"/>
+    <g fill="#ff9800" stroke="#fff" stroke-width="2"><circle cx="60" cy="260" r="9"/><circle cx="340" cy="235" r="9"/><circle cx="220" cy="130" r="9"/></g>
+    <rect x="130" y="205" width="140" height="30" rx="15" fill="#fff"/><text x="200" y="225" font-size="14" fill="#333" text-anchor="middle">Use this wall ✓</text>
+    <text x="200" y="365" font-size="14" fill="#fff" text-anchor="middle">Dashed = preview. Tap another wall to change it</text>
+  </g>
+
+  <!-- 3: result -->
+  <g transform="translate(800,0)">
+    <polygon points="60,260 340,235 330,120 50,145" fill="#cfe9ee" fill-opacity="0.25" stroke="#00e5ff" stroke-width="4" stroke-linejoin="round"/>
+    <g fill="none" stroke="#fff" stroke-width="2"><path d="M72 258.9 L71 247 L83 246"/><path d="M328 223 L316 224 L317 236"/><path d="M319 121 L318 133 L330 132"/><path d="M62 146 L63 134 L75 135"/></g>
+    <g fill="#4caf50" stroke="#fff" stroke-width="2"><circle cx="60" cy="260" r="9"/><circle cx="340" cy="235" r="9"/><circle cx="330" cy="120" r="9"/><circle cx="50" cy="145" r="9"/></g>
+    <text x="200" y="365" font-size="14" fill="#fff" text-anchor="middle">Green dot = true right angle</text>
+  </g>
+
+  <!-- bottom bar: only 3 buttons. Wall-pick, square and line-up happen on the map itself; extra tools hide under More. -->
+  <rect x="300" y="450" width="600" height="110" rx="22" fill="#fff"/>
+  <g font-size="16" fill="#333" text-anchor="middle">
+    <rect x="330" y="470" width="150" height="70" rx="14" fill="#ffcdd2"/><text x="405" y="512">Remove</text>
+    <rect x="525" y="470" width="150" height="70" rx="14" fill="#eceff1"/><text x="600" y="512">More ⋯</text>
+    <rect x="720" y="470" width="150" height="70" rx="14" fill="#c8e6c9"/><text x="795" y="512" font-weight="700">Keep ✓</text>
+    <text x="600" y="600" fill="#fff" font-size="14">More = Undo, Redo, Copy, Turn, Street (a small pop-up, only when needed)</text>
+    <text x="600" y="624" fill="#fff" font-size="14">Triangles open step 2 by themselves; any shape with 4+ corners squares itself on Keep</text></g>
+</svg>

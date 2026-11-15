@@ -21,6 +21,7 @@ function page() {
   <div class="card list" style="margin-top:16px">
     ${row("videos", icons.video, "Recorded videos", "Loading…", "vidSub")}
     ${row("outlines", icons.scan, "Scanned outlines", boxes ? `${plural(boxes, "missing building")} to check` : "None yet")}
+    ${row("training", icons.layers, "Training pictures", "Check pictures saved for the AI")}
     ${row("edits", icons.list, "My edits", heights || buildings ? `This week: ${plural(heights, "height")}, ${plural(buildings, "building")}` : "Nothing added this week")}
     ${row("scanSettings", icons.settings, "Scan options", getSettings().outline === "roof" ? "Roof shape outlines" : "Rectangle outlines")}
     ${row("help", icons.help, "How to use Mamping", "Filming tips and a quick tour")}</div></div>`;

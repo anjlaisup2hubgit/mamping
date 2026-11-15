@@ -1,6 +1,7 @@
 .vercel
 .env*
 node_modules
+.venv
 
 # pictures saved for AI training stay on this computer
 training/

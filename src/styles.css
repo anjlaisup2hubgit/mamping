@@ -158,6 +158,7 @@ button:disabled{opacity:.5;cursor:default}
 .sheet.barSheet .x{position:static;flex:none}
 .pill{min-height:36px;border-radius:18px;padding:0 14px;font-weight:600;flex:none;font-size:14px}
 .pickHint{position:absolute;top:36px;left:50%;transform:translateX(-50%);z-index:900;background:var(--surf);color:var(--ink);border-radius:20px;padding:8px 16px;font-size:14px;max-width:calc(100% - 32px);text-align:center;box-shadow:0 1px 4px #0003;pointer-events:none}
+.sqcount{transform:translate(-50%,-50%);width:max-content;background:#000a;color:#fff;border-radius:10px;padding:1px 8px;font:600 12px/18px system-ui,sans-serif;pointer-events:none}
 .sqnum{width:24px;height:24px;border-radius:50%;background:#1F6FEB;color:#fff;font:700 13px/24px system-ui,sans-serif;text-align:center}
 
 /* missing-building list: numbered rows that match the numbers on the map; the list never gets squashed */
@@ -183,6 +184,7 @@ button:disabled{opacity:.5;cursor:default}
 .rwide{flex-basis:100%}
 .leaflet-tooltip.boxnum{background:#E8470F;color:#fff;border:2px solid #fff;border-radius:50%;width:24px;height:24px;padding:0;font:700 12px/20px system-ui,sans-serif;text-align:center;box-shadow:none}
 .leaflet-tooltip.boxnum::before{display:none}
+.leaflet-tooltip.sure{border:0;border-radius:12px;padding:3px 10px;font:600 13px/1.4 system-ui,sans-serif;color:#1C1C1C}
 
 /* map layer picker: a small picture of each map */
 .bases{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -223,3 +225,30 @@ button.mrow{width:100%;background:var(--surf);color:var(--ink);text-align:left}
 .sname{flex:1;min-width:120px;border-radius:22px!important;padding:10px 14px!important}
 #bsheet label.okTick{display:flex;align-items:center;gap:6px;margin:0;font-size:14px;min-height:44px}
 path.box{filter:drop-shadow(0 0 1.5px #000a)}
+
+/* training check: a square satellite picture with a box on every roof; removed roofs turn white and dashed */
+.tpic{position:relative;flex:none;align-self:center;width:min(100%,48vh);aspect-ratio:1;border-radius:16px;overflow:hidden;background:var(--line)}
+.tpic img,.tpic svg{position:absolute;inset:0;width:100%;height:100%}
+.tpic rect{fill:#0000;stroke:#E8470F;stroke-width:2;vector-effect:non-scaling-stroke;cursor:pointer}
+.tpic rect.off{stroke:#fff;stroke-dasharray:4 3;fill:#0007}
+.tpic svg{touch-action:none;cursor:crosshair}
+.tpic rect{pointer-events:all}
+.tpic rect.new{pointer-events:none;stroke:#fff}
+
+/* fix bar: every shape tool with words. Phone: above the bottom panel. Computer: top right. Green ring = right-angle corner */
+.fixBar{position:absolute;left:50%;transform:translateX(-50%);bottom:140px;z-index:880;width:min(360px,calc(100% - 24px));background:var(--surf);border-radius:18px;box-shadow:0 1px 6px #0005;padding:4px;display:none}
+.fixBar.on{display:block}
+.fixHead{display:flex;align-items:center;justify-content:space-between;padding:0 0 4px;font-size:13px;color:var(--ink)}
+.fixHead button{width:48px;height:34px;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.fixGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.fixGrid button{min-height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border-radius:10px;background:var(--bg);color:var(--ink);font-size:10px}
+.fixGrid button.go{background:var(--acc);color:#fff;font-weight:700}
+.fixBar svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+@media (min-width:700px){.fixBar{left:auto;right:12px;transform:none;top:76px;bottom:auto!important;width:300px}}
+.corner.sq{border-color:#2E9E5B}
+.zoomBubble{position:absolute;left:12px;top:120px;width:110px;height:110px;border-radius:50%;border:3px solid #fff;box-shadow:0 1px 6px #0006;overflow:hidden;z-index:880;display:none;pointer-events:none}
+.zoomBubble.on{display:block}
+.keyHelp{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1000;background:var(--surf);color:var(--ink);border-radius:16px;box-shadow:0 2px 12px #0007;padding:14px 18px;width:min(380px,calc(100% - 24px));font-size:14px}
+.keyHelp h3{margin:0 0 8px}
+.keyHelp div{display:flex;gap:10px;padding:3px 0}
+.keyHelp kbd{flex:none;min-width:110px;font:700 12px inherit;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:2px 6px}

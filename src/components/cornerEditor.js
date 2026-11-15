@@ -4,12 +4,14 @@
 // Round handle above: drag to turn the outline (it clicks into line with the road or the house next door). Every change can be undone.
 import { map } from "./mapView.js";
 import { state } from "../data/state.js";
-import { mid, squareUp } from "../data/geo.js";
+import { mid } from "../data/geo.js";
+import { squareAny, rightCorners } from "../data/rightAngles.js";
 import { pushWall, turn, bearing, snapTurn, sizeText, lineUp } from "../data/shapeMoves.js";
 import { wallAngle } from "../data/rectangle.js";
 import { loadRoads, roadsNow, roadReach } from "../data/roads.js";
+import { showBubble, hideBubble } from "./zoomBubble.js";
 
-let dots = [], current = null, past = [], onChange = null, lastTap = { i: -1, at: 0 }, watcher = null;
+let dots = [], current = null, past = [], future = [], onChange = null, lastTap = { i: -1, at: 0 }, watcher = null;
 
 // watcher(b) runs whenever the shape being edited moves, and with null when editing stops (used by the floating tools).
 export const watchShape = f => { watcher = f; };
@@ -18,7 +20,8 @@ export function stopEditing() {
   map.off("zoomend", redrawHandles);
   hush();
   dots.forEach(d => d.remove());
-  dots = []; current = null; past = [];
+  dots = []; current = null; past = []; future = [];
+  hideBubble();
   if (watcher) watcher(null);
 }
 
@@ -48,17 +51,18 @@ function show(coords) { // redraws the outline while a handle is being dragged
   current.shape.setLatLngs(coords);
   if (watcher) watcher(current);
 }
-const remember = () => past.push(current.coords.map(c => [...c]));
-function done() { hush(); draw(); if (onChange) onChange(current); }
+const remember = () => { past.push(current.coords.map(c => [...c])); future = []; };
+function done() { hush(); hideBubble(); draw(); if (onChange) onChange(current); }
 const ll = e => [e.latlng.lat, e.latlng.lng];
 
 function draw() {
   dots.forEach(d => d.remove());
   dots = [];
   const c = current.coords;
-  c.forEach((p, i) => handle(p, "corner", 44, 2000)
-    .on("dragstart", remember)
-    .on("drag", e => { c[i] = [e.latlng.lat, e.latlng.lng]; show(c); })
+  const square = rightCorners(c); // right-angle corners get a green ring
+  c.forEach((p, i) => handle(p, square[i] ? "corner sq" : "corner", 44, 2000)
+    .on("dragstart", e => { remember(); const m = e.target.getLatLng(); showBubble([m.lat, m.lng], c); })
+    .on("drag", e => { c[i] = [e.latlng.lat, e.latlng.lng]; show(c); showBubble(c[i], c); })
     .on("dragend", done)
     .on("click", () => { // two taps on the same corner within 0.4 s removes it
       const now = Date.now();
@@ -68,7 +72,7 @@ function draw() {
     const q = c[(i + 1) % c.length];
     handle([(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], "corner add", 36, 1900)
       .on("dragstart", e => { remember(); const m = e.target.getLatLng(); c.splice(i + 1, 0, [m.lat, m.lng]); })
-      .on("drag", e => { c[i + 1] = [e.latlng.lat, e.latlng.lng]; show(c); })
+      .on("drag", e => { c[i + 1] = [e.latlng.lat, e.latlng.lng]; show(c); showBubble(c[i + 1], c); })
       .on("dragend", done);
   });
   c.forEach((p, i) => { // round arrows outside each wall: slide the whole wall in or out
@@ -121,13 +125,15 @@ export function editCorners(b, changed) {
 export function squareShape() {
   if (!current) return false;
   remember();
-  show(squareUp(current.coords));
+  show(squareAny(current.coords));
   done();
   return true;
 }
 
 // Turns the outline so its walls run along the chosen street (or nearest road). Can be undone.
-export function lineUpShape() {
+export async function lineUpShape() {
+  if (!current) return;
+  await loadRoads(...current.center);
   if (!current) return;
   remember();
   show(lineUp(current.coords, wallAngle(current.center, roadsNow(), [], roadReach())));
@@ -137,7 +143,33 @@ export function lineUpShape() {
 // Goes back one change. Returns false if there is nothing to undo.
 export function undoShape() {
   if (!current || !past.length) return false;
+  future.push(current.coords.map(c => [...c]));
   show(past.pop());
   done();
   return true;
+}
+
+// Brings back the change that was just undone. Returns false if there is nothing to redo.
+export function redoShape() {
+  if (!current || !future.length) return false;
+  past.push(current.coords.map(c => [...c]));
+  show(future.pop());
+  done();
+  return true;
+}
+
+// Turns the outline `deg` degrees (positive = anticlockwise). again = true while a button is held, so it is one undo step.
+export function turnBy(deg, again = false) {
+  if (!current) return;
+  if (!again) remember();
+  show(turn(current.coords, deg * Math.PI / 180));
+  done();
+}
+
+// Slides the whole outline by a few metres (east, north).
+export function moveBy(east, north) {
+  if (!current) return;
+  remember();
+  show(current.coords.map(([lat, lng]) => [lat + north / 110540, lng + east / (Math.cos(lat * Math.PI / 180) * 111320)]));
+  done();
 }

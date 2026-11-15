@@ -1,6 +1,9 @@
 // Questions about the buildings already loaded.
 import { state } from "./state.js";
-import { inside, dist } from "./geo.js";
+import { inside, dist, inSquare } from "./geo.js";
+
+// The loaded OpenStreetMap buildings whose middle sits in a picture square.
+export const buildingsIn = square => [...state.buildings.values()].filter(b => inSquare(b.center, square));
 
 export const heightOf = b => b.ht || (b.levels ? Math.round(b.levels * 3.2) : null);
 

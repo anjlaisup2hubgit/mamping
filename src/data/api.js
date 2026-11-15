@@ -13,6 +13,14 @@ export const analyzeVideo = body => post("/api/analyze", body);
 export const findOutlines = image => post("/api/outline", { image });
 export const sendContribution = body => post("/api/contribute", body);
 
+// Pictures saved for AI training: [{ name, labels, status }]. Empty on the live site, where the folder does not exist.
+export const getTraining = () => fetch("/api/training").then(r => r.ok ? r.json() : []);
+// Marks one picture "kept" or "dropped"; labels (optional) replaces its list of roofs.
+export const checkTraining = (name, status, labels) => post("/api/training", { name, status, labels });
+// Teaching the roof detector on this computer: { state: "idle" | "running" | "done" | "failed", epoch, epochs, score, error }.
+export const getTrain = () => fetch("/api/train").then(r => r.ok ? r.json() : { state: "idle" });
+export const startTrain = () => post("/api/train", {});
+
 // The user's own saved orange boxes; the server knows who they are from the OpenStreetMap login token.
 const osmHeaders = () => ({ "Content-Type": "application/json", Authorization: "Bearer " + getToken() });
 export async function getScan() {
