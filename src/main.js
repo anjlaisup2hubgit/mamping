@@ -28,7 +28,7 @@ register({
   help: later("help", "help"), settings: later("settings", "settings"),
   videos: later("videos", "videos"), outlines: later("outlines", "outlines"),
   edits: later("edits", "edits"), scanSettings: later("scanSettings", "scanSettings"),
-  training: later("training", "training")
+  training: later("training", "training"), fixGuide: later("fixGuide", "fixGuide")
 });
 // Remove the old saved copies so nothing is cached anymore.
 if ("serviceWorker" in navigator) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister()));

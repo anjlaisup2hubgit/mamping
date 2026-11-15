@@ -5,11 +5,13 @@
 import { map } from "./mapView.js";
 import { state } from "../data/state.js";
 import { mid } from "../data/geo.js";
-import { squareAny, rightCorners } from "../data/rightAngles.js";
+import { squareAny, squareFromWall, rightCorners } from "../data/rightAngles.js";
 import { pushWall, turn, bearing, snapTurn, sizeText, lineUp } from "../data/shapeMoves.js";
 import { wallAngle } from "../data/rectangle.js";
 import { loadRoads, roadsNow, roadReach } from "../data/roads.js";
 import { showBubble, hideBubble } from "./zoomBubble.js";
+import { toast } from "./toast.js";
+import { watchGestures } from "./fixGestures.js";
 
 let dots = [], current = null, past = [], future = [], onChange = null, lastTap = { i: -1, at: 0 }, watcher = null;
 
@@ -59,11 +61,17 @@ function draw() {
   dots.forEach(d => d.remove());
   dots = [];
   const c = current.coords;
+  if (c.length === 3) c.forEach((p, i) => { // a triangle: tap the wall that is right and the shape is rebuilt square to it
+    const wall = L.polyline([p, c[(i + 1) % 3]], { weight: 26, opacity: 0.01, color: "#fff" }).addTo(map)
+      .on("click", e => { L.DomEvent.stop(e); remember(); show(squareFromWall(c, i)); done(); });
+    dots.push(wall);
+  });
   const square = rightCorners(c); // right-angle corners get a green ring
   c.forEach((p, i) => handle(p, square[i] ? "corner sq" : "corner", 44, 2000)
     .on("dragstart", e => { remember(); const m = e.target.getLatLng(); showBubble([m.lat, m.lng], c); })
     .on("drag", e => { c[i] = [e.latlng.lat, e.latlng.lng]; show(c); showBubble(c[i], c); })
     .on("dragend", done)
+    .on("contextmenu", () => { if (c.length > 3) { remember(); c.splice(i, 1); show(c); done(); } }) // right-click removes a corner
     .on("click", () => { // two taps on the same corner within 0.4 s removes it
       const now = Date.now();
       if (lastTap.i === i && now - lastTap.at < 400 && c.length > 3) { remember(); c.splice(i, 1); show(c); done(); lastTap = { i: -1, at: 0 }; } else lastTap = { i, at: now };
@@ -118,6 +126,8 @@ export function editCorners(b, changed) {
   onChange = changed;
   map.on("zoomend", redrawHandles);
   draw();
+  watchGestures(b.shape, { square: squareShape, turn: turnBy });
+  if (b.coords.length === 3) toast("3 corners: tap the wall that is right to make a rectangle.");
   if (watcher) watcher(b);
 }
 

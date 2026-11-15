@@ -22,6 +22,12 @@ export function squareAny(coords) {
   }).map(f.back);
 }
 
+// A 3-corner outline (a triangle) made into a rectangle whose walls run like wall `i` (the wall the user says is right).
+export function squareFromWall(coords, i) {
+  const f = metreFrame(coords[0]), P = coords.map(f.to), q = P[(i + 1) % P.length];
+  return rectOf(P, Math.atan2(q[1] - P[i][1], q[0] - P[i][0])).map(f.back);
+}
+
 // For every corner: is it a right angle (within 3°)? Used to colour the corner dots.
 export function rightCorners(coords) {
   const f = metreFrame(coords[0]), P = coords.map(f.to), n = P.length;

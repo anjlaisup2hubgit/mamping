@@ -14,47 +14,24 @@
   <g font-size="14" fill="#fff">
     <g transform="translate(25,70)"><rect width="270" height="170" rx="14" fill="#000" fill-opacity="0.25"/>
       <use href="#roof" x="55" y="15" transform="scale(1)"/><circle cx="215" cy="35" r="8" fill="#ff9800" stroke="#fff" stroke-width="2"/>
-      <text x="14" y="140" font-weight="700">Right-click a corner</text><text x="14" y="158">removes it (no double-tap)</text></g>
+      <text x="14" y="140" font-weight="700">Right-click a corner</text><text x="14" y="158">removes it (needs 4+ corners)</text></g>
     <g transform="translate(305,70)"><rect width="270" height="170" rx="14" fill="#000" fill-opacity="0.25"/>
       <use href="#roof" x="55" y="15"/><path d="M175 45 q30 -10 60 30" fill="none" stroke="#fff" stroke-width="3" marker-end="url(#a)"/>
-      <text x="14" y="140" font-weight="700">Scroll wheel over outline</text><text x="14" y="158">turns it; Shift = fine steps</text></g>
+      <text x="14" y="140" font-weight="700">Scroll wheel over outline</text><text x="14" y="158">turns it 1° per notch</text></g>
     <g transform="translate(25,250)"><rect width="270" height="170" rx="14" fill="#000" fill-opacity="0.25"/>
-      <use href="#roof" x="55" y="15"/><rect x="95" y="52" width="70" height="22" rx="11" fill="#fff"/><text x="130" y="68" fill="#333" text-anchor="middle" font-size="13">12.4 m</text>
-      <text x="14" y="140" font-weight="700">Hover a wall</text><text x="14" y="158">shows its length; click = pick wall</text></g>
-    <g transform="translate(305,250)"><rect width="270" height="170" rx="14" fill="#000" fill-opacity="0.25"/>
-      <use href="#roof" x="55" y="15"/><circle cx="130" cy="35" r="7" fill="#fff"/><circle cx="130" cy="35" r="14" fill="none" stroke="#fff" stroke-dasharray="3 3"/>
-      <text x="14" y="140" font-weight="700">Hold Shift while dragging</text><text x="14" y="158">snaps to 90° and neighbours</text></g>
-    <g transform="translate(25,430)"><rect width="270" height="170" rx="14" fill="#000" fill-opacity="0.25"/>
-      <rect x="40" y="25" width="190" height="34" rx="8" fill="#fff"/><text x="135" y="48" fill="#333" text-anchor="middle" font-size="15">Space = hold to pan map</text>
-      <text x="14" y="140" font-weight="700">Space + drag</text><text x="14" y="158">pans without grabbing a corner</text></g>
-    <g transform="translate(305,430)"><rect width="270" height="170" rx="14" fill="#000" fill-opacity="0.25"/>
-      <g fill="#fff" fill-opacity="0.9"><rect x="30" y="25" width="30" height="30" rx="6"/><rect x="66" y="25" width="30" height="30" rx="6"/><rect x="102" y="25" width="30" height="30" rx="6"/><rect x="138" y="25" width="30" height="30" rx="6"/></g>
-      <g fill="#333" font-size="14" text-anchor="middle"><text x="45" y="46">1</text><text x="81" y="46">2</text><text x="117" y="46">3</text><text x="153" y="46">4</text></g>
-      <text x="14" y="140" font-weight="700">Number keys 1-4</text><text x="14" y="158">jump to the Nth building in the row</text></g>
+      <use href="#roof" x="55" y="15"/><rect x="95" y="52" width="70" height="30" rx="8" fill="#fff"/><text x="130" y="73" fill="#333" text-anchor="middle" font-size="14">Square</text>
+      <text x="14" y="140" font-weight="700">Double-click the roof</text><text x="14" y="158">makes it a rectangle</text></g>
   </g>
-  <text x="300" y="640" fill="#fff" font-size="13" text-anchor="middle">Press ? to see all of these, same as today</text>
+  <text x="300" y="640" fill="#fff" font-size="13" text-anchor="middle">Press ? to see the keyboard shortcuts (Q A S R C, arrows, Tab, Enter, Delete, Ctrl+Z)</text>
 
   <!-- PHONE cards: 2 columns x 3 rows -->
   <g font-size="14" fill="#fff">
     <g transform="translate(625,70)"><rect width="270" height="170" rx="14" fill="#000" fill-opacity="0.25"/>
       <use href="#roof" x="55" y="15"/><circle cx="105" cy="75" r="14" fill="#fff" fill-opacity="0.8"/><circle cx="145" cy="85" r="14" fill="#fff" fill-opacity="0.8"/>
-      <text x="14" y="140" font-weight="700">2-finger tap = Undo</text><text x="14" y="158">3-finger tap = Redo</text></g>
+      <text x="14" y="140" font-weight="700">2-finger tap = Undo</text><text x="14" y="158">3-finger tap = Redo (quick, no drag)</text></g>
     <g transform="translate(905,70)"><rect width="270" height="170" rx="14" fill="#000" fill-opacity="0.25"/>
-      <use href="#roof" x="55" y="15"/><circle cx="130" cy="35" r="16" fill="#ff9800" stroke="#fff" stroke-width="2"/><circle cx="130" cy="35" r="26" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="4 4"/>
-      <text x="14" y="140" font-weight="700">Hold a corner</text><text x="14" y="158">small menu: Delete · Make 90°</text></g>
-    <g transform="translate(625,250)"><rect width="270" height="170" rx="14" fill="#000" fill-opacity="0.25"/>
-      <use href="#roof" x="55" y="15"/><g fill="#fff" fill-opacity="0.8"><circle cx="85" cy="90" r="11"/><circle cx="175" cy="45" r="11"/></g>
-      <path d="M95 82 L165 52" stroke="#fff" stroke-width="3" marker-end="url(#a)"/><path d="M165 52 L95 82" stroke="#fff" stroke-width="3" marker-end="url(#a)"/>
-      <text x="14" y="140" font-weight="700">Pinch + twist the outline</text><text x="14" y="158">resizes and turns it (2 fingers on it)</text></g>
-    <g transform="translate(905,250)"><rect width="270" height="170" rx="14" fill="#000" fill-opacity="0.25"/>
       <use href="#roof" x="55" y="15"/><circle cx="130" cy="70" r="14" fill="#fff" fill-opacity="0.8"/><circle cx="130" cy="70" r="22" fill="none" stroke="#fff" stroke-width="2"/>
-      <text x="14" y="140" font-weight="700">Double-tap the roof</text><text x="14" y="158">= Square (one tap, no bar)</text></g>
-    <g transform="translate(625,430)"><rect width="270" height="170" rx="14" fill="#000" fill-opacity="0.25"/>
-      <rect x="25" y="40" width="220" height="40" rx="20" fill="#fff"/><path d="M60 60 H110" stroke="#333" stroke-width="3" marker-end="url(#a)" /><path d="M210 60 H160" stroke="#333" stroke-width="3" marker-end="url(#a)"/>
-      <text x="14" y="140" font-weight="700">Swipe the bottom bar</text><text x="14" y="158">left = Next, right = Previous</text></g>
-    <g transform="translate(905,430)"><rect width="270" height="170" rx="14" fill="#000" fill-opacity="0.25"/>
-      <rect x="95" y="15" width="80" height="110" rx="14" fill="none" stroke="#fff" stroke-width="3"/><path d="M75 60 l-14 10 14 10 M195 60 l14 10 -14 10" stroke="#fff" stroke-width="3" fill="none"/>
-      <text x="14" y="140" font-weight="700">Shake phone = Undo</text><text x="14" y="158">optional, off by default</text></g>
+      <text x="14" y="140" font-weight="700">Double-tap the roof</text><text x="14" y="158">makes it a rectangle</text></g>
   </g>
   <text x="900" y="640" fill="#fff" font-size="13" text-anchor="middle">Two-finger drag up/down still tilts the map; a tap with no movement is Undo</text>
 </svg>

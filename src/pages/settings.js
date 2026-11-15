@@ -24,6 +24,7 @@ function page() {
     ${row("training", icons.layers, "Training pictures", "Check pictures saved for the AI")}
     ${row("edits", icons.list, "My edits", heights || buildings ? `This week: ${plural(heights, "height")}, ${plural(buildings, "building")}` : "Nothing added this week")}
     ${row("scanSettings", icons.settings, "Scan options", getSettings().outline === "roof" ? "Roof shape outlines" : "Rectangle outlines")}
+    ${row("fixGuide", icons.scan, "Fixing outlines", "Triangles, shortcuts and finger gestures")}
     ${row("help", icons.help, "How to use Mamping", "Filming tips and a quick tour")}</div></div>`;
 }
 

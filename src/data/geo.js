@@ -29,10 +29,10 @@ export function metreFrame([lat0, lng0]) {
   };
 }
 
-// Neat rectangle around [x, y] points, tilted like their longest edge.
-export function rectOf(pts) {
-  let best = 0, ang = 0;
-  pts.forEach((p, i) => {
+// Neat rectangle around [x, y] points, tilted like their longest edge (or like `ang` radians if given).
+export function rectOf(pts, forced) {
+  let best = 0, ang = forced ?? 0;
+  if (forced === undefined) pts.forEach((p, i) => {
     const q = pts[(i + 1) % pts.length], len = Math.hypot(q[0] - p[0], q[1] - p[1]);
     if (len > best) { best = len; ang = Math.atan2(q[1] - p[1], q[0] - p[0]); }
   });
