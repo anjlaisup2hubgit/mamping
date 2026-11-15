@@ -1,7 +1,7 @@
 // Saves the AI choices on this phone.
 const KEY = "display_settings";
 // outline = how each missing building is drawn; geminiKey is the user's own key.
-const DEFAULTS = { outline: "rect", finder: "online", geminiKey: "" };
+const DEFAULTS = { outline: "rect", finder: "online", geminiKey: "", autoTidy: true };
 
 export const getSettings = () => {
   try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY)) }; } catch (e) { return { ...DEFAULTS }; }

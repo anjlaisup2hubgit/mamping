@@ -147,7 +147,7 @@ export function showReview() {
       <button class="big ghost" id="autoTidy" style="min-height:48px" aria-pressed="${!!getSettings().autoTidy}">Auto-tidy new outlines: ${getSettings().autoTidy ? "On" : "Off"}</button>
       <button class="big ghost" id="saveTrain" style="min-height:48px">Save kept ones for AI training</button></div>`, true);
   if ($("#undoTidy")) $("#undoTidy").onclick = () => { undoTidy(); showReview(); };
-  $("#autoTidy").onclick = () => { saveSetting("autoTidy", !getSettings().autoTidy); toast(`Auto-tidy ${getSettings().autoTidy ? "on" : "off"}: new AI outlines are squared and lined up.`); showReview(); };
+  $("#autoTidy").onclick = () => { saveSetting("autoTidy", !getSettings().autoTidy); toast(`Auto-tidy ${getSettings().autoTidy ? "on" : "off"}: new AI outlines are squared, and turned to the street if within 15°.`); showReview(); };
   $("#bsheet .x").onclick = () => { closeSheet(); stopReview(); };
   if ($("#undoRm")) $("#undoRm").onclick = () => { restoreBoxes(undo); undo = []; showReview(); };
   $("#moreB").onclick = () => { const m = $("#moreMenu"); m.hidden = !m.hidden; $("#moreB").setAttribute("aria-expanded", !m.hidden); };

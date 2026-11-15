@@ -3,7 +3,7 @@
 import { state } from "../data/state.js";
 import { mid } from "../data/geo.js";
 import { squareAny } from "../data/rightAngles.js";
-import { lineUp } from "../data/shapeMoves.js";
+import { lineUp, turnNeeded } from "../data/shapeMoves.js";
 import { wallAngle } from "../data/rectangle.js";
 import { loadRoads, roadsNow, roadReach } from "../data/roads.js";
 import { restyle, saveBoxes } from "./missingLayer.js";
@@ -13,14 +13,17 @@ let last = []; // [{b, coords}]: what the last tidy changed, so it can be undone
 
 const setCoords = (b, coords) => { b.coords = coords; b.center = mid(coords); if (b.shape) b.shape.setLatLngs(coords); };
 
-// quiet = no toast and no undo (used for the automatic tidy of new boxes).
+const AUTO_LIMIT = 15 * Math.PI / 180; // the automatic tidy only turns a roof that is already this close to its street
+
+// quiet = no toast and no undo (used for the automatic tidy of new boxes): squares every roof, turns only those within 15° of the street.
 export async function tidy(list, quiet = false) {
   const houses = [...state.buildings.values()].map(b => b.coords), before = [];
   for (const b of list) {
     await loadRoads(...b.center); // roads load once per area, so a row is fast
     const squared = squareAny(b.coords);
     before.push({ b, coords: b.coords });
-    setCoords(b, lineUp(squared, wallAngle(mid(squared), roadsNow(), houses, roadReach())));
+    const road = wallAngle(mid(squared), roadsNow(), houses, roadReach());
+    setCoords(b, quiet && Math.abs(turnNeeded(squared, road)) > AUTO_LIMIT ? squared : lineUp(squared, road));
   }
   restyle(); saveBoxes();
   if (quiet) return;
