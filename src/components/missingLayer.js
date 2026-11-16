@@ -82,10 +82,30 @@ export const boxPosition = () => ({ i: boxes.indexOf(focused), n: boxes.length }
 // Fixes the box at position i (wraps round at both ends) and zooms in on it.
 export function fixAt(i) {
   if (!boxes.length) return;
-  const b = boxes[((i % boxes.length) + boxes.length) % boxes.length];
+  goTo(boxes[((i % boxes.length) + boxes.length) % boxes.length]);
+}
+function goTo(b) {
   glideTo(b.center, Math.max(map.getZoom(), 19));
   fixBox(b);
-  [1, 2].forEach(n => preloadPhotos(boxes[(boxes.indexOf(b) + n) % boxes.length].center)); // the next two are ready before you get there
+  nearestTo(b).slice(0, 2).forEach(o => preloadPhotos(o.center)); // the next two are ready before you get there
+}
+
+// Other buildings, closest to b first.
+const nearestTo = b => boxes.filter(o => o !== b)
+  .sort((x, y) => dist(b.center[0], b.center[1], x.center[0], x.center[1]) - dist(b.center[0], b.center[1], y.center[0], y.center[1]));
+
+// "Next": the closest building you have not checked or passed yet; "previous" goes back the way you came.
+let trail = [];
+export function fixNearest(from = focused) {
+  if (!from) return;
+  const near = nearestTo(from), unseen = near.filter(o => !trail.includes(o));
+  const b = unseen.find(o => !o.reviewed) || unseen[0] || near[0];
+  if (!b) return;
+  trail.push(from);
+  goTo(b);
+}
+export function fixBack() {
+  while (trail.length) { const b = trail.pop(); if (boxes.includes(b)) return goTo(b); }
 }
 export const currentBoxes = () => boxes;
 export const saveBoxes = () => saveScan(boxes).catch(e => {

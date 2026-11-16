@@ -144,7 +144,8 @@ export const liftIntoView = latlng => map.panTo(latlng);
 let gliding = false;
 const still = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 function moveTo(centre, zoom, glide) {
-  if ((glide || gliding) && !still()) { // a refit mid-glide just steers the glide to the new spot
+  const near = map.getBounds().pad(2).contains(centre); // gliding to a far place (another city or country) leaves the photos off-screen, so jump there
+  if ((glide || gliding) && near && !still()) { // a refit mid-glide just steers the glide to the new spot
     gliding = true;
     map.once("moveend", () => { gliding = false; });
     return map.flyTo(centre, zoom, { duration: 0.5 });
