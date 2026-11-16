@@ -53,18 +53,29 @@ export function createBuildings(items, comment, source = "Esri World Imagery") {
     if (error) throw new Error(error);
   }
   return withChangeset(comment, source, async cs => {
-    let id = 0, parts = "";
-    const made = [];
-    for (const { corners, tags } of items) {
-      const ids = corners.map(() => --id);
-      const nodes = corners.map(([lat, lng], i) => `<node id="${ids[i]}" changeset="${cs}" lat="${lat.toFixed(7)}" lon="${lng.toFixed(7)}"/>`).join("");
-      const refs = [...ids, ids[0]].map(r => `<nd ref="${r}"/>`).join("");
-      const t = Object.entries({ building: "yes", ...tags }).filter(([, v]) => v).map(([k, v]) => `<tag k="${x(k)}" v="${x(v)}"/>`).join("");
-      parts += `${nodes}<way id="${--id}" changeset="${cs}">${refs}${t}</way>`;
-      made.push({ id, nodes: ids.map((n, i) => ({ id: n, lat: corners[i][0], lon: corners[i][1] })) });
+    const ways = [];
+    // OpenStreetMap answers 413 to very large uploads, so send in small batches inside the same changeset.
+    for (let start = 0; start < items.length; start += BATCH_SIZE) {
+      ways.push(...await uploadBatch(cs, items.slice(start, start + BATCH_SIZE)));
     }
-    const diff = new DOMParser().parseFromString(await call("POST", `changeset/${cs}/upload`, `<osmChange version="0.6" generator="Mamping"><create>${parts}</create></osmChange>`), "text/xml");
-    const real = old => { const e = diff.querySelector(`[old_id="${old}"]`); return { id: +e.getAttribute("new_id"), v: +e.getAttribute("new_version") }; };
-    return { cs, ways: made.map(w => ({ ...real(w.id), nodes: w.nodes.map(n => ({ ...n, ...real(n.id) })) })) };
+    return { cs, ways };
   });
+}
+
+const BATCH_SIZE = 25;
+
+async function uploadBatch(cs, items) {
+  let id = 0, parts = "";
+  const made = [];
+  for (const { corners, tags } of items) {
+    const ids = corners.map(() => --id);
+    const nodes = corners.map(([lat, lng], i) => `<node id="${ids[i]}" changeset="${cs}" lat="${lat.toFixed(7)}" lon="${lng.toFixed(7)}"/>`).join("");
+    const refs = [...ids, ids[0]].map(r => `<nd ref="${r}"/>`).join("");
+    const t = Object.entries({ building: "yes", ...tags }).filter(([, v]) => v).map(([k, v]) => `<tag k="${x(k)}" v="${x(v)}"/>`).join("");
+    parts += `${nodes}<way id="${--id}" changeset="${cs}">${refs}${t}</way>`;
+    made.push({ id, nodes: ids.map((n, i) => ({ id: n, lat: corners[i][0], lon: corners[i][1] })) });
+  }
+  const diff = new DOMParser().parseFromString(await call("POST", `changeset/${cs}/upload`, `<osmChange version="0.6" generator="Mamping"><create>${parts}</create></osmChange>`), "text/xml");
+  const real = old => { const e = diff.querySelector(`[old_id="${old}"]`); return { id: +e.getAttribute("new_id"), v: +e.getAttribute("new_version") }; };
+  return made.map(w => ({ ...real(w.id), nodes: w.nodes.map(n => ({ ...n, ...real(n.id) })) }));
 }
