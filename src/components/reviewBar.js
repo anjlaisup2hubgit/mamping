@@ -1,5 +1,5 @@
 // Checking the boxes right on the map, with no list in the way. Every box starts kept: tap one to see how sure
-// the AI is, double tap to drop it (or bring it back). The buttons at the top change a tap to remove or fix shape. Turn on Select to hold and drag over many boxes at once.
+// the AI is and edit it, double tap to drop it (or bring it back). The buttons at the top change a tap to remove or fix shape. Turn on Select to hold and drag over many boxes at once.
 // A slim bar at the bottom counts them and adds the kept ones to OpenStreetMap together.
 import { $ } from "./dom.js";
 import { map } from "./mapView.js";
@@ -28,7 +28,7 @@ const clearPicked = () => { picked.forEach(b => { b.picked = false; }); picked =
 // A box on the map was tapped. shift = Shift was held: add it to (or take it out of) the selection.
 export function tapBox(b, shift = false) {
   if (shift) { pick(b); restyle(); return showReview(); }
-  if (!chips) return showReview(); // the first tap only opens the review, it changes nothing
+  if (!chips) showChips(); // the first tap goes straight to editing that building
   if (selecting) return; // in Select, the drag already did it
   if (mode === "fix") return fixBox(b);
   if (mode === "keep") return fixBox(b);
