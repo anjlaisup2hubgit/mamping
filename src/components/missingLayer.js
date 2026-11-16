@@ -127,6 +127,12 @@ addEventListener("buildings-sent", e => {
   const gone = boxes.filter(b => e.detail.has(JSON.stringify(b.coords)));
   if (gone.length) removeBoxes(gone);
 });
+// A box whose middle is inside a building already on OpenStreetMap is done, so it leaves the map.
+addEventListener("buildings-loaded", () => {
+  const onMap = [...state.buildings.values()];
+  const done = boxes.filter(b => onMap.some(o => inside(b.center, o.coords)));
+  if (done.length) removeBoxes(done);
+});
 // Puts removed boxes back ("Undo remove").
 export function restoreBoxes(list) {
   boxes = boxes.concat(list);

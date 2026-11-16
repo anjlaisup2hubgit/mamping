@@ -50,6 +50,7 @@ export function showSentBuildings(items, ways = []) {
 async function run() {
   try {
     for (const b of await fetchBuildingsIn(map.getBounds().pad(0.1))) add(b);
+    dispatchEvent(new Event("buildings-loaded"));
     warned = false;
   } catch (e) { if (!warned) toast("Could not load buildings. Check your connection."); warned = true; } // say it once, not after every drag
 }
