@@ -138,8 +138,6 @@ export const centerOn = (latlng, zoom = 18, options) => {
   followed = true; // a chosen place must not be replaced by the first delayed GPS update
   return map.setView(latlng, zoom, options);
 };
-// Slides the map so a point sits in the middle of the screen.
-export const liftIntoView = latlng => map.panTo(latlng);
 // Moving to another building glides there instead of jumping, which is easier on the eyes.
 let gliding = false;
 const still = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -184,5 +182,4 @@ export function fitEditingView(coords, glide = false) {
   moveTo(centre, zoom, glide);
   map.options.zoomSnap = snap;
 }
-export const goHaiPhong = () => map.setView(HAI_PHONG, 17);
 export const viewCenter = () => (state.me ? { lat: state.me.lat, lng: state.me.lng } : map.getCenter());

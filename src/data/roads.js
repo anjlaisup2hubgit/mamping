@@ -9,9 +9,7 @@ let chosen = null; // one street the user tapped; new outlines line up with it i
 // The roads outlines should line up with, and how far away (metres) a road may be and still count.
 export const roadsNow = () => (chosen ? [chosen] : roads);
 export const roadReach = () => (chosen ? Infinity : 60);
-export const hasStreet = () => !!chosen;
 export const hasRoads = () => roads.length > 0;
-export const clearStreet = () => { chosen = null; };
 
 // Chooses the loaded road closest to a point. Returns it (list of [lat, lng]) or null if none are loaded.
 export function chooseStreetNear(lat, lng) {

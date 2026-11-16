@@ -23,7 +23,7 @@ const loadImage = (url, signal) => new Promise((ok, no) => {
 
 // Pictures sit on a fixed grid (3x3 tiles each), so a square on the screen is always exactly one picture.
 const STEP = 3, EPS = 1e-6; // EPS: a corner already on a grid line stays there
-const down = v => Math.floor(v / STEP + EPS) * STEP, up = v => Math.ceil(v / STEP - EPS) * STEP;
+const down = v => Math.floor(v / STEP + EPS) * STEP;
 
 // The picture squares that cover the bounds, nearest the middle first. Each: {centre, nw, se} as [lat, lng].
 export function pictureSquares(bounds) {
@@ -33,13 +33,6 @@ export function pictureSquares(bounds) {
   const far = ([x, y]) => Math.hypot(x + 1.5 - mx, y + 1.5 - my);
   return list.sort((a, b) => far(a) - far(b))
     .map(([x, y]) => ({ centre: [latOf(y + 1.5), lngOf(x + 1.5)], nw: [latOf(y), lngOf(x)], se: [latOf(y + STEP), lngOf(x + STEP)] }));
-}
-
-// Grows a box out to the edges of whole pictures (at least one). Returns [nw, se] as [lat, lng].
-export function snapToPictures(bounds) {
-  const x0 = down(tileX(bounds.getWest())), y0 = down(tileY(bounds.getNorth()));
-  const x1 = Math.max(up(tileX(bounds.getEast())), x0 + STEP), y1 = Math.max(up(tileY(bounds.getSouth())), y0 + STEP);
-  return [[latOf(y0), lngOf(x0)], [latOf(y1), lngOf(x1)]];
 }
 
 export async function getSatelliteView(lat, lng, { signal } = {}) {

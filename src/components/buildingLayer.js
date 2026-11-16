@@ -7,9 +7,6 @@ import { map } from "./mapView.js";
 import { toast } from "./toast.js";
 
 let layer = null, onTap = null, timer = null, pending = null, warned = false;
-let loadState = "loading";
-export const buildingLoadState = () => loadState;
-const changed = () => window.dispatchEvent(new Event("buildingschange"));
 
 export function startBuildingLayer(tapHandler) {
   onTap = tapHandler;
@@ -48,17 +45,13 @@ let waiting = 0;
 export function showSentBuildings(items, ways = []) {
   items.forEach(({ corners, tags }, i) =>
     add({ id: ways[i]?.id ?? "waiting-" + ++waiting, coords: corners, center: mid(corners), kind: "yes", name: tags.name || null, ht: null, levels: null, addr: "" }));
-  changed();
 }
 
 async function run() {
-  loadState = "loading"; changed();
   try {
     for (const b of await fetchBuildingsIn(map.getBounds().pad(0.1))) add(b);
     warned = false;
-    loadState = "loaded";
-  } catch (e) { loadState = "failed"; if (!warned) toast("Could not load buildings. Check your connection."); warned = true; } // say it once, not after every drag
-  changed();
+  } catch (e) { if (!warned) toast("Could not load buildings. Check your connection."); warned = true; } // say it once, not after every drag
 }
 
 export function loadBuildings() {
