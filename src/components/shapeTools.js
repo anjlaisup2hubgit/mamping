@@ -20,16 +20,17 @@ const switchHtml = `<button data-act="prev" aria-label="Previous building">${i.p
   <span class="fixCount"><b></b><small></small></span>
   <button data-act="next" aria-label="Next building">${i.next}</button>
   <button class="switchX" aria-label="Stop editing">${i.close}</button>`;
-let rail = null, switcher = null, repeat = null, selected = null, observer = null, fitting = false;
+let rail = null, switcher = null, repeat = null, selected = null, observer = null, fitting = false, glide = false;
 const stopRepeat = () => { clearTimeout(repeat); clearInterval(repeat); repeat = null; };
 
-export function placeEditor() {
+export function placeEditor(newBuilding = false) {
+  glide ||= newBuilding === true; // glide only when moving to another building
   const view = window.visualViewport;
   document.documentElement.style.setProperty("--editor-height", `${view?.height || innerHeight}px`);
   document.documentElement.style.setProperty("--keyboard-bottom", `${Math.max(0, innerHeight - (view?.height || innerHeight) - (view?.offsetTop || 0))}px`);
   if (fitting) return;
   fitting = true;
-  requestAnimationFrame(() => { fitting = false; if (selected && document.querySelector("#bsheet.editorSheet.on")) fitEditingView(selected.coords); });
+  requestAnimationFrame(() => { fitting = false; if (selected && document.querySelector("#bsheet.editorSheet.on")) fitEditingView(selected.coords, glide); glide = false; });
 }
 
 function build() {
@@ -85,5 +86,5 @@ watchShape(b => {
   const { i: at, n } = boxPosition();
   switcher.querySelector(".fixCount b").textContent = `Building ${at + 1} of ${n}`;
   switcher.querySelector(".fixCount small").textContent = sizeText(b.coords);
-  if (changed) placeEditor();
+  if (changed) placeEditor(true);
 });

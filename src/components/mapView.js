@@ -22,7 +22,7 @@ export function setBaseLayer(name) {
   baseName = name;
   // Street uses the free vector map (shows buildings); fall back to plain tiles if it did not load.
   const vector = name === "street" && L.maplibreGL;
-  base = (vector ? L.maplibreGL({ style: STREET_STYLE_URL, attribution: BASES.street.credit }) : L.tileLayer(BASES[name].url, { maxNativeZoom: 19, maxZoom: MAX_ZOOM, attribution: BASES[name].credit })).addTo(map);
+  base = (vector ? L.maplibreGL({ style: STREET_STYLE_URL, attribution: BASES.street.credit }) : L.tileLayer(BASES[name].url, { maxNativeZoom: 19, maxZoom: MAX_ZOOM, keepBuffer: 6, attribution: BASES[name].credit })).addTo(map);
   if (base.bringToBack) base.bringToBack();
   applyTilt();
   map.getContainer().classList.toggle("street", name === "street");
@@ -116,7 +116,7 @@ function addFlatButton() {
 }
 
 export function startMap() {
-  map = L.map("map", { zoomControl: false, maxZoom: MAX_ZOOM }).setView(HAI_PHONG, 17);
+  map = L.map("map", { zoomControl: false, maxZoom: MAX_ZOOM, fadeAnimation: false }).setView(HAI_PHONG, 17); // photos appear at once instead of fading in from blank
   new ResizeObserver(() => map.invalidateSize({ pan: false })).observe(map.getContainer());
   setBaseLayer("street");
   addFlatButton();
@@ -138,8 +138,21 @@ export const centerOn = (latlng, zoom = 18, options) => {
 };
 // Slides the map so a point sits in the middle of the screen.
 export const liftIntoView = latlng => map.panTo(latlng);
+// Moving to another building glides there instead of jumping, which is easier on the eyes.
+let gliding = false;
+const still = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+function moveTo(centre, zoom, glide) {
+  if ((glide || gliding) && !still()) { // a refit mid-glide just steers the glide to the new spot
+    gliding = true;
+    map.once("moveend", () => { gliding = false; });
+    return map.flyTo(centre, zoom, { duration: 0.5 });
+  }
+  map.stop();
+  map.setView(centre, zoom, { animate: false });
+}
+export const glideTo = (latlng, zoom) => moveTo(latlng, zoom, true);
 // Put the roof and its handles in the part of the map left clear by the inspector and keyboard.
-export function fitEditingView(coords) {
+export function fitEditingView(coords, glide = false) {
   if (!map || !coords?.length) return;
   const rect = map.getContainer().getBoundingClientRect(), view = window.visualViewport;
   let left = Math.max(rect.left, view?.offsetLeft || 0) + 16;
@@ -165,8 +178,7 @@ export function fitEditingView(coords) {
   const roof = map.project(bounds.getCenter(), zoom);
   const desired = L.point((left + right) / 2 - rect.left, (top + bottom) / 2 - rect.top + 6);
   const centre = map.unproject(roof.subtract(desired.subtract(size.divideBy(2))), zoom);
-  map.stop();
-  map.setView(centre, zoom, { animate: false });
+  moveTo(centre, zoom, glide);
   map.options.zoomSnap = snap;
 }
 export const goHaiPhong = () => map.setView(HAI_PHONG, 17);

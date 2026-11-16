@@ -2,13 +2,14 @@
 // (Microsoft's and Google's AI, instant and free), and if there are none, by asking our AI to read satellite pictures.
 import { state } from "../data/state.js";
 import { mid, inside, dist } from "../data/geo.js";
-import { map, currentBase, setBaseLayer } from "./mapView.js";
+import { map, currentBase, setBaseLayer, glideTo } from "./mapView.js";
 import { refreshStyles } from "./buildingLayer.js";
 import { showSuggestion } from "./suggestSheet.js";
 import { tapBox, doubleTapBox } from "./reviewBar.js";
 import { editCorners, stopEditing } from "./cornerEditor.js";
 import { startDrawing } from "./drawBuilding.js";
 import { toast } from "./toast.js";
+import { preloadPhotos } from "./photoPreload.js";
 import { loadScan, saveScan } from "../data/savedScan.js";
 import { validatePolygon } from "../data/geometry.js";
 
@@ -83,8 +84,9 @@ export const boxPosition = () => ({ i: boxes.indexOf(focused), n: boxes.length }
 export function fixAt(i) {
   if (!boxes.length) return;
   const b = boxes[((i % boxes.length) + boxes.length) % boxes.length];
-  map.setView(b.center, Math.max(map.getZoom(), 19), { animate: false });
+  glideTo(b.center, Math.max(map.getZoom(), 19));
   fixBox(b);
+  [1, 2].forEach(n => preloadPhotos(boxes[(boxes.indexOf(b) + n) % boxes.length].center)); // the next two are ready before you get there
 }
 export const currentBoxes = () => boxes;
 export const saveBoxes = () => saveScan(boxes).catch(e => {
