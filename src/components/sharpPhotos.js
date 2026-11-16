@@ -1,7 +1,8 @@
 // Sharper close-up satellite photos. Past zoom 19 the photos are only stretched, so each one is
-// doubled on this device by the picture model (see data/enhanceImage.js) and laid over the blurry one.
+// doubled on this device by the picture model (see data/enhanceImage.js), its edges crisped, and laid over the blurry one.
 import { SATELLITE_TILE_URL } from "../data/config.js";
 import { sharpenPhoto } from "../data/enhanceImage.js";
+import { crispEdges } from "../data/edgeFilter.js";
 import { getSettings } from "../data/settings.js";
 import { map, currentBase, MAX_ZOOM } from "./mapView.js";
 
@@ -18,10 +19,12 @@ function sharpen(url) {
     job.result = fetch(url, { signal: stop.signal })
       .then(r => { if (!r.ok) throw new Error(`Satellite photo failed (${r.status}).`); return r.blob(); })
       .then(async blob => {
-        const picture = new Image();
-        picture.src = URL.createObjectURL(blob); // a local copy, so the model may read its pixels
-        try { await picture.decode(); return await sharpenPhoto(picture, { signal: stop.signal }); }
-        finally { URL.revokeObjectURL(picture.src); }
+        const picture = new Image(), local = URL.createObjectURL(blob); // a local copy, so the model may read its pixels
+        picture.src = local;
+        try { await picture.decode(); picture.src = await sharpenPhoto(picture, { signal: stop.signal }); }
+        finally { URL.revokeObjectURL(local); }
+        await picture.decode();
+        return crispEdges(picture); // the model alone still looks soft, so roof edges get a final crisping
       });
     job.result.then(() => { job.done = true; forgetOld(); }, () => photos.delete(url)); // a failed one is tried again next time
     photos.set(url, job);
