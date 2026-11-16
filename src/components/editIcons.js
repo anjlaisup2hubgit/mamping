@@ -20,6 +20,7 @@ export const editIcons = {
   send: svg('<path d="M4 12L20 4l-5 16-3.5-6.5z"/><path d="M11.5 13.5L20 4"/>'),
   help: svg('<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 015 .5c0 1.5-2.5 2-2.5 3.5M12 17h.01"/>'),
   close: svg('<path d="M7 7l10 10M17 7L7 17"/>'),
+  draw: svg('<path d="M4 20l1-4L16.5 4.5a2 2 0 013 3L8 19z"/><path d="M14.5 6.5l3 3"/>'),
   select: svg('<path d="M4 8V5.5A1.5 1.5 0 015.5 4H8M12 4h2M4 12v2M4 18v.5A1.5 1.5 0 005.5 20H6"/><path d="M11 11l9 3.5-4 1.5-1.5 4z"/>'),
   more: svg('<circle cx="5.5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18.5" cy="12" r="1"/>')
 };
