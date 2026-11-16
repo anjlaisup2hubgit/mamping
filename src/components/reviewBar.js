@@ -161,7 +161,7 @@ export function showReview() {
     ${undo.length ? `<button class="ghost pill" id="undoRm">Undo remove</button>` : ""}
     ${canUndoTidy() ? `<button class="ghost pill" id="undoTidy">Undo square</button>` : ""}
     <button class="${kept.length ? "ghost" : "primary"} pill" id="reviewNext">${unreviewed.length ? "Review next" : "Review"}</button>
-    ${kept.length ? `<button class="primary pill" id="addKept">Add ${kept.length}</button>` : ""}
+    ${kept.length ? `<button class="primary pill" id="addKept">Send ${kept.length} to OpenStreetMap</button>` : ""}
     <button class="ghost pill" id="moreB" aria-expanded="false">More</button>
     <div id="confirmWrap" class="rwide" hidden><p class="reviewSummary">Send ${kept.length} checked building${kept.length === 1 ? "" : "s"}; ${unreviewed.length} unreviewed remain here.</p>${osmConfirm()}</div>
     <div id="moreMenu" class="moreMenu rwide" hidden>${canUndoTidy() ? "" : `<button class="big ghost" id="squareAll">Square all outlines</button>`}
@@ -186,12 +186,12 @@ export function showReview() {
   $("#saveTrain").onclick = () => kept.length ? saveForTraining(kept) : toast("Review the buildings and choose Check and next first.");
   let warned = false; // the overlap warning shows once; tapping again adds anyway
   if ($("#addKept")) $("#addKept").onclick = async () => {
-    if ($("#confirmWrap").hidden) { $("#confirmWrap").hidden = false; return toast("Tick the box to confirm you checked them, then tap Add again."); }
+    if ($("#confirmWrap").hidden) { $("#confirmWrap").hidden = false; return toast("Tick the box to confirm you checked them, then tap Send again."); }
     if (!osmAllowed()) return;
     const problem = kept.map(b => validatePolygon(b.coords) || validateBuildingTags(b.tags || {})).find(Boolean);
     if (problem) return toast(problem);
     const clash = kept.filter(b => overlapsExisting(b.coords)).length;
-    if (clash && !warned) { warned = true; return toast(`${clash} kept building${clash > 1 ? "s overlap ones" : " overlaps one"} already on the map. Tap Add again to add anyway.`); }
+    if (clash && !warned) { warned = true; return toast(`${clash} kept building${clash > 1 ? "s overlap ones" : " overlaps one"} already on the map. Tap Send again to add anyway.`); }
     $("#addKept").disabled = true; // no double send
     try {
       const n = `${kept.length} building${kept.length > 1 ? "s" : ""}`;
