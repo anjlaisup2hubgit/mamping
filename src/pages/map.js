@@ -22,7 +22,7 @@ function updateCounts() {
   const ready = buildingLoadState() === "loaded" || visible.length > 0;
   count.textContent = ready ? visible.length.toLocaleString() : "—";
   needed.textContent = ready ? visible.filter(b => !b.ht && !b.levels).length.toLocaleString() : "—";
-  status.textContent = liveMap.getZoom() < 16 ? "Zoom in to load building details." : buildingLoadState() === "failed" ? "Buildings unavailable. Move the map to retry." : buildingLoadState() === "loading" ? "Loading buildings in this area…" : "OpenStreetMap buildings in the current view.";
+  status.textContent = liveMap.getZoom() < 16 ? "Zoom in to load building details." : buildingLoadState() === "failed" ? "Buildings unavailable. Move the map to retry." : buildingLoadState() === "loading" ? "Loading buildings in this area…" : "";
 }
 
 export const map = {
@@ -33,14 +33,13 @@ export const map = {
       <button class="workspaceLink" id="settingsB" aria-label="Your workspace">${icons.person}<span>Your workspace</span></button>${accountBadge()}</header>
       <aside class="contributionPanel" aria-label="Contribute to your neighbourhood">
         <button class="panelHandle" id="panelToggle" aria-expanded="true" aria-controls="contributionBody" aria-label="Collapse contribution panel"><span></span></button>
-        <div class="contributionBody" id="contributionBody"><span class="eyebrow phoneIntro">Your neighbourhood</span><h1><span class="desktopIntro">A better map.<br>Built by you.</span><span class="phoneIntro">Make your map matter.</span></h1>
-        <p class="introText">Bring your neighbourhood into focus. One building at a time.</p>
+        <div class="contributionBody" id="contributionBody"><h1><span class="desktopIntro">A better map.<br>Built by you.</span><span class="phoneIntro">Make your map matter.</span></h1>
         <div class="searchSlot">${searchBar()}</div>
         <div class="areaLabel">${icons.locate}<span>Current map area</span></div>
         <div class="buildingStats" aria-live="polite"><div><span>Buildings in view</span><strong id="buildingCount">—</strong></div><div><span>Need details</span><strong id="needsCount">—</strong></div></div>
         <p class="mid countStatus" id="buildingStatus">Loading buildings in this area…</p>
         <div class="contributionActions"><button class="big primary" data-to="camera" id="navCam">${icons.camera} Capture a building</button><button class="big ghost" id="findMiss">${icons.scan} Find missing buildings</button></div>
-        <div class="impact">${neighbourhoodArt()}<h2>Small details.<br><em>Real impact.</em></h2></div></div></aside>
+        <div class="impact">${neighbourhoodArt()}</div></div></aside>
       <div class="mapToolbar"><div class="baseToggle" role="group" aria-label="Base map"><button data-base="street">Street</button><button data-base="satellite">Satellite</button></div><button class="layersButton" id="layersB">${icons.layers} Layers <span aria-hidden="true">⌄</span></button></div>
       <div class="mapControls" role="group" aria-label="Map controls"><div><button id="zoomIn" aria-label="Zoom in">+</button><button id="zoomOut" aria-label="Zoom out">−</button></div><button id="locateMe" aria-label="Your location">${icons.locate}</button></div>
       <div class="mapLegend"><span><i></i>Has height / floors</span><span><i></i>Needs details</span></div>${bottomNav()}`;

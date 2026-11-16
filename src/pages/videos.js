@@ -18,7 +18,7 @@ export const videos = {
     try { mine = (await allClips()).filter(c => (c.blob || c.videoDeleted) && !c.fromDrive).sort((a, b) => b.id - a.id); }
     catch { list.innerHTML = '<p class="note">Video storage is unavailable. Allow browser storage, then reopen your library.</p>'; return; }
     if (!el.querySelector("#videoSummary")) return;
-    el.querySelector("#videoSummary").textContent = `${mine.length} recording${mine.length === 1 ? "" : "s"} on this device · ${mine.filter(c => c.blob).length} to review. Footage stays private; reviewed details can be shared.`;
+    el.querySelector("#videoSummary").textContent = `${mine.length} recording${mine.length === 1 ? "" : "s"} on this device · ${mine.filter(c => c.blob).length} to review. Footage is private; details can be shared.`;
     const draw = filter => {
       const shown = mine.filter(c => filter === "all" || (filter === "waiting" ? c.blob : filter === "shared" ? c.sent : !c.sent));
       list.innerHTML = !mine.length ? empty : shown.length ? shown.map(videoRow).join("") : '<div class="empty"><h2>No videos in this view</h2><p class="mid">Choose another filter to see your recordings.</p></div>';
