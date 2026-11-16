@@ -105,6 +105,15 @@ export async function saveScan(list) {
   }
 }
 
+// Once outlines are on OpenStreetMap, their saved drafts are no longer needed.
+export function dropSentDrafts(items, scope) {
+  const sent = new Set(items.map(i => JSON.stringify(i.corners)));
+  const left = local(scope).filter(b => !sent.has(JSON.stringify(b.coords)));
+  writeStored(KEY, left, scope);
+  if (scope.startsWith("osm:")) { mark(scope, true); send(scope).catch(() => {}); }
+  dispatchEvent(new CustomEvent("buildings-sent", { detail: sent }));
+}
+
 export async function retryScanSync() {
   const scope = storageScope();
   if (isLoggedIn() && scope.startsWith("osm:")) return send(scope);

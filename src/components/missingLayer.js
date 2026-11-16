@@ -122,6 +122,11 @@ export function removeBoxes(list) {
   stopEditing();
   saveBoxes();
 }
+// Outlines sent to OpenStreetMap (even from a retry in Settings) leave the map.
+addEventListener("buildings-sent", e => {
+  const gone = boxes.filter(b => e.detail.has(JSON.stringify(b.coords)));
+  if (gone.length) removeBoxes(gone);
+});
 // Puts removed boxes back ("Undo remove").
 export function restoreBoxes(list) {
   boxes = boxes.concat(list);

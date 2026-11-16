@@ -4,6 +4,7 @@ import { addMissingTags, createBuildings } from "./osmEdit.js";
 import { addHistory } from "./history.js";
 import { storageScope, readStored, writeStored, migrateGuest } from "./accountStorage.js";
 import { setSaveStatus } from "./saveStatus.js";
+import { dropSentDrafts } from "./savedScan.js";
 
 const KEY = "osm_queue";
 const read = scope => {
@@ -46,6 +47,7 @@ async function run(job, scope) {
     return r.added;
   }
   const r = await createBuildings(job.items, job.comment, job.source);
+  try { dropSentDrafts(job.items, scope); } catch { /* The edit is sent; leftover drafts can be removed by hand. */ }
   try { addHistory({ kind: "create", ways: r.ways, cs: r.cs }, scope); }
   catch { setSaveStatus("failed", "The edit was sent, but its history could not be saved."); }
   return r.ways;
