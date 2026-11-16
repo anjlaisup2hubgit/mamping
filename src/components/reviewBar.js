@@ -56,17 +56,11 @@ const tidyThen = async list => {
   catch (e) { toast(e.message || "Could not tidy these buildings."); }
 };
 
-// A box was double tapped: drop it, or bring a dropped one back.
-export function doubleTapBox(b) {
-  if (chips && !selecting && mode === "keep") { b.keep = !b.keep; b.reviewed = false; restyle(); saveBoxes(); showReview(); }
-}
-
-// Check: drops them (or brings them back, if all were dropped already). Remove: takes them off the map.
+// Check: marks them checked. Remove: takes them off the map.
 function apply(list) {
   if (mode === "tidy") return tidyThen(list);
   if (mode === "keep") {
-    const on = !list.every(b => b.keep && b.reviewed);
-    list.forEach(b => { b.keep = on; b.reviewed = on && !validatePolygon(b.coords) && !validateBuildingTags(b.tags || {}); });
+    list.forEach(b => { b.keep = true; b.reviewed = !validatePolygon(b.coords) && !validateBuildingTags(b.tags || {}); });
     restyle(); saveBoxes(); undo = [];
   } else { undo = list; removeBoxes(list); }
   showReview();
@@ -157,13 +151,13 @@ export function showReview() {
   if (!boxes.length) { stopReview(); return closeSheet(); }
   unfocus();
   showChips();
-  const kept = boxes.filter(b => b.keep && b.reviewed), dropped = boxes.filter(b => !b.keep).length, unreviewed = boxes.filter(b => b.keep && !b.reviewed), ready = boxes.some(b => b.from);
+  const kept = boxes.filter(b => b.keep && b.reviewed), unreviewed = boxes.filter(b => b.keep && !b.reviewed), ready = boxes.some(b => b.from);
   picked = new Set([...picked].filter(b => boxes.includes(b))); // removed boxes leave the selection
   const sel = [...picked];
   openSheet(`${sel.length ? `<div class="rwide pickedRow"><b>${sel.length} selected</b>
       <button class="ghost pill" id="pSquare">Square</button><button class="ghost pill" id="pCheck">Check</button>
       <button class="ghost pill" id="pRemove">Remove</button><button class="ghost pill" id="pClear">Clear</button></div>` : ""}
-    <span class="rcount editorReviewCounts"><b>${unreviewed.length}</b> to check · <b class="kept">${kept.length}</b> ready${dropped ? ` · ${dropped} dropped` : ""}</span>
+    <span class="rcount editorReviewCounts"><b>${unreviewed.length}</b> to check · <b class="kept">${kept.length}</b> ready</span>
     ${undo.length ? `<button class="ghost pill" id="undoRm">Undo remove</button>` : ""}
     ${canUndoTidy() ? `<button class="ghost pill" id="undoTidy">Undo square</button>` : ""}
     <button class="${kept.length ? "ghost" : "primary"} pill" id="reviewNext">${unreviewed.length ? "Review next" : "Review"}</button>

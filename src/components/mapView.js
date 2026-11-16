@@ -3,12 +3,13 @@ import { HAI_PHONG, TILE_URL, SATELLITE_TILE_URL, STREET_STYLE_URL } from "../da
 import { state } from "../data/state.js";
 import { onMeMove, watchMe } from "../data/location.js";
 import { toast } from "./toast.js";
+import { syncSharpPhotos } from "./sharpPhotos.js";
 
 export let map = null;
 export const meIcon = L.divIcon({ className: "", html: '<div class="pinicon"></div>', iconSize: [26, 26], iconAnchor: [8, 26] });
 
 // Pictures only go to level 19; past that they are stretched bigger, so you can zoom in closer on a roof.
-const MAX_ZOOM = 21;
+export const MAX_ZOOM = 22;
 let meMarker = null, followed = false, base = null, baseName = "street", pitch = 0, bearing = 0;
 
 const BASES = {
@@ -26,6 +27,7 @@ export function setBaseLayer(name) {
   if (base.bringToBack) base.bringToBack();
   applyTilt();
   map.getContainer().classList.toggle("street", name === "street");
+  syncSharpPhotos();
   map.fire("baselayerchange", { name });
 }
 
@@ -174,7 +176,7 @@ export function fitEditingView(coords, glide = false) {
     Math.max(0, size.y - availableHeight + Math.min(128, availableHeight - 40)));
   const snap = map.options.zoomSnap;
   map.options.zoomSnap = 0; // Whole zoom levels can make short-screen handles overlap unnecessarily.
-  const zoom = Math.min(20.5, map.getBoundsZoom(bounds, false, padding)); // zoom in close, but not so far the photo turns to mush
+  const zoom = Math.min(MAX_ZOOM, map.getBoundsZoom(bounds, false, padding)); // small roofs fill the free space so their edges are easy to see
   const roof = map.project(bounds.getCenter(), zoom);
   const desired = L.point((left + right) / 2 - rect.left, (top + bottom) / 2 - rect.top + 6);
   const centre = map.unproject(roof.subtract(desired.subtract(size.divideBy(2))), zoom);

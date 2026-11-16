@@ -5,9 +5,10 @@ import { storageScope, readStored, writeStored, removeStored, migrateGuest, unve
 import { setSaveStatus } from "./saveStatus.js";
 
 const KEY = "missing_scan", UNSENT = "missing_scan_unsent";
+// keep is always true: "not a roof" is switched off, so older dropped outlines come back
 const plain = list => list.map(b => ({
   id: b.id, coords: b.coords, center: b.center, confidence: b.confidence, from: b.from,
-  keep: b.keep !== false, reviewed: b.reviewed === true, tags: { ...(b.tags || {}) },
+  keep: true, reviewed: b.reviewed === true, tags: { ...(b.tags || {}) },
   shapePast: (b.shapePast || []).slice(-50), shapeFuture: (b.shapeFuture || []).slice(-50)
 }));
 const wait = ms => new Promise(ok => setTimeout(ok, ms));

@@ -5,7 +5,7 @@ import { mid, inside, dist } from "../data/geo.js";
 import { map, currentBase, setBaseLayer, glideTo } from "./mapView.js";
 import { refreshStyles } from "./buildingLayer.js";
 import { showSuggestion } from "./suggestSheet.js";
-import { tapBox, doubleTapBox } from "./reviewBar.js";
+import { tapBox } from "./reviewBar.js";
 import { editCorners, stopEditing } from "./cornerEditor.js";
 import { startDrawing } from "./drawBuilding.js";
 import { toast } from "./toast.js";
@@ -35,17 +35,16 @@ export const nearBox = (center, o) => inside(center, o.coords) || dist(center[0]
 const STYLE = { className: "box", color: "#22D3EE", weight: 2.5, dashArray: null, fillColor: "#22D3EE", fillOpacity: 0.15 };
 const CHECKED = { ...STYLE, color: "#2E9E5B", fillColor: "#2E9E5B" };
 const PICKED = { className: "box", color: "#FFD166", weight: 1.5, dashArray: null, fillColor: "#FFD166", fillOpacity: 0.08 }; // the one being looked at
-const DROPPED = { className: "box", color: "#fff", weight: 1.5, dashArray: "4 4", fillColor: "#fff", fillOpacity: 0 }; // double tapped: not a roof
 let focused = null, tip = null;
 const SELECTED = { ...PICKED, weight: 3, fillOpacity: 0.35 }; // shift+clicked, waiting for one action on all of them
-const styleOf = o => o === focused ? PICKED : o.picked ? SELECTED : !o.keep ? DROPPED : o.reviewed ? CHECKED : STYLE;
+const styleOf = o => o === focused ? PICKED : o.picked ? SELECTED : o.reviewed ? CHECKED : STYLE;
 export const restyle = () => boxes.forEach(o => o.shape && o.shape.setStyle(styleOf(o)));
 
 // The small label on a tapped box saying how sure the AI is that it is a roof.
 export function showSure(b) {
   hideSure();
   const source = b.confidence != null ? `${Math.round(b.confidence * 100)}% sure` : b.from ? `From ${b.from.split(" ")[0]}` : "Drawn by you";
-  const text = `${!b.keep ? "Dropped" : b.reviewed ? "Checked" : "Unreviewed"} · ${source}`;
+  const text = `${b.reviewed ? "Checked" : "Unreviewed"} · ${source}`;
   tip = L.tooltip({ direction: "top", className: "sure" }).setLatLng(b.center).setContent(text);
   map.openTooltip(tip);
 }
@@ -57,7 +56,7 @@ function drawBox(b) {
   if (!layer) { layer = L.layerGroup().addTo(map); map.on("click", leaveFix); }
   b.shape = L.polygon(b.coords, styleOf(b)).addTo(layer)
     .on("click", e => { if (state.drawing) return; L.DomEvent.stopPropagation(e); tapBox(b, e.originalEvent.shiftKey); })
-    .on("dblclick", e => { if (state.drawing) return; L.DomEvent.stopPropagation(e); doubleTapBox(b); }); // stopped, so the map does not zoom
+    .on("dblclick", e => { if (state.drawing) return; L.DomEvent.stopPropagation(e); }); // stopped, so the map does not zoom
 }
 
 // "Fix shape": the box turns yellow with corner handles, and its own panel opens.
@@ -69,7 +68,7 @@ export function fixBox(b) {
   showSuggestion(b);
 }
 
-// Turns one box yellow (the others back to orange, or white-edged if chosen for removal) and shows its corner handles.
+// Turns one box yellow (the others back to cyan) and shows its corner handles.
 export function focusBox(b) {
   focused = b;
   restyle();

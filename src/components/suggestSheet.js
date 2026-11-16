@@ -43,7 +43,7 @@ export function showSuggestion(b) {
   b.tags ||= {};
   const from = b.from ? `Outline from ${b.from}.` : b.confidence ? `AI ${Math.round(b.confidence * 100)}% sure.` : "Drawn by you.";
   openSheet(`<section class="outlineInspector"><div class="editMore" id="editMore" hidden>
-      <div class="inspectorStatus"><span class="reviewStatus">${b.keep ? b.reviewed ? "Checked" : "Not checked yet" : "Dropped"}</span><span class="draftSaveStatus" role="status"></span></div>
+      <div class="inspectorStatus"><span class="reviewStatus">${b.reviewed ? "Checked" : "Not checked yet"}</span><span class="draftSaveStatus" role="status"></span></div>
       <div class="editorDetailsFields"><label for="sn">Name (optional)<input type="text" id="sn" class="sname" placeholder="Building name" value="${esc(b.tags.name || "")}"></label>
       ${detailsFields(esc(b.tags.height || ""), esc(b.tags["building:levels"] || ""))}</div>
       <p class="inspectorHelp">${esc(from)} Drag a corner to fit the roof, a white dot to add a corner, or the middle handle to move it. Press ? for keyboard shortcuts.</p>

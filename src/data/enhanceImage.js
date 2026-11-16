@@ -53,8 +53,21 @@ async function clarify(image, signal) {
 
 // Keep the phone responsive and avoid running several copies of the model at once.
 let line = Promise.resolve();
-export const enhanceImage = (image, { signal } = {}) => {
-  const next = line.then(() => clarify(image, signal));
+const inLine = job => {
+  const next = line.then(job);
   line = next.catch(() => {}); // a failed picture must not block the next one
+  return next;
+};
+export const enhanceImage = (image, { signal } = {}) => {
+  const next = inLine(() => clarify(image, signal));
   return signal ? bounded(next, { signal, timeout: 95000, label: "Picture clarification" }) : next;
 };
+
+// Doubles one loaded map photo (an <img>) for the close-up map; returns the sharper picture as a data URL.
+export const sharpenPhoto = (picture, { signal } = {}) => inLine(async () => {
+  checkCancelled(signal); // skipped photos you have already scrolled away from
+  const upscaler = await load();
+  checkCancelled(signal);
+  const deadline = AbortSignal.timeout(60000);
+  return upscaler.upscale(picture, { patchSize: 64, padding: 8, awaitNextFrame: true, signal: signal ? AbortSignal.any([signal, deadline]) : deadline });
+});
