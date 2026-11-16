@@ -21,8 +21,8 @@ window.addEventListener("keydown", e => {
   if (ctrl) { if (["c", "d"].includes(k.toLowerCase()) && !getSelection().toString()) run = () => doFix("copy"); // duplicate this outline onto matching roofs
     else if (k.toLowerCase() === "y" || (e.shiftKey && k.toLowerCase() === "z")) run = () => doFix("redo"); }
   else if (k === "Tab") run = startTab ? () => fixAt(0) : () => doFix(e.shiftKey ? "prev" : "next");
-  else if (k === "Enter" && e.target.tagName !== "BUTTON") run = () => doFix("keep");
-  else if (k === "Delete" || k === "Backspace") run = () => doFix("remove");
+  else if ((k === "Enter" && e.target.tagName !== "BUTTON") || k === "CapsLock") run = () => doFix("keep");
+  else if (k === "Delete" || k === "Backspace" || k.toLowerCase() === "d") run = () => doFix("remove");
   else if (k === "Escape" && !state.drawing && !state.picking) run = () => { unfocus(); closeSheet(); };
   else if (ARROWS[k]) run = () => { const [x, y] = ARROWS[k], step = e.shiftKey ? 1.5 : 0.3; moveBy(x * step, y * step); };
   else if (k.toLowerCase() === "r") run = () => doFix(e.shiftKey ? "turnL" : "turnR", e.repeat); // holding R keeps turning
