@@ -1,6 +1,8 @@
 /* Explore: the map fills the whole screen; your picture, search and map tools float on the left for right-hand thumbs. */
 :root{--map-top:calc(84px + env(safe-area-inset-top))}
 body[data-page=map] #map{inset:0;background:#e3f0fd}
+/* While satellite photos load after a jump, show a dark ground colour instead of a bright flash. */
+body #map:not(.street){background:#26302a}
 .masthead{position:absolute;inset:0 0 auto;display:flex;align-items:center;gap:12px;padding:calc(16px + env(safe-area-inset-top)) 16px 0;z-index:720;pointer-events:none}
 .masthead>*{pointer-events:auto}
 .searchSlot{flex:0 1 50%;min-width:0;max-width:260px;position:relative;z-index:1}
