@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" width="390" height="844" font-family="Nunito, Arial, sans-serif">
+<title>Settings</title>
+<rect width="390" height="844" fill="#fff"/>
+<text x="20" y="62" fill="#14305c" font-size="20">←</text><text x="52" y="68" fill="#14305c" font-size="28" font-family="Fredoka, Nunito, sans-serif">Settings</text>
+<rect x="12" y="92" width="366" height="52" rx="26" fill="#eef5ff"/>
+<g font-family="Fredoka, Nunito, sans-serif" font-size="16" fill="#5f7898" text-anchor="middle"><text x="70" y="124">Explore</text><text x="195" y="124">My edits</text><text x="320" y="124">Videos</text></g>
+<rect x="16" y="164" width="358" height="78" rx="24" fill="#2f7df0"/><circle cx="54" cy="203" r="22" fill="#fff" fill-opacity=".25"/><text x="90" y="198" fill="#fff" font-size="17" font-weight="800">OpenStreetMap account</text><text x="90" y="220" fill="#dcebff" font-size="13">Not connected</text>
+<rect x="288" y="187" width="72" height="34" rx="17" fill="#ffc93c"/><text x="324" y="209" fill="#14305c" font-size="14" font-weight="800" text-anchor="middle">Connect</text>
+<g font-size="11" fill="#5f7898" font-weight="800" letter-spacing="2"><text x="20" y="274">YOUR CONTRIBUTIONS</text><text x="20" y="438">MAPPING PREFERENCES</text><text x="20" y="560">LEARN AND GET HELP</text></g>
+<g fill="#eef5ff"><rect x="16" y="284" width="358" height="138" rx="22"/><rect x="16" y="448" width="358" height="100" rx="22"/><rect x="16" y="570" width="358" height="100" rx="22"/></g>
+<g stroke="#d5e5f8"><path d="M30 330H360M30 376H360M30 498H360M30 620H360"/></g>
+<g fill="#fff"><rect x="30" y="294" width="34" height="34" rx="11"/><rect x="30" y="340" width="34" height="34" rx="11"/><rect x="30" y="386" width="34" height="34" rx="11"/><rect x="30" y="456" width="34" height="34" rx="11"/><rect x="30" y="504" width="34" height="34" rx="11"/><rect x="30" y="578" width="34" height="34" rx="11"/><rect x="30" y="626" width="34" height="34" rx="11"/></g>
+<g fill="#14305c" font-size="16" font-weight="800"><text x="80" y="316">Recorded videos</text><text x="80" y="362">Scanned outlines</text><text x="80" y="408">My edits</text><text x="80" y="474">Scan options</text><text x="80" y="522">Training pictures</text><text x="80" y="596">Fixing outlines</text><text x="80" y="644">Guide</text></g>
+<g fill="#5f7898" font-size="12"><text x="80" y="332">2 videos</text><text x="80" y="378">None yet</text><text x="80" y="424">3 edits this week</text><text x="80" y="490">Rectangle outlines</text><text x="80" y="538">Check pictures for the AI</text><text x="80" y="612">Shortcuts and gestures</text><text x="80" y="660">Filming tips and tour</text></g>
+<g fill="#2f7df0" font-size="22" text-anchor="end"><text x="360" y="320">›</text><text x="360" y="366">›</text><text x="360" y="412">›</text><text x="360" y="480">›</text><text x="360" y="528">›</text><text x="360" y="600">›</text><text x="360" y="648">›</text></g>
+</svg>

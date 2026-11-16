@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" width="390" height="844" font-family="Nunito, Arial, sans-serif">
+<title>My edits</title>
+<rect width="390" height="844" fill="#fff"/>
+<text x="20" y="62" fill="#14305c" font-size="20">←</text><text x="52" y="68" fill="#14305c" font-size="28" font-family="Fredoka, Nunito, sans-serif">My contributions</text>
+<rect x="12" y="92" width="366" height="52" rx="26" fill="#eef5ff"/>
+<g font-family="Fredoka, Nunito, sans-serif" font-size="16" text-anchor="middle"><text x="70" y="124" fill="#5f7898">Explore</text><rect x="130" y="98" width="130" height="40" rx="20" fill="#2f7df0"/><text x="195" y="124" fill="#fff">My edits</text><text x="320" y="124" fill="#5f7898">Videos</text></g>
+<text x="20" y="182" fill="#5f7898" font-size="11" font-weight="800" letter-spacing="2">YOUR WORK THIS WEEK</text>
+<rect x="16" y="194" width="112" height="88" rx="20" fill="#dcebff"/><rect x="139" y="194" width="112" height="88" rx="20" fill="#fddbe8"/><rect x="262" y="194" width="112" height="88" rx="20" fill="#fff0c2"/>
+<g fill="#14305c" font-size="34" font-family="Fredoka, Nunito, sans-serif"><text x="30" y="240">2</text><text x="153" y="240">3</text><text x="276" y="240">1</text></g>
+<g fill="#35507a" font-size="12" font-weight="700"><text x="30" y="266">Buildings added</text><text x="153" y="266">Height edits</text><text x="276" y="266">Pending</text></g>
+<rect x="16" y="300" width="358" height="60" rx="20" fill="#eef5ff"/><text x="34" y="336" fill="#14305c" font-size="15" font-weight="700">Nice work, 3 edits this week. +30 XP</text>
+<text x="20" y="400" fill="#5f7898" font-size="11" font-weight="800" letter-spacing="2">RECENT</text>
+<g fill="#fff" stroke="#d5e5f8" stroke-width="1.5"><rect x="16" y="412" width="358" height="84" rx="22"/><rect x="16" y="508" width="358" height="84" rx="22"/><rect x="16" y="604" width="358" height="84" rx="22"/></g>
+<g fill="#dcebff"><rect x="30" y="428" width="52" height="52" rx="16"/><rect x="30" y="524" width="52" height="52" rx="16"/><rect x="30" y="620" width="52" height="52" rx="16"/></g>
+<g fill="#ffc93c" stroke="#fff" stroke-width="2"><rect x="44" y="444" width="24" height="20" rx="4"/><rect x="44" y="540" width="24" height="20" rx="4"/><rect x="44" y="636" width="24" height="20" rx="4"/></g>
+<g fill="#14305c" font-size="16" font-weight="800"><text x="98" y="448">Added building</text><text x="98" y="544">Height: 4 floors</text><text x="98" y="640">Height: 12 m</text></g>
+<g fill="#5f7898" font-size="13"><text x="98" y="470">Lê Hồng Phong St. · Today</text><text x="98" y="566">Trần Hưng Đạo St. · Yesterday</text><text x="98" y="662">Tô Hiệu St. · Mon</text></g>
+<rect x="296" y="436" width="64" height="24" rx="12" fill="#fddbe8"/><rect x="296" y="532" width="64" height="24" rx="12" fill="#fddbe8"/><rect x="296" y="628" width="64" height="24" rx="12" fill="#fff0c2"/>
+<g font-size="10" font-weight="800" letter-spacing="1" text-anchor="middle"><text x="328" y="452" fill="#b02a63">SENT</text><text x="328" y="548" fill="#b02a63">SENT</text><text x="328" y="644" fill="#8a6100">PENDING</text></g>
+</svg>

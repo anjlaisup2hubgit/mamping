@@ -1,74 +1,43 @@
-/* Explore: the map fills the screen below one compact area of controls. */
-:root{--map-top:calc(76px + env(safe-area-inset-top))}
-.masthead{position:absolute;inset:0 0 auto;height:var(--map-top);display:grid;grid-template-columns:44px auto minmax(180px,1fr) minmax(330px,410px) 44px;align-items:center;gap:14px;padding:calc(15px + env(safe-area-inset-top)) 20px 15px;background:var(--bg);border-bottom:1px solid var(--line);z-index:720}
-.profileSlot{grid-column:1;display:flex;align-items:center}
-.profileButton,.masthead .account{position:static;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:0;border-radius:50%;box-shadow:none;background:#eef0ea;color:var(--ink);padding:0}
-.profileButton svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round}
-.masthead .workspaceNav.nav{position:static;grid-column:2;width:auto;padding:0;border:0;gap:4px;background:transparent}
-.masthead .workspaceNav .navb{width:auto;min-width:72px;padding:0 14px;flex:none;white-space:nowrap}
-.masthead .workspaceNav .settingsNav{position:absolute;right:20px;top:calc(15px + env(safe-area-inset-top));width:44px;min-width:44px;padding:0}
-.searchSlot{grid-column:3;min-width:0;position:relative;z-index:1}
+/* Explore: the map fills the whole screen; your picture, search and map tools float on the left for right-hand thumbs. */
+:root{--map-top:calc(84px + env(safe-area-inset-top))}
+body[data-page=map] #map{inset:0;background:#e3f0fd}
+.masthead{position:absolute;inset:0 0 auto;display:flex;align-items:center;gap:12px;padding:calc(16px + env(safe-area-inset-top)) 16px 0;z-index:720;pointer-events:none}
+.masthead>*{pointer-events:auto}
+.searchSlot{flex:0 1 50%;min-width:0;max-width:260px;position:relative;z-index:1}
 .searchSlot .search{position:relative;display:flex;flex-direction:column;left:auto;bottom:auto;transform:none;width:100%}
-.searchSlot .search input{height:44px;min-height:44px;border:1px solid #cdd6c9;border-radius:14px;padding:10px 12px 10px 40px;font-size:14px;background:var(--surf);box-shadow:0 2px 3px #26372c0a}
-.searchSlot .results{position:absolute;top:100%;width:100%;margin:6px 0 0;box-shadow:0 6px 18px #26372c18;max-height:40dvh;border-radius:12px;background:var(--surf)}
+.masthead .searchSlot .search input{height:52px;min-height:52px;border:1px solid #fff;border-radius:999px;padding:10px 18px 10px 48px;font-size:16px;background:var(--glass);box-shadow:var(--float);backdrop-filter:blur(14px);color:#14305c}
+.searchSlot .results{position:absolute;top:100%;width:100%;margin:8px 0 0;box-shadow:var(--float);max-height:40dvh;border-radius:20px;background:#fff}
 .results button{font-size:13px;min-height:44px}
-.searchIcon{position:absolute;top:12px;left:13px;z-index:1;pointer-events:none;width:20px;height:20px}
-.searchIcon svg{width:100%;height:100%;fill:none;stroke:var(--ink);stroke-width:1.5;stroke-linecap:round}
-.contributionActions{grid-column:4;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.contributionActions .big{min-height:44px;border-radius:14px;gap:10px;padding:8px 12px;font-size:14px;font-weight:500;line-height:1.25;letter-spacing:0;color:var(--ink)}
-.contributionActions .primary{background:var(--sage);border:1px solid #b6d799}
-.contributionActions .ghost{background:var(--yellow);border:1px solid #e1e1bd}
-.contributionActions .big svg{width:24px;height:24px;stroke-width:1.6}
-.contributionActions .big span{text-align:left}
-body[data-page=map] #map{left:0;top:var(--map-top);bottom:0;background:#edf0e9}
-.mapToolbar{position:absolute;top:calc(var(--map-top) + 20px);right:20px;display:flex;gap:10px;z-index:700}
-.baseToggle,.layersButton{background:var(--surf);border:1px solid var(--line);border-radius:12px;box-shadow:0 2px 5px #26372c12;display:flex;align-items:center;gap:3px;padding:4px;font-size:13px}
-.baseToggle button{border-radius:8px;padding:8px 12px;min-height:36px;font-weight:500}
-.baseToggle button.on{background:var(--sky);color:var(--ink)}
-.layersButton{padding:9px 12px;gap:8px;min-height:46px}
-.layersButton svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.5}
-.mapLocate{position:absolute;left:20px;top:calc(var(--map-top) + 20px);z-index:700;display:flex;align-items:center;justify-content:center;width:46px;height:46px;background:var(--surf);color:var(--ink);border:1px solid var(--line);border-radius:50%;box-shadow:0 2px 5px #26372c12}
-.mapLocate svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5}
+.searchIcon{position:absolute;top:15px;left:18px;z-index:1;pointer-events:none;width:22px;height:22px}
+.searchIcon svg{width:100%;height:100%;fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round}
+.profileSlot{display:flex}
+.profileButton,.masthead .account{position:static;width:54px;height:54px;display:flex;align-items:center;justify-content:center;border:3px solid #fff;border-radius:50%;padding:0;background:linear-gradient(#e6f1ff,#9ccbf8);color:#14305c;font:600 22px var(--display);box-shadow:0 0 0 3px #6cb6ff,var(--float)}
+.profileButton svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round}
+.mapToolbar{position:absolute;top:calc(var(--map-top) + 14px);left:16px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px;border:1px solid #fff;border-radius:28px;background:var(--glass);box-shadow:var(--float);backdrop-filter:blur(14px);z-index:700}
+.mapToolbar button{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:0;border-radius:50%;background:transparent;color:#14305c;padding:0}
+.mapToolbar svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.6}
+.baseToggle{display:flex;flex-direction:column;gap:6px;padding:0 0 6px;border-bottom:1px solid #d5e5f8}
+.baseToggle button{border-radius:12px;overflow:hidden;border:2px solid #fff;box-shadow:0 1px 4px #14305c22}
+.baseToggle img{width:100%;height:100%;object-fit:cover;border-radius:10px;background:#d5e5f8}
+.baseToggle button.on{border-color:#2f7df0;box-shadow:0 0 0 2px #6cb6ff}
+.lrow .onOff{color:var(--acc);font-family:var(--display)}
+.findMissing{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + 26px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:8px;min-height:48px;padding:0 22px;border:2px solid #fff;border-radius:999px;background:var(--sun);color:#14305c;font:500 16px var(--display);box-shadow:var(--float);z-index:700}
+.findMissing svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7}
+.findMissing.busy svg{animation:pulse 1s ease-in-out infinite}
 body[data-page=map] .leaflet-bottom.leaflet-right{top:auto;bottom:0}
-.leaflet-control-attribution{background:#ffffffeb;color:var(--mid)}
+.leaflet-control-attribution{background:#ffffffb0;color:var(--mid)}
 .leaflet-control-attribution a{color:var(--acc)}
-body[data-page=map] .leaflet-control-attribution{font:10px/1.5 var(--type);max-width:100%;margin:0}
-body[data-page=map] .scanProgress{top:calc(var(--map-top) + 82px)!important;left:20px!important;right:20px!important}
-body[data-page=map]:not(.editingOutline) .toast{top:calc(var(--map-top) + 78px);font-size:13px;max-width:calc(100% - 32px);pointer-events:none}
-body.editingOutline .masthead,body.editingOutline .mapToolbar,body.editingOutline body.picking .masthead,body.picking .mapToolbar,body.picking .mapLocate{display:none}
+body[data-page=map] .leaflet-control-attribution{font:9px/1.5 var(--type);max-width:100%;margin:0}
+body[data-page=map] .scanProgress{top:calc(var(--map-top) + 14px)!important;left:84px!important;right:16px!important}
+body[data-page=map]:not(.editingOutline) .toast{top:calc(var(--map-top) + 14px);font-size:13px;max-width:calc(100% - 110px);pointer-events:none}
+body.editingOutline .masthead,body.editingOutline .mapToolbar,body.editingOutline .findMissing,body.editingOutline .workspaceNav,body.picking .masthead,body.picking .mapToolbar,body.picking .findMissing,body.picking .workspaceNav{display:none}
 body.editingOutline #map,body.picking #map{left:0;top:0;bottom:0}
 body.picking .scanProgress,body.editingOutline .scanProgress{top:16px!important}
-body:has(#bsheet.on) /* This illustration belongs to the guide only. */
+/* This illustration belongs to the guide only. */
 .neighbourhoodArt{color:var(--acc);width:160px;max-width:100%;height:auto}
-@media(min-width:700px) and (max-width:899px){
- :root{--map-top:calc(124px + env(safe-area-inset-top))}
- .masthead{grid-template-columns:44px minmax(0,1fr) minmax(0,1fr) 44px;grid-template-rows:44px 46px;gap:10px 14px;padding-top:calc(12px + env(safe-area-inset-top));padding-bottom:12px}
- .profileSlot{grid-area:1/1}.masthead .workspaceNav.nav{grid-area:1/2/2/4}
- .masthead .workspaceNav .settingsNav{top:calc(12px + env(safe-area-inset-top))}
- .searchSlot{grid-area:2/1/3/3}.contributionActions{grid-area:2/3/3/5}
-}
 @media(max-width:699px){
- :root{--map-top:calc(176px + env(safe-area-inset-top))}
- .masthead{grid-template-columns:44px minmax(0,1fr) 44px;grid-template-rows:44px 44px 52px;gap:8px;padding:calc(10px + env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 10px max(12px,env(safe-area-inset-left))}
- .profileSlot{grid-area:1/1}
- .masthead .workspaceNav.nav{grid-area:1/2;justify-content:space-evenly;gap:0;min-width:0}
- .masthead .workspaceNav .navb{min-width:0;padding:0 9px;font-size:15px}
- .masthead .workspaceNav .settingsNav{right:max(12px,env(safe-area-inset-right));top:calc(10px + env(safe-area-inset-top));width:44px;padding:0}
- .searchSlot{grid-area:2/1/3/-1}
- .searchSlot .search input{font-size:16px}
- .contributionActions{grid-area:3/1/4/-1;gap:10px}
- .contributionActions .big{height:52px;font-size:13px;gap:8px;padding:6px 12px}
- .contributionActions .big svg{width:23px;height:23px}
- .mapToolbar{top:calc(var(--map-top) + 12px);right:12px;gap:6px}
- .baseToggle button{min-height:34px;padding:6px 10px;font-size:12px}
- .layersButton{min-height:44px;gap:6px;padding:8px 10px;font-size:12px}.layersButton span{display:none}
- .mapLocate{top:calc(var(--map-top) + 12px);left:12px;width:44px;height:44px}
-  body[data-page=map] .leaflet-control-attribution{font-size:8px}
- body[data-page=map] .scanProgress{top:calc(var(--map-top) + 66px)!important;left:12px!important;right:12px!important}
- body[data-page=map]:not(.editingOutline) .toast{top:calc(var(--map-top) + 66px)}
-}
-@media(max-width:359px){
- .masthead .workspaceNav .navb{font-size:13px;padding:0 6px}
- .contributionActions .big{font-size:12px;padding:6px 8px;gap:6px}
+ .masthead{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+ .mapToolbar{left:12px}
+ body[data-page=map] .scanProgress{left:80px!important;right:12px!important}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}

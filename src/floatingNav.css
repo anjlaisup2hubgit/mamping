@@ -1,0 +1,17 @@
+/* Glass look and the bottom nav bar, which sits in the same place on every page. */
+:root{--glass:linear-gradient(#fffffff2,#e6f1ffd1);--blue:linear-gradient(#6cb6ff,#2f7df0);--sun:linear-gradient(#ffe17a,#ffbe2e);--float:0 8px 22px #14305c26;--nav-h:72px}
+.workspaceNav.nav,#page.full:not(.cam) .workspaceNav.nav{position:fixed;left:50%;right:auto;top:auto;bottom:max(16px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(420px,calc(100% - 24px));max-width:none!important;height:var(--nav-h);margin:0!important;padding:0 10px;display:flex;align-items:center;justify-content:space-between;gap:4px;border:1px solid #fff;border-radius:999px;background:var(--glass);box-shadow:var(--float);backdrop-filter:blur(16px);z-index:1100}
+.workspaceNav .navb{flex:1;width:auto;min-width:0;height:54px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;border-radius:999px;background:transparent;color:#5f7898;font:500 11px var(--display);letter-spacing:0;text-transform:none}
+.workspaceNav .navb span{font-size:11px;letter-spacing:0;text-transform:none}
+.workspaceNav .navb svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8}
+.workspaceNav .navb.on{background:var(--blue);color:#fff;font-weight:600;box-shadow:inset 0 1px #fff6}
+.workspaceNav .navb.on:after{display:none}
+.workspaceNav .navCapture{flex:none;width:66px;height:66px;margin-top:-30px;border:5px solid #fff;border-radius:50%;background:var(--blue);color:#fff;box-shadow:0 8px 18px #2f7df055}
+.workspaceNav .navCapture svg{width:28px;height:28px;stroke-width:1.9}
+/* Pages leave room so the bar never covers their last row. */
+#page.hasWorkspaceNav .scroll{padding-bottom:calc(var(--nav-h) + 40px)}
+body:has(#bsheet.on) .findMissing{display:none}
+#bsheet{padding-bottom:calc(var(--nav-h) + 32px + env(safe-area-inset-bottom))}
+#page.full:not(.cam){background:linear-gradient(#dcebff,#fff 260px)}
+#page.full:not(.cam) .head{background:transparent}
+.primary,.contributionActions .primary{background:var(--blue)}

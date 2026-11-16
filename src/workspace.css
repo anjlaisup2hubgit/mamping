@@ -1,7 +1,7 @@
-/* Approved layout, with the user's blue-green sections and warm yellow type. */
-:root,:root[data-theme=light],:root[data-theme=dark]{--bg:#0b3440;--surf:#124b59;--ink:#f3d98b;--mid:#d6c887;--line:#467780;--acc:#f3d98b;--onacc:#0b3440;--sage:#235d68;--type:'Times New Roman',Times,serif}
+/* Sky blue and sun yellow on white; Fredoka headings, Nunito text. */
+:root,:root[data-theme=light],:root[data-theme=dark]{--bg:#fff;--surf:#eef5ff;--ink:#14305c;--mid:#5f7898;--line:#d5e5f8;--acc:#2f7df0;--onacc:#fff;--sage:#dcebff;--sky:#dcebff;--yellow:#ffc93c;--type:Nunito,system-ui,sans-serif;--display:Fredoka,Nunito,sans-serif}
 body{font-family:var(--type);line-height:1.5}
-h1,h2,h3{font-family:var(--type);color:var(--acc);letter-spacing:-.025em;line-height:1.08}
+h1,h2,h3{font-family:var(--display);color:var(--acc);letter-spacing:-.025em;line-height:1.08}
 h2{font-size:30px}h3{font-size:23px}p{max-width:65ch}
 button{touch-action:manipulation}button,input,select,summary{ -webkit-tap-highlight-color:transparent }
 button svg{flex:none}button:hover:not(:disabled){filter:brightness(.95)}
@@ -9,7 +9,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 .big{min-height:50px;border-radius:9px;font-size:14px;font-weight:700;gap:10px;letter-spacing:.055em}
 .big svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .ghost{border-color:var(--acc);background:transparent}
-.primary,.filterBar button.on,.trainingTools button.on,.modeChips .chip.on,.editorCommon button.go,.editorSheet .fixGrid button.go,.fixGrid button.go,.copyBar button,.editorSubmit .primary{background:#1c5f68;color:var(--ink);border:1px solid #bba762}
+.primary,.filterBar button.on,.trainingTools button.on,.modeChips .chip.on,.editorCommon button.go,.editorSheet .fixGrid button.go,.fixGrid button.go,.copyBar button,.editorSubmit .primary{background:#2f7df0;color:#fff;border:1px solid #2f7df0}
 input::placeholder{color:var(--mid);opacity:.85}
 .round{border-radius:10px;font-weight:400}
 input[type=password],input[type=text],select{border-radius:8px;background:var(--surf);min-height:46px}
@@ -18,7 +18,7 @@ label{font-size:13px;font-weight:600;color:var(--ink)}
 .eyebrow{display:block;font:700 11px/1.5 var(--type);text-transform:uppercase;letter-spacing:.14em;color:var(--mid)}
 .head{flex:none;gap:16px;padding-top:24px;padding-bottom:24px;border-bottom:1px solid var(--line);margin-bottom:20px!important}
 .pageHeading{flex:1;min-width:0}.pageHeading h2{margin-top:7px}.head .round{border:0;background:transparent}
-#page.full:not(.cam){background:radial-gradient(ellipse at 0 0,#235d6866,transparent 60%),var(--bg)}
+#page.full:not(.cam){background:radial-gradient(ellipse at 0 0,#dcebff,transparent 60%),var(--bg)}
 #page.full:not(.cam)>*{max-width:780px}
 #page.full:not(.cam)>.scroll{padding-top:4px;padding-bottom:28px;gap:16px}
 #page.full:not(.cam)>.center{max-width:620px;padding:32px 24px}
@@ -32,7 +32,7 @@ label{font-size:13px;font-weight:600;color:var(--ink)}
 .empty{margin:auto 0;padding:32px 12px;gap:16px}.empty h2{font-size:34px}.empty p{max-width:390px}.empty svg{stroke:var(--acc);width:76px;height:76px}
 .bar{height:8px;border-radius:4px}.bar i{border-radius:4px}
 .tabs{gap:8px;flex:none;margin-bottom:16px}.tabs button{min-height:46px;font-size:14px;white-space:nowrap}
-.filterBar{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 8px}.filterBar button{border:1px solid var(--line);padding:8px 14px;border-radius:7px;min-height:44px;font-size:14px}.filterBar button.on{background:#1c5f68;color:var(--ink);border-color:var(--acc)}
+.filterBar{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 8px}.filterBar button{border:1px solid var(--line);padding:8px 14px;border-radius:7px;min-height:44px;font-size:14px}.filterBar button.on{background:#2f7df0;color:#fff;border-color:#2f7df0}
 .videoSummary{margin:0;color:var(--mid);font-size:13px}
 .contributionSummary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 12px}
 .contributionSummary>div{border:1px solid var(--line);padding:18px 14px;border-radius:10px;background:var(--surf)}
@@ -45,11 +45,11 @@ label{font-size:13px;font-weight:600;color:var(--ink)}
 .workspaceNav .navb{border-radius:0;width:100px;height:58px;display:flex;flex-direction:column;gap:4px;justify-content:center;position:relative;color:var(--mid)}
 .workspaceNav .navb span{font-size:10px;text-transform:uppercase;letter-spacing:.09em}.workspaceNav .navb svg{height:23px;width:23px;stroke-width:1.5}
 .workspaceNav .navb.on{background:transparent;color:var(--acc);font-weight:700}.workspaceNav .navb.on:after{content:'';height:3px;border-radius:3px;background:var(--acc);position:absolute;bottom:0;left:12px;right:12px}
-.trainingPage #trainBox{border-top-color:var(--line);background:var(--surf)}.trainingTools button,.trainingModelActions button{border-radius:7px}.trainingViewport{border:1px solid var(--line)}.trainingTools button.on{background:#1c5f68;color:var(--ink)}
+.trainingPage #trainBox{border-top-color:var(--line);background:var(--surf)}.trainingTools button,.trainingModelActions button{border-radius:7px}.trainingViewport{border:1px solid var(--line)}.trainingTools button.on{background:#2f7df0;color:#fff}
 .tipsCard{border-radius:14px;padding:28px;max-height:calc(100dvh - 32px);overflow:auto}.tipsCard h2{font-size:30px}.tipsCard li{margin-bottom:8px}.camMsg{border:1px solid #ffffff50;border-radius:8px;font-size:14px}.rec i,.rec circle{background:#c64432;stroke:#d36450}.rec.enough circle{stroke:#a9c6a5}.cam .chip{border-radius:7px}
-.captureGuidance{position:absolute;bottom:130px;left:50%;transform:translateX(-50%);color:var(--ink);text-align:center;font-size:14px;background:#0b3440ee;padding:10px 16px;border:1px solid var(--line);border-radius:8px;width:max-content;max-width:calc(100% - 40px);pointer-events:none}
+.captureGuidance{position:absolute;bottom:130px;left:50%;transform:translateX(-50%);color:var(--ink);text-align:center;font-size:14px;background:#14305cee;padding:10px 16px;border:1px solid var(--line);border-radius:8px;width:max-content;max-width:calc(100% - 40px);pointer-events:none}
 .privateBadge{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--acc)}
-.avatar,.account{background:#1c5f68;color:var(--ink)}
+.avatar,.account{background:#2f7df0;color:#fff}
 .toast{background:var(--surf);color:var(--ink);border:1px solid var(--line)}
 #page.cam,.cam .chip,.camMsg{color:var(--ink)}
 .shapeTag,.sqnum,.sqcount,.leaflet-tooltip.boxnum,.leaflet-tooltip.sure,.keyHelp kbd{font-family:var(--type)}

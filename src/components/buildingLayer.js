@@ -21,14 +21,14 @@ export function startBuildingLayer(tapHandler) {
 }
 
 export function styleFor(b) {
-  if (b.id === state.selectedId) return { color: "#174b3b", weight: 4, fillColor: "#87a788", fillOpacity: 0.5 };
+  if (b.id === state.selectedId) return { color: "#2f7df0", weight: 4, fillColor: "#6cb6ff", fillOpacity: 0.45 };
   if (state.needsHeight) return b.ht || b.levels
-    ? { color: "#174b3b", weight: 1.5, fillColor: "#87a788", fillOpacity: 0.4 }
-    : { color: "#bc7b24", weight: 2, fillColor: "#fff0cf", fillOpacity: 0.35 };
+    ? { color: "#4b9cf0", weight: 1.5, fillColor: "#9ccbf8", fillOpacity: 0.35 }
+    : { color: "#e0a400", weight: 2, fillColor: "#ffe17a", fillOpacity: 0.45 };
   const has = state.contribs.some(c => c.buildingId === b.id);
   return has
-    ? { color: "#E8470F", weight: 2, fillColor: "#E8470F", fillOpacity: 0.2 }
-    : { color: "#7a7a74", weight: 1, fillColor: "#9a9a94", fillOpacity: 0.25 };
+    ? { color: "#2f7df0", weight: 2, fillColor: "#6cb6ff", fillOpacity: 0.3 }
+    : { color: "#8aa3c2", weight: 1, fillColor: "#dcebff", fillOpacity: 0.35 };
 }
 
 export const refreshStyles = () => state.buildings.forEach(b => b.layer.setStyle(styleFor(b)));

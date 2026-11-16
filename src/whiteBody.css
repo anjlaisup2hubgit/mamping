@@ -1,19 +1,17 @@
-/* White page bodies and sheets so they don't clash with the map; teal and yellow stay on the bars and buttons. */
-#page.full:not(.cam),.sheet,.masthead,.mapToolbar,.mapLocate,.mapControls,.toast{--bg:#fff;--surf:#f5f9f8;--ink:#235d68;--mid:#476972;--line:#d2e1e1;--acc:#235d68;--sage:#e1eeee}
+/* White page bodies and sheets so they don't clash with the map; blue and yellow stay on the bars and buttons. */
+#page.full:not(.cam),.sheet,.masthead,.mapToolbar,.mapLocate,.mapControls,.toast{--bg:#fff;--surf:#eef5ff;--ink:#14305c;--mid:#5f7898;--line:#d5e5f8;--acc:#2f7df0;--sage:#dcebff}
 #page.full:not(.cam){background:#fff}
 #page.full:not(.cam) .head{background:#fff}
-#page.full:not(.cam) h2,#page.full:not(.cam) h3,.sheet h2,.sheet h3{color:#235d68}
-#page.full:not(.cam) .primary,#page.full:not(.cam) .filterBar button.on,#page.full:not(.cam) .tabs button.on,.sheet .primary,.sheet .go{background:#235d68;color:#f3d98b;border:1px solid #235d68}
-#page.full:not(.cam) .ghost,.sheet .ghost{border-color:#235d68;color:#235d68}
-#page.full:not(.cam) .tag{background:#f3d98b;color:#235d68}
-#page.full:not(.cam) .note{background:#fff8dc;border-color:#e8d58a;color:#235d68}
-#page.full:not(.cam) .empty svg{stroke:#235d68}
-.masthead,#page.full:not(.cam) .workspaceNav.nav{background:#fff}
-.workspaceNav .navb.on{background:#235d68;color:#f3d98b;border-radius:10px}.workspaceNav .navb.on:after{display:none}
-.contributionActions .primary{background:#235d68;color:#f3d98b;border-color:#235d68}
-.contributionActions .ghost{background:#f3d98b;color:#235d68;border-color:#e8d58a}
-.masthead .searchSlot .search input{background:#fff;color:#235d68}
-.baseToggle button.on{background:#f3d98b;color:#235d68}
-#page.full:not(.cam) .head .round{color:#235d68}
-.sheet{background:#fff;color:#235d68}
-.mapToolbar button,.mapControls button,.mapLocate{color:#235d68}
+#page.full:not(.cam) h2,#page.full:not(.cam) h3,.sheet h2,.sheet h3{color:#14305c}
+#page.full:not(.cam) .primary,#page.full:not(.cam) .filterBar button.on,#page.full:not(.cam) .tabs button.on,.sheet .primary,.sheet .go{background:#2f7df0;color:#fff;border:1px solid #2f7df0}
+#page.full:not(.cam) .ghost,.sheet .ghost{border-color:#2f7df0;color:#2f7df0}
+#page.full:not(.cam) .tag{background:#dcebff;color:#2f7df0}
+#page.full:not(.cam) .note{background:#fff8dc;border-color:#ffe08a;color:#14305c}
+#page.full:not(.cam) .empty svg{stroke:#2f7df0}
+#page.full:not(.cam) .workspaceNav.nav{background:#fff}
+#page.full:not(.cam) .head .round{color:#14305c}
+.sheet{background:#fff;color:#14305c}
+.mapToolbar button,.mapControls button,.mapLocate{color:#14305c}
+/* Body text is Nunito; headings, tab labels and big numbers use rounded Fredoka. */
+body,input,select,textarea,button{font-family:var(--type)}
+h1,h2,h3,.workspaceNav .navb,.contributionSummary strong,.buildingFacts strong{font-family:var(--display)}

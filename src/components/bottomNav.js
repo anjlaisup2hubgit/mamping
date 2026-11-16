@@ -1,11 +1,12 @@
-// Shared top navigation; guides and preferences live in Settings.
+// Shared bottom navigation: one floating bar in the same place on every page, with Capture in the middle.
 import { go } from "./router.js";
 import { icons } from "./icons.js";
 
-const tabs = [["map", "Explore"], ["edits", "My edits"], ["videos", "Videos"]];
+const tabs = [["map", "Map", icons.compass], ["edits", "Edits", icons.edit], ["camera", "", icons.camera], ["videos", "Videos", icons.video], ["settings", "Settings", icons.settings]];
 
-export const bottomNav = (active = "map") => `<nav class="nav workspaceNav" aria-label="Main">${tabs.map(([to, label]) =>
-  `<button class="navb${active === to ? " on" : ""}" data-to="${to}" ${active === to ? 'aria-current="page"' : ""}>${label}</button>`).join("")}<button class="navb settingsNav${active === "settings" ? " on" : ""}" id="settingsB" data-to="settings" aria-label="Settings" ${active === "settings" ? 'aria-current="page"' : ""}>${icons.settings}</button></nav>`;
+export const bottomNav = (active = "map") => `<nav class="nav workspaceNav" aria-label="Main">${tabs.map(([to, label, icon]) => to === "camera"
+  ? `<button class="navb navCapture" data-to="camera" id="navCam" aria-label="Capture a building" data-tip="Capture a building">${icon}</button>`
+  : `<button class="navb${active === to ? " on" : ""}" data-to="${to}" ${active === to ? 'aria-current="page"' : ""}>${icon}<span>${label}</span></button>`).join("")}</nav>`;
 
 export function bindNav(el) {
   el.querySelectorAll("[data-to]").forEach(b => { b.onclick = () => go(b.dataset.to); });
