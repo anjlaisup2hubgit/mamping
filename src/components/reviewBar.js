@@ -5,20 +5,17 @@ import { $ } from "./dom.js";
 import { map } from "./mapView.js";
 import { openSheet, closeSheet } from "./sheet.js";
 import { toast } from "./toast.js";
-import { osmConfirm, osmAllowed } from "./osmConfirm.js";
-import { sendOrQueue } from "../data/osmSend.js";
-import { overlapsExisting } from "../data/buildings.js";
-import { showSentBuildings } from "./buildingLayer.js";
+import { osmConfirm } from "./osmConfirm.js";
+import { sendChecked } from "./sendChecked.js";
 import { inside } from "../data/geo.js";
 import { validatePolygon } from "../data/geometry.js";
 import { validateBuildingTags } from "../data/buildingTags.js";
 import { undoShape } from "./cornerEditor.js";
+import { showIdleTools } from "./shapeTools.js";
 import { tidy, undoTidy, canUndoTidy } from "./tidyBoxes.js";
-import { currentBoxes, removeBoxes, restoreBoxes, restyle, saveBoxes, fixBox, fixAt, focusedBox, unfocus, drawYourself, scanWithAi, findMissing, saveForTraining, showSure, hideSure } from "./missingLayer.js";
+import { currentBoxes, removeBoxes, restoreBoxes, restyle, saveBoxes, fixBox, focusedBox, unfocus, drawYourself, scanWithAi, findMissing, saveForTraining, showSure, hideSure } from "./missingLayer.js";
 
 const drawBtn = `<button class="big ghost" id="drawSelf" style="min-height:48px">AI missed one? Draw it yourself</button>`;
-const short = from => from.split(" ")[0]; // "Microsoft ML Buildings" -> "Microsoft"
-const sourceOf = list => [...new Set(list.map(b => b.from).filter(Boolean)), "Esri World Imagery"].join("; ");
 let mode = "fix", chips = null, dragReady = false, selecting = false, undo = []; // undo = the boxes the last remove took off
 
 let picked = new Set(); // boxes chosen with shift+click
@@ -39,7 +36,7 @@ export const isReviewing = () => !!chips;
 
 // The Edits button: opens the editing tools for the found buildings, or asks how to start if there are none yet.
 export function startEditing() {
-  if (currentBoxes().length) { showReview(); return editFirst(); }
+  if (currentBoxes().length) { showReview(); return showIdleTools(); }
   openSheet(`<div><h2>Edit buildings</h2><p class="mid" style="margin:4px 0 0">Let the AI find missing roofs, or draw one yourself.</p></div>
     <button class="primary big" id="startFind" style="min-height:44px">Find missing</button>
     <button class="big ghost" id="startDraw" style="min-height:44px">Draw outline</button>`);
@@ -79,13 +76,6 @@ export function stopReview() {
 function showChips() {
   if (!dragReady) { dragReady = true; startSelectDrag(); }
   chips = true;
-}
-
-// Edit: opens edit mode on the first building not checked yet.
-function editFirst() {
-  const boxes = currentBoxes();
-  if (!boxes.length) return startEditing();
-  fixAt(boxes.indexOf(boxes.find(b => b.keep && !b.reviewed) || boxes[0]));
 }
 
 // The rail's Select button: pick several buildings (tap or drag over them), then act on them all from the bottom bar.
@@ -162,12 +152,12 @@ export function showReview() {
     ${canUndoTidy() ? `<button class="ghost pill" id="undoTidy">Undo square</button>` : ""}
     <button class="${kept.length ? "ghost" : "primary"} pill" id="reviewNext">${unreviewed.length ? "Review next" : "Review"}</button>
     ${kept.length ? `<button class="primary pill" id="addKept">Send ${kept.length} to OpenStreetMap</button>` : ""}
+    <button class="ghost pill" id="saveTrain">Send for training</button>
     <button class="ghost pill" id="moreB" aria-expanded="false">More</button>
     <div id="confirmWrap" class="rwide" hidden><p class="reviewSummary">Send ${kept.length} checked building${kept.length === 1 ? "" : "s"}; ${unreviewed.length} unreviewed remain here.</p>${osmConfirm()}</div>
     <div id="moreMenu" class="moreMenu rwide" hidden>${canUndoTidy() ? "" : `<button class="big ghost" id="squareAll">Square all outlines</button>`}
       <button class="big ghost" id="drawSelf">Draw an outline yourself</button>${ready ? `<button class="big ghost" id="aiScan">Scan with our AI instead</button>` : ""}
-      <button class="big ghost" id="tidyChecked"${kept.length ? "" : " disabled"}>Tidy checked outlines (with undo)</button>
-      <button class="big ghost" id="saveTrain">Save checked ones for AI training</button></div>`, true);
+      <button class="big ghost" id="tidyChecked"${kept.length ? "" : " disabled"}>Tidy checked outlines (with undo)</button></div>`, true);
   $("#reviewNext").onclick = () => fixBox(unreviewed[0] || boxes.find(b => b.keep) || boxes[0]);
   if ($("#undoTidy")) $("#undoTidy").onclick = () => { undoTidy(); showReview(); };
   if (sel.length) { // one action for every selected box, then the selection clears
@@ -183,26 +173,8 @@ export function showReview() {
   $("#moreB").onclick = () => { const m = $("#moreMenu"); m.hidden = !m.hidden; $("#moreB").setAttribute("aria-expanded", !m.hidden); };
   if ($("#aiScan")) $("#aiScan").onclick = scanWithAi;
   $("#drawSelf").onclick = drawYourself;
-  $("#saveTrain").onclick = () => kept.length ? saveForTraining(kept) : toast("Review the buildings and choose Check and next first.");
-  let warned = false; // the overlap warning shows once; tapping again adds anyway
+  $("#saveTrain").onclick = () => unreviewed.length ? toast(`Check or remove the ${unreviewed.length} unchecked outline${unreviewed.length === 1 ? "" : "s"} first.`) : saveForTraining(kept);
   if ($("#addKept")) $("#addKept").onclick = async () => {
-    if ($("#confirmWrap").hidden) { $("#confirmWrap").hidden = false; return toast("Tick the box to confirm you checked them, then tap Send again."); }
-    if (!osmAllowed()) return;
-    const problem = kept.map(b => validatePolygon(b.coords) || validateBuildingTags(b.tags || {})).find(Boolean);
-    if (problem) return toast(problem);
-    const clash = kept.filter(b => overlapsExisting(b.coords)).length;
-    if (clash && !warned) { warned = true; return toast(`${clash} kept building${clash > 1 ? "s overlap ones" : " overlaps one"} already on the map. Tap Send again to add anyway.`); }
-    $("#addKept").disabled = true; // no double send
-    try {
-      const n = `${kept.length} building${kept.length > 1 ? "s" : ""}`;
-      const items = kept.map(b => ({ corners: b.coords, tags: { ...b.tags } }));
-      const r = await sendOrQueue({ kind: "create", items, source: sourceOf(kept),
-        comment: kept.some(b => b.from) ? `Add missing buildings from ${[...new Set(kept.map(b => b.from).filter(Boolean).map(short))].join("/")} outlines, checked against satellite imagery` : "Add missing buildings traced from satellite imagery" });
-      showSentBuildings(items, r.result);
-      toast(r.queued ? "Edit saved on this device; check Pending edits for sending status." : `${n} added to OpenStreetMap`);
-      undo = [];
-      removeBoxes(kept); // the rest stay, so you can keep checking
-      showReview();
-    } catch (e) { $("#addKept").disabled = false; toast("Could not reach OpenStreetMap: " + e.message); }
+    if (await sendChecked(kept, $("#confirmWrap"), $("#addKept"))) { undo = []; showReview(); }
   };
 }

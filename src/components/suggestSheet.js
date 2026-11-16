@@ -3,13 +3,10 @@ import { sendContribution } from "../data/api.js";
 import { $, esc } from "./dom.js";
 import { openSheet, closeSheet } from "./sheet.js";
 import { toast } from "./toast.js";
-import { osmAllowed, osmConfirm } from "./osmConfirm.js";
-import { removeBox, saveBoxes, restyle, unfocus } from "./missingLayer.js";
-import { sendOrQueue } from "../data/osmSend.js";
-import { overlapsExisting } from "../data/buildings.js";
+import { osmConfirm } from "./osmConfirm.js";
+import { currentBoxes, saveBoxes, restyle, unfocus } from "./missingLayer.js";
+import { sendChecked } from "./sendChecked.js";
 import { validatePolygon } from "../data/geometry.js";
-import { validateBuildingTags } from "../data/buildingTags.js";
-import { showSentBuildings } from "./buildingLayer.js";
 import { detailsFields, bindDetails, readDetails } from "./detailsFields.js";
 import { mountShapeTools, placeEditor } from "./shapeTools.js";
 import { editIcons as i } from "./editIcons.js";
@@ -64,24 +61,13 @@ export function showSuggestion(b) {
   $("#edDetails").onclick = () => { const m = $("#editMore"); m.hidden = !m.hidden; $("#edDetails").setAttribute("aria-expanded", !m.hidden); placeEditor(); };
   $("#edRemove").onclick = () => doFix("remove");
   $("#edKeep").onclick = () => doFix("keep");
-  let warned = false;
-  $("#toOsm").onclick = async () => {
-    const invalid = $("#bsheet input:invalid"), problem = validatePolygon(b.coords) || validateBuildingTags(b.tags);
+  $("#toOsm").onclick = async () => { // sends every checked building, not just this one
+    const invalid = $("#bsheet input:invalid");
     if (invalid) return invalid.reportValidity();
-    if (problem) return toast(problem);
-    if ($("#sendConfirm").hidden) { $("#sendConfirm").hidden = false; placeEditor(); return toast("Tick the box to confirm you checked it, then tap Send again."); }
-    if (!osmAllowed()) return;
-    if (overlapsExisting(b.coords) && !warned) { warned = true; return toast("This overlaps a building already on the map. Fix the corners, or tap again to add anyway."); }
-    const button = $("#toOsm"); button.disabled = true;
-    try {
-      const items = [{ corners: b.coords, tags: { ...b.tags } }];
-      const r = await sendOrQueue({ kind: "create", items,
-        source: [b.from, "Esri World Imagery"].filter(Boolean).join("; "),
-        comment: b.from ? `Add missing building from ${b.from}, checked against satellite imagery` : "Add missing building traced from satellite imagery" });
-      showSentBuildings(items, r.result);
-      toast(r.queued ? "Edit saved on this device; check Pending edits for sending status." : "Building added to OpenStreetMap");
-      removeBox(b); closeSheet();
-    } catch (e) { if (button.isConnected) button.disabled = false; toast(e.message || "Could not send this building."); }
+    const wasHidden = $("#sendConfirm").hidden;
+    const sent = await sendChecked(currentBoxes().filter(o => o.keep && o.reviewed), $("#sendConfirm"), $("#toOsm"));
+    if (wasHidden) placeEditor();
+    if (sent) closeSheet();
   };
   $("#subO").onclick = async () => {
     const problem = validatePolygon(b.coords);

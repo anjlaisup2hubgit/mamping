@@ -12,6 +12,7 @@ import { loadBuildings } from "./buildingLayer.js";
 import { pickArea } from "./areaPicker.js";
 import { showReview, showNoneFound } from "./reviewBar.js";
 import { addBoxes, currentBoxes, focusedBox, nearBox } from "./missingLayer.js";
+import { autoFix } from "./autoFix.js";
 import { showScanProgress } from "./scanProgress.js";
 import { toast } from "./toast.js";
 
@@ -32,7 +33,7 @@ export function findMissing() {
   pickArea((_, chosen) => {
     if (running || !chosen.length) return;
     const pictures = copy(chosen); remember(pictures); start(pictures, true);
-  }, 6, saveMapped);
+  }, 6);
 }
 
 export function scanWithAi() {
@@ -64,6 +65,7 @@ async function ready(pictures, signal) {
     .sort((a, b) => dist(c.lat, c.lng, ...a.center) - dist(c.lat, c.lng, ...b.center));
   if (!list.length) return false;
   const fresh = addBoxes(list.slice(0, 500));
+  autoFix(fresh).catch(() => {});
   showResults();
   showScanProgress(`${fresh.length} ready-made outlines · review before adding`, { done: true });
   return true;
@@ -83,7 +85,9 @@ async function start(pictures, tryReady = false) {
       onProgress: p => showScanProgress(`Picture ${p.index}/${p.total} · ${p.stage} · ${p.completed} finished`, { cancel: cancelScan }),
       onResult: (buildings, picture) => {
         const missing = buildings.filter(b => inSquare(b.center, picture) && ![...state.buildings.values()].some(o => nearBox(b.center, o)));
-        found += addBoxes(missing).length;
+        const fresh = addBoxes(missing);
+        found += fresh.length;
+        autoFix(fresh).catch(() => {});
         showResults();
       }
     });
@@ -107,19 +111,12 @@ function labelsForTraining(ticked = currentBoxes().filter(b => b.keep && b.revie
   return all.filter((b, i) => !all.slice(0, i).some(o => (b.id && b.id === o.id) || dist(...b.center, ...o.center) < 0.5));
 }
 
-async function saveMapped(chosen) {
-  if (!chosen.length) return;
-  remember(chosen);
-  toast("Saving original pictures for complete-scene review…");
-  try { const n = await saveTrainingSet(chosen, labelsForTraining()); toast(`Saved ${n} picture(s). Check every roof in Training pictures before keeping them.`); }
-  catch (e) { toast(e.detail || "Could not save training pictures. Check the training service."); }
-}
-
+// Sends the scanned pictures with their checked roofs as finished training pictures (no second review needed).
 export async function saveForTraining(ticked) {
   const pictures = readScanSession();
   if (!pictures.length) return toast("Choose an area first so the original pictures can be saved.");
-  if (!confirm("Review EVERY roof in these pictures in Training pictures, including already-mapped buildings and any the AI missed. Save these scenes for review?")) return;
-  toast("Saving original pictures and combined roof labels…");
-  try { const n = await saveTrainingSet(pictures, labelsForTraining(ticked)); toast(`Saved ${n} picture(s). Open Training pictures to finish scene review.`); }
+  if (!confirm("Is EVERY roof in these pictures marked and checked, including ones the AI missed? Send them for training?")) return;
+  toast("Sending pictures and roofs for training…");
+  try { const n = await saveTrainingSet(pictures, labelsForTraining(ticked), "kept"); toast(`Sent ${n} picture(s) for training.`); }
   catch (e) { toast(e.detail || "Could not save training pictures. Check the training service."); }
 }
