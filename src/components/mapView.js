@@ -148,8 +148,9 @@ export function fitEditingView(coords) {
   let bottom = Math.min(rect.bottom, (view?.offsetTop || 0) + (view?.height || innerHeight)) - 16;
   const sheet = document.querySelector("#bsheet.editorSheet.on")?.getBoundingClientRect();
   if (sheet) {
-    if (innerWidth >= 700) { right = Math.min(right, sheet.left - 16); left = Math.max(left, right - 480); } // keep the roof close to the panel's buttons
-    else bottom = Math.min(bottom, sheet.top - 12);
+    bottom = Math.min(bottom, sheet.top - 12);
+    const rail = document.querySelector(".editRail")?.getBoundingClientRect();
+    if (rail?.width) right = Math.min(right, rail.left - 12); // keep the roof clear of the tool rail
   }
   const progress = document.querySelector(".scanProgress")?.getBoundingClientRect();
   if (progress && progress.height) top = Math.max(top, progress.bottom + 12);

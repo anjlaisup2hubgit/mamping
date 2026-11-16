@@ -18,7 +18,8 @@ window.addEventListener("keydown", e => {
   if (k === "?") return toggleHelp();
   if (!editing && !startTab) return;
   let run = null;
-  if (ctrl) { if (k.toLowerCase() === "y" || (e.shiftKey && k.toLowerCase() === "z")) run = () => doFix("redo"); }
+  if (ctrl) { if (["c", "d"].includes(k.toLowerCase()) && !getSelection().toString()) run = () => doFix("copy"); // duplicate this outline onto matching roofs
+    else if (k.toLowerCase() === "y" || (e.shiftKey && k.toLowerCase() === "z")) run = () => doFix("redo"); }
   else if (k === "Tab") run = startTab ? () => fixAt(0) : () => doFix(e.shiftKey ? "prev" : "next");
   else if (k === "Enter" && e.target.tagName !== "BUTTON") run = () => doFix("keep");
   else if (k === "Delete" || k === "Backspace") run = () => doFix("remove");

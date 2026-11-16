@@ -1,18 +1,26 @@
-// One compact editor: navigation and common actions stay visible; extra shape tools expand when needed.
+// Edit mode tools, laid out like a photo editor: a building switcher at the top left and a tool rail down the right side.
 import { watchShape } from "./cornerEditor.js";
-import { boxPosition } from "./missingLayer.js";
+import { boxPosition, unfocus } from "./missingLayer.js";
 import { doFix } from "./fixActions.js";
+import { toggleSelect } from "./reviewBar.js";
 import { fitEditingView } from "./mapView.js";
+import { closeSheet } from "./sheet.js";
+import { editIcons as i } from "./editIcons.js";
+import { makeDraggable } from "./dragPanel.js";
 import "./fixKeys.js";
 import { sizeText } from "../data/shapeMoves.js";
 
-const tool = (name, title, symbol, cls = "") => `<button data-act="${name}" class="${cls}" aria-label="${title}">${symbol}<span>${title}</span></button>`;
-const html = `<div class="fixHead"><button data-act="prev" aria-label="Previous building">‹</button><span class="fixCount"></span><button data-act="next" aria-label="Next building">›</button></div>
-  <div class="editorCommon">${tool("rect", "Square", "□")}${tool("undo", "Undo", "↶")}${tool("keep", "Check and next", "✓", "go")}</div>
-  <details class="editorAdvanced"><summary>More shape tools</summary><div class="fixGrid">
-    ${tool("line", "Line up", "⇥")}${tool("street", "Pick street", "↗")}${tool("turnL", "Turn left", "↶")}${tool("turnR", "Turn right", "↷")}${tool("redo", "Redo", "↷")}${tool("copy", "Copy", "▣")}${tool("remove", "Remove", "×")}
-  </div></details>`;
-let bar = null, repeat = null, selected = null, observer = null, fitting = false;
+const tool = (act, title, icon, key) => `<button data-act="${act}" aria-label="${title}" data-tip="${key ? `${title} (${key})` : title}">${icon}<span>${title}</span></button>`;
+const railHtml = `<div class="railGrip" title="Drag to move · double-click to put back">${i.grip}</div>
+  ${tool("select", "Select", i.select)}<hr>
+  ${tool("rect", "Square", i.square, "Q")}${tool("line", "Line up", i.lineUp, "A")}${tool("street", "Street", i.street, "S")}
+  ${tool("turnL", "Turn left", i.turnLeft, "Shift+R")}${tool("turnR", "Turn right", i.turnRight, "R")}${tool("copy", "Copy", i.copy, "Ctrl+D")}
+  <hr>${tool("undo", "Undo", i.undo, "Ctrl+Z")}${tool("redo", "Redo", i.redo, "Ctrl+Y")}`;
+const switchHtml = `<button data-act="prev" aria-label="Previous building">${i.prev}</button>
+  <span class="fixCount"><b></b><small></small></span>
+  <button data-act="next" aria-label="Next building">${i.next}</button>
+  <button class="switchX" aria-label="Stop editing">${i.close}</button>`;
+let rail = null, switcher = null, repeat = null, selected = null, observer = null, fitting = false;
 const stopRepeat = () => { clearTimeout(repeat); clearInterval(repeat); repeat = null; };
 
 export function placeEditor() {
@@ -25,30 +33,37 @@ export function placeEditor() {
 }
 
 function build() {
-  bar = document.createElement("div");
-  bar.className = "fixBar";
-  bar.innerHTML = html;
-  bar.addEventListener("click", e => {
-    const act = e.target.closest("[data-act]")?.dataset.act;
-    if (act && !act.startsWith("turn")) doFix(act);
+  rail = document.createElement("div");
+  rail.className = "editRail";
+  rail.innerHTML = railHtml;
+  switcher = document.createElement("div");
+  switcher.className = "editSwitch";
+  switcher.innerHTML = switchHtml;
+  [rail, switcher].forEach(el => {
+    document.body.appendChild(el);
+    el.addEventListener("click", e => {
+      const act = e.target.closest("[data-act]")?.dataset.act;
+      if (act === "select") toggleSelect();
+      else if (act && !act.startsWith("turn")) doFix(act);
+    });
   });
-  bar.addEventListener("pointerdown", e => {
+  rail.addEventListener("pointerdown", e => { // holding a turn button keeps turning
     const act = e.target.closest("[data-act]")?.dataset.act;
     if (!act?.startsWith("turn")) return;
     doFix(act);
     repeat = setTimeout(() => { repeat = setInterval(() => doFix(act, true), 80); }, 400);
   });
-  ["pointerup", "pointerleave", "pointercancel"].forEach(type => bar.addEventListener(type, stopRepeat));
-  bar.querySelector("details").addEventListener("toggle", placeEditor);
+  ["pointerup", "pointerleave", "pointercancel"].forEach(type => rail.addEventListener(type, stopRepeat));
+  switcher.querySelector(".switchX").onclick = () => { unfocus(); closeSheet(); };
+  makeDraggable(rail, rail.querySelector(".railGrip"));
   window.addEventListener("resize", placeEditor);
   window.visualViewport?.addEventListener("resize", placeEditor);
   window.visualViewport?.addEventListener("scroll", placeEditor);
 }
 
-// openSheet replaces its contents, so move the same tool bar into each new building inspector.
-export function mountShapeTools(container) {
-  if (!bar) build();
-  container.appendChild(bar);
+// Called each time a building's bottom bar opens.
+export function mountShapeTools() {
+  if (!rail) build();
   if (observer) observer.disconnect();
   if (typeof ResizeObserver !== "undefined") {
     observer = new ResizeObserver(placeEditor);
@@ -66,8 +81,9 @@ watchShape(b => {
     if (observer) observer.disconnect();
     return;
   }
-  if (!bar) build();
-  const { i, n } = boxPosition();
-  bar.querySelector(".fixCount").textContent = `${i + 1} of ${n} · ${sizeText(b.coords)}`;
+  if (!rail) build();
+  const { i: at, n } = boxPosition();
+  switcher.querySelector(".fixCount b").textContent = `Building ${at + 1} of ${n}`;
+  switcher.querySelector(".fixCount small").textContent = sizeText(b.coords);
   if (changed) placeEditor();
 });

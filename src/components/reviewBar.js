@@ -14,13 +14,12 @@ import { validatePolygon } from "../data/geometry.js";
 import { validateBuildingTags } from "../data/buildingTags.js";
 import { undoShape } from "./cornerEditor.js";
 import { tidy, undoTidy, canUndoTidy } from "./tidyBoxes.js";
-import { currentBoxes, removeBoxes, restoreBoxes, restyle, saveBoxes, fixBox, unfocus, drawYourself, scanWithAi, findMissing, saveForTraining, showSure, hideSure } from "./missingLayer.js";
+import { currentBoxes, removeBoxes, restoreBoxes, restyle, saveBoxes, fixBox, fixAt, focusedBox, unfocus, drawYourself, scanWithAi, findMissing, saveForTraining, showSure, hideSure } from "./missingLayer.js";
 
-const MODES = { keep: "Review", fix: "Edit", tidy: "Tidy", remove: "Remove" };
 const drawBtn = `<button class="big ghost" id="drawSelf" style="min-height:48px">AI missed one? Draw it yourself</button>`;
 const short = from => from.split(" ")[0]; // "Microsoft ML Buildings" -> "Microsoft"
 const sourceOf = list => [...new Set(list.map(b => b.from).filter(Boolean)), "Esri World Imagery"].join("; ");
-let mode = "keep", chips = null, dragReady = false, selecting = false, undo = []; // undo = the boxes the last remove took off
+let mode = "fix", chips = null, dragReady = false, selecting = false, undo = []; // undo = the boxes the last remove took off
 
 let picked = new Set(); // boxes chosen with shift+click
 const pick = b => { b.picked = !b.picked; if (b.picked) picked.add(b); else picked.delete(b); };
@@ -40,7 +39,7 @@ export const isReviewing = () => !!chips;
 
 // The Edits button: opens the editing tools for the found buildings, or asks how to start if there are none yet.
 export function startEditing() {
-  if (currentBoxes().length) return showReview();
+  if (currentBoxes().length) { showReview(); return editFirst(); }
   openSheet(`<div><h2>Edit buildings</h2><p class="mid" style="margin:4px 0 0">Let the AI find missing roofs, or draw one yourself.</p></div>
     <button class="primary big" id="startFind" style="min-height:44px">Find missing</button>
     <button class="big ghost" id="startDraw" style="min-height:44px">Draw outline</button>`);
@@ -74,29 +73,33 @@ function apply(list) {
 }
 
 export function stopReview() {
-  if (chips) chips.remove();
   chips = null;
-  mode = "keep";
+  mode = "fix";
   clearPicked();
   setSelecting(false);
   hideSure();
   unfocus();
 }
 
-// The buttons at the top that choose what a tap does.
+// Marks that checking has started (chips = true), and turns on drag-to-select once.
 function showChips() {
   if (!dragReady) { dragReady = true; startSelectDrag(); }
-  if (!chips) {
-    chips = L.DomUtil.create("div", "modeChips", map.getContainer());
-    L.DomEvent.disableClickPropagation(chips); // a tap here is not a tap on the map
-    chips.innerHTML = Object.entries(MODES).map(([k, t]) => `<button class="chip" data-mode="${k}">${t}</button>`).join("")
-      + `<span class="chipLine"></span><button class="chip sel" id="selB" aria-pressed="false">Select</button>`
-      + `<button class="chip chipX" id="chipsX" aria-label="Done checking" data-tip="Done checking">✕</button>`;
-    chips.querySelectorAll("[data-mode]").forEach(c => { c.onclick = () => { mode = c.dataset.mode; if (mode === "fix") setSelecting(false); showReview(); }; }); // also brings the bar back after fixing a shape
-    chips.querySelector("#selB").onclick = () => { setSelecting(!selecting); if (mode === "fix") mode = "keep"; showReview(); };
-    chips.querySelector("#chipsX").onclick = () => { closeSheet(); stopReview(); };
-  }
-  chips.querySelectorAll("[data-mode]").forEach(c => c.classList.toggle("on", c.dataset.mode === mode));
+  chips = true;
+}
+
+// Edit: opens edit mode on the first building not checked yet.
+function editFirst() {
+  const boxes = currentBoxes();
+  if (!boxes.length) return startEditing();
+  fixAt(boxes.indexOf(boxes.find(b => b.keep && !b.reviewed) || boxes[0]));
+}
+
+// The rail's Select button: pick several buildings (tap or drag over them), then act on them all from the bottom bar.
+export function toggleSelect() {
+  const b = focusedBox();
+  setSelecting(!selecting);
+  if (selecting && b && !b.picked) pick(b); // the building being edited starts the selection
+  showReview();
 }
 
 // Select on: the map stops moving, and holding the mouse (or finger) down and dragging over boxes does the tap to each one.
@@ -104,7 +107,8 @@ function setSelecting(on) {
   selecting = on;
   if (on) map.dragging.disable(); else map.dragging.enable();
   map.getContainer().classList.toggle("selecting", on);
-  const b = chips && chips.querySelector("#selB");
+  document.body.classList.toggle("selectingMany", on); // keeps the tool rail on screen while picking
+  const b = document.querySelector('.editRail [data-act="select"]');
   if (b) { b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); }
 }
 
@@ -114,12 +118,12 @@ function startSelectDrag() {
     const p = map.mouseEventToLatLng(e), pt = [p.lat, p.lng];
     const b = currentBoxes().find(o => !touched.has(o) && inside(pt, o.coords));
     if (!b) return;
-    if (!touched.size) turnOn = !(b.keep && b.reviewed); // the first box decides: check all, or drop all
+    if (!touched.size) turnOn = !b.picked; // the first box decides: select all, or unselect all
     touched.add(b);
-    if (mode === "keep") { b.keep = turnOn; b.reviewed = turnOn && !validatePolygon(b.coords) && !validateBuildingTags(b.tags || {}); restyle(); } else b.shape.setStyle({ opacity: 0.2, fillOpacity: 0 }); // fades until let go
+    if (b.picked !== turnOn) { pick(b); restyle(); }
   };
   map.getContainer().addEventListener("pointerdown", e => {
-    if (!selecting || e.button !== 0 || e.target.closest(".modeChips")) return;
+    if (!selecting || e.button !== 0 || e.target.closest(".modeChips,.editRail")) return;
     touched = new Set();
     hit(e);
   }, true);
@@ -128,10 +132,7 @@ function startSelectDrag() {
     if (!touched) return;
     const list = [...touched];
     touched = null;
-    if (!list.length) return;
-    if (mode === "tidy") return tidyThen(list);
-    if (mode === "keep") { saveBoxes(); undo = []; } else { undo = list; removeBoxes(list); }
-    showReview();
+    if (list.length) showReview();
   });
 }
 
@@ -150,32 +151,32 @@ export function showNoneFound() {
   $("#drawSelf").onclick = drawYourself;
 }
 
-// The slim bar: counts, Add, and a More menu.
+// The slim bar: counts, Review next, Add (once some are ready), and a More menu for the rest.
 export function showReview() {
   const boxes = currentBoxes();
   if (!boxes.length) { stopReview(); return closeSheet(); }
   unfocus();
   showChips();
-  const kept = boxes.filter(b => b.keep && b.reviewed), unreviewed = boxes.filter(b => b.keep && !b.reviewed), ready = boxes.some(b => b.from);
+  const kept = boxes.filter(b => b.keep && b.reviewed), dropped = boxes.filter(b => !b.keep).length, unreviewed = boxes.filter(b => b.keep && !b.reviewed), ready = boxes.some(b => b.from);
   picked = new Set([...picked].filter(b => boxes.includes(b))); // removed boxes leave the selection
   const sel = [...picked];
   openSheet(`${sel.length ? `<div class="rwide pickedRow"><b>${sel.length} selected</b>
       <button class="ghost pill" id="pSquare">Square</button><button class="ghost pill" id="pCheck">Check</button>
       <button class="ghost pill" id="pRemove">Remove</button><button class="ghost pill" id="pClear">Clear</button></div>` : ""}
-    <span class="rcount editorReviewCounts"><b>${unreviewed.length}</b> unreviewed · <b class="kept">${kept.length}</b> checked · <b>${boxes.filter(b => !b.keep).length}</b> dropped</span>
-    <button class="ghost pill" id="reviewNext">${unreviewed.length ? "Review next" : "Review buildings"}</button>
+    <span class="rcount editorReviewCounts"><b>${unreviewed.length}</b> to check · <b class="kept">${kept.length}</b> ready${dropped ? ` · ${dropped} dropped` : ""}</span>
     ${undo.length ? `<button class="ghost pill" id="undoRm">Undo remove</button>` : ""}
-    ${canUndoTidy() ? `<button class="ghost pill" id="undoTidy">Undo square</button>` : `<button class="ghost pill" id="squareAll">Square all</button>`}
-    <button class="ghost pill" id="drawSelf">Draw outline</button>
+    ${canUndoTidy() ? `<button class="ghost pill" id="undoTidy">Undo square</button>` : ""}
+    <button class="${kept.length ? "ghost" : "primary"} pill" id="reviewNext">${unreviewed.length ? "Review next" : "Review"}</button>
+    ${kept.length ? `<button class="primary pill" id="addKept">Add ${kept.length}</button>` : ""}
     <button class="ghost pill" id="moreB" aria-expanded="false">More</button>
-    <button class="primary pill" id="addKept"${kept.length ? "" : " disabled"}>Add ${kept.length} checked</button>
     <div id="confirmWrap" class="rwide" hidden><p class="reviewSummary">Send ${kept.length} checked building${kept.length === 1 ? "" : "s"}; ${unreviewed.length} unreviewed remain here.</p>${osmConfirm()}</div>
-    <div id="moreMenu" class="moreMenu rwide" hidden>${ready ? `<button class="big ghost" id="aiScan" style="min-height:48px">Scan with our AI instead</button>` : ""}
-      <button class="big ghost" id="tidyChecked" style="min-height:48px"${kept.length ? "" : " disabled"}>Tidy checked outlines (with undo)</button>
-      <button class="big ghost" id="saveTrain" style="min-height:48px">Save checked ones for AI training</button></div>`, true);
+    <div id="moreMenu" class="moreMenu rwide" hidden>${canUndoTidy() ? "" : `<button class="big ghost" id="squareAll">Square all outlines</button>`}
+      <button class="big ghost" id="drawSelf">Draw an outline yourself</button>${ready ? `<button class="big ghost" id="aiScan">Scan with our AI instead</button>` : ""}
+      <button class="big ghost" id="tidyChecked"${kept.length ? "" : " disabled"}>Tidy checked outlines (with undo)</button>
+      <button class="big ghost" id="saveTrain">Save checked ones for AI training</button></div>`, true);
   $("#reviewNext").onclick = () => fixBox(unreviewed[0] || boxes.find(b => b.keep) || boxes[0]);
   if ($("#undoTidy")) $("#undoTidy").onclick = () => { undoTidy(); showReview(); };
-  if (sel.length) { // one action for every shift+clicked box, then the selection clears
+  if (sel.length) { // one action for every selected box, then the selection clears
     $("#pSquare").onclick = () => { clearPicked(); tidyThen(sel); };
     $("#pCheck").onclick = () => { clearPicked(); mode = "keep"; apply(sel); };
     $("#pRemove").onclick = () => { clearPicked(); undo = sel; removeBoxes(sel); showReview(); };
@@ -190,7 +191,7 @@ export function showReview() {
   $("#drawSelf").onclick = drawYourself;
   $("#saveTrain").onclick = () => kept.length ? saveForTraining(kept) : toast("Review the buildings and choose Check and next first.");
   let warned = false; // the overlap warning shows once; tapping again adds anyway
-  $("#addKept").onclick = async () => {
+  if ($("#addKept")) $("#addKept").onclick = async () => {
     if ($("#confirmWrap").hidden) { $("#confirmWrap").hidden = false; return toast("Tick the box to confirm you checked them, then tap Add again."); }
     if (!osmAllowed()) return;
     const problem = kept.map(b => validatePolygon(b.coords) || validateBuildingTags(b.tags || {})).find(Boolean);
