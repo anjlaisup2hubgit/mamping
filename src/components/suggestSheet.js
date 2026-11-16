@@ -49,7 +49,7 @@ export function showSuggestion(b) {
     <div class="editActions"><button class="ghost" id="edDetails" aria-expanded="false">${i.details}<span>Details</span></button>
       <button class="ghost" id="edRemove" aria-label="Remove">${i.remove}<span>Remove</span></button>
       <button class="primary" id="edKeep">${i.checkNext}<span>Check and next</span></button>
-      <button class="ghost" id="toOsm">${i.send}<span>Send to OSM</span></button></div>
+      <button class="ghost" id="toOsm">${i.send}<span>Send ${currentBoxes().filter(o => o.keep && o.reviewed).length} to OSM</span></button></div>
   </section>`, true);
   $("#bsheet").classList.add("editorSheet");
   mountShapeTools();
