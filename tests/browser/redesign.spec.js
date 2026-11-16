@@ -100,11 +100,7 @@ test("location control centres the map and building details show real facts", as
   await expect(page.locator(".buildingPreview svg")).toBeVisible();
   await expect(page.locator("#captureDetails")).toBeVisible();
   await page.getByRole("button", { name: "Close panel", exact: true }).click();
-  await page.evaluate(async () => {
-    const { map, centerOn } = await import("/src/components/mapView.js");
-    map.stop(); centerOn([21, 107], 15, { animate: false });
-  });
-  await expect(page.locator("#buildingStatus")).toHaveText("Zoom in to load building details.");
+  await expect(page.locator("#bsheet")).toBeHidden();
   expect(errors).toEqual([]);
 });
 

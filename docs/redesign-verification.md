@@ -4,7 +4,7 @@ This redesign was rebuilt in the Windows checkout from the approved desktop and 
 
 ## Implementation
 
-- Warm ivory `#f8f7f2`, forest green `#174b3b`, charcoal `#242c27`, muted sage, fine borders, serif headings and shared line icons.
+- The original approved layout used ivory and forest green. The user's subsequent reference updates the interface to deep blue-green sections (`#0b3440`, `#124b59`), warm yellow text (`#f3d98b`), fine borders, and Times New Roman throughout. Real map imagery and editing-state colours remain distinguishable.
 - Explore uses the existing interactive map, a 350px desktop contribution sidebar, visible place search, live building counts, capture and missing-building actions, base layers, zoom, location and building details.
 - Phones use a full-width map, floating search, a collapsible contribution panel and Explore / My edits / Videos / Guide tabs. Outline editing and scan-area selection keep their existing dedicated controls.
 - Shared styling covers capture, saved confirmation, analysis, editable review with its existing 3D preview, video library, contributions, grouped settings, outlines, drive results, scan preferences, training and illustrated guides.
