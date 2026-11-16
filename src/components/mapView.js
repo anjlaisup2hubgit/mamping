@@ -26,6 +26,7 @@ export function setBaseLayer(name) {
   if (base.bringToBack) base.bringToBack();
   applyTilt();
   map.getContainer().classList.toggle("street", name === "street");
+  map.fire("baselayerchange", { name });
 }
 
 // Tilt only works on the street vector map; it shows the style's 3D buildings.
@@ -116,6 +117,7 @@ function addFlatButton() {
 
 export function startMap() {
   map = L.map("map", { zoomControl: false, maxZoom: MAX_ZOOM }).setView(HAI_PHONG, 17);
+  new ResizeObserver(() => map.invalidateSize({ pan: false })).observe(map.getContainer());
   setBaseLayer("street");
   addFlatButton();
   startTiltGestures(map.getContainer());
@@ -130,7 +132,10 @@ export function startMap() {
   watchMe(() => toast("Location is off. Showing Hai Phong."));
 }
 
-export const centerOn = (latlng, zoom = 18, options) => map.setView(latlng, zoom, options);
+export const centerOn = (latlng, zoom = 18, options) => {
+  followed = true; // a chosen place must not be replaced by the first delayed GPS update
+  return map.setView(latlng, zoom, options);
+};
 // Slides the map so a point sits in the middle of the screen.
 export const liftIntoView = latlng => map.panTo(latlng);
 // Put the roof and its handles in the part of the map left clear by the inspector and keyboard.

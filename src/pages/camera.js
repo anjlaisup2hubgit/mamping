@@ -79,7 +79,7 @@ function setMode(on) {
   driving = on;
   saveSetting("driveMode", on);
   setDrivingChecks(on);
-  $("#modeBtn").textContent = on ? "🚗 Driving" : "🚶 Walking";
+  $("#modeBtn").textContent = on ? "Driving" : "Walking";
   $("#recBtn").classList.toggle("drive", on);
   if (on) flash("Mount the phone sideways. Don't touch it while driving.", 6000);
 }
@@ -92,6 +92,7 @@ export const camera = {
       <div class="top pad"><span class="chip" id="gpsChip">GPS searching</span><button class="chip" id="modeBtn" aria-label="Switch between walking and driving" data-tip="Walking / Driving"></button><span class="chip" id="tm">0:00</span></div>
       <button class="round" id="camBack" aria-label="Close" data-tip="Close" style="position:absolute;left:16px;top:72px;background:#000a;color:#fff;border:0">✕</button><div class="guide"></div>
       <div class="camMsg" id="camMsg" role="status" hidden></div>
+      <div class="captureGuidance">Walk slowly. Keep the whole building and roof in view.</div>
       <div id="mini"></div>
       <div class="dock pad" style="align-items:center;flex-direction:row;justify-content:center"><button class="rec" id="recBtn" aria-label="Start or stop recording" data-tip="Record / Stop"><svg viewBox="0 0 84 84" aria-hidden="true"><circle id="ring" cx="42" cy="42" r="39" stroke-dasharray="${RING}" stroke-dashoffset="${RING}"/></svg><i></i></button></div>`;
     stopListening = onMeMove(me => {

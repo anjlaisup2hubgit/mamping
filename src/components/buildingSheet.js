@@ -7,6 +7,9 @@ import { map, centerOn } from "./mapView.js";
 import { refreshStyles, loadBuildings } from "./buildingLayer.js";
 import { openSheet, closeSheet } from "./sheet.js";
 import { toast } from "./toast.js";
+import { preview3d } from "./preview3d.js";
+import { icons } from "./icons.js";
+import { go } from "./router.js";
 
 const clear = () => { if (state.drawing || state.picking) return; state.selectedId = null; refreshStyles(); closeSheet(); }; // map taps are corners while drawing
 
@@ -26,9 +29,12 @@ export function showBuilding(id) {
   const notes = state.contribs.filter(c => c.buildingId === id);
   const h = heightOf(b);
   const link = location.href.split("#")[0] + "#b" + id;
-  openSheet(`<div><h2>${esc(b.name || "Unnamed building")}</h2><p class="mid" style="margin:4px 0 0">${h ? h + " m" : "Height unknown"}${b.levels ? " · " + b.levels + " floors" : ""}${b.addr ? " · " + esc(b.addr) : ""}</p></div>
+  openSheet(`<span class="tag">${h || b.levels ? "Mapped details" : "Needs details"}</span><div><span class="eyebrow">Building details</span><h2>${esc(b.name || "Unnamed building")}</h2>${b.addr ? `<p class="mid">${esc(b.addr)}</p>` : ""}</div>
+    <div class="buildingFacts"><div><span>Height</span><strong>${h ? esc(h) + " m" : "—"}</strong></div><div><span>Floors</span><strong>${b.levels ? esc(b.levels) : "—"}</strong></div></div>
+    ${h || b.levels ? `<div class="buildingPreview">${preview3d({ coords: b.coords, height: h, levels: b.levels })}</div>` : '<p class="mid" style="margin:0">Capture this building to help add its height and floors.</p>'}
     ${notes.length ? notes.map(note).join("") : '<p class="mid" style="margin:0">No contributions yet.</p>'}
-    <div class="row"><button class="big primary" id="shareB" style="min-height:48px">Share</button></div>`);
+    <button class="big primary" id="captureDetails">${icons.camera} Capture details</button><button class="big ghost" id="shareB" style="min-height:44px">Share building link</button>`);
+  $("#captureDetails").onclick = () => { closeSheet(); go("camera"); };
   $("#shareB").onclick = async () => {
     try { await navigator.clipboard.writeText(link); toast("Link copied"); } catch (e) { toast(link); }
   };

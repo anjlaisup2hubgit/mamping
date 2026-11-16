@@ -3,13 +3,15 @@ import { searchPlaces } from "../data/search.js";
 import { $, esc } from "./dom.js";
 import { centerOn, map } from "./mapView.js";
 import { toast } from "./toast.js";
+import { icons } from "./icons.js";
 
-export const searchBar = () => `<div class="search"><input type="text" id="q" placeholder="Search a place" aria-label="Search a place" autocomplete="off"><div class="results" id="results"></div></div>`;
+export const searchBar = () => `<div class="search"><span class="searchIcon" aria-hidden="true">${icons.search}</span><input type="text" id="q" placeholder="Search a place" aria-label="Search a place" autocomplete="off"><div class="results" id="results"></div></div>`;
 
 export function bindSearch() {
   let timer = null, latest = 0; // latest = number of the newest search, so a slow old answer is ignored
   // The search icon in the bottom bar shows or hides the real search box.
-  $("#searchB").onclick = () => {
+  const toggle = $("#searchB");
+  if (toggle) toggle.onclick = () => {
     const box = $(".search");
     box.classList.toggle("open");
     if (box.classList.contains("open")) $("#q").focus();

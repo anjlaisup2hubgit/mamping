@@ -50,5 +50,5 @@ export function preview3d(d) {
   return `<svg viewBox="${vb.join(" ")}" role="img" aria-label="3D preview, ${Math.round(h)} metres tall" style="width:100%;height:200px;display:block">
     ${faces.map(poly).join("")}
     <line x1="${foot[0]}" y1="${foot[1]}" x2="${head[0]}" y2="${head[1] + r * 2}" stroke="var(--acc)" stroke-width="${r}" stroke-linecap="round"/><circle cx="${head[0]}" cy="${head[1] + r}" r="${r}" fill="var(--acc)"/></svg>
-    <p class="mid" style="margin:0;font-size:13px">${Math.round(h * 10) / 10} m tall. The orange figure is a 1.7 m person.</p>`;
+    <p class="mid" style="margin:0;font-size:13px">${Math.round(h * 10) / 10} m tall. The figure is a 1.7 m person.</p>`;
 }

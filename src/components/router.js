@@ -1,5 +1,6 @@
 // Switches between pages. A page is {full, open(el, arg), close()}, or a function that loads one.
 import { $ } from "./dom.js";
+import { bottomNav, bindNav } from "./bottomNav.js";
 
 const pages = {};
 let current = null;
@@ -13,5 +14,11 @@ export async function go(name, arg) {
   const el = $("#page");
   el.innerHTML = "";
   el.className = current.full === false ? "" : "full";
+  document.body.dataset.page = name;
   current.open(el, arg);
+  if (["edits", "videos", "help", "settings", "outlines", "fixGuide"].includes(name)) {
+    el.classList.add("hasWorkspaceNav");
+    el.insertAdjacentHTML("beforeend", bottomNav(name));
+    bindNav(el);
+  }
 }

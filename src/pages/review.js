@@ -76,7 +76,7 @@ async function finish(send) {
 export const review = {
   open(el) {
     busy = false;
-    el.innerHTML = header("Review") + form();
+    el.innerHTML = header("Review building details") + form();
     bindBack(el, "saved");
     $("#rp").onchange = e => {
       const f = e.target.files[0];

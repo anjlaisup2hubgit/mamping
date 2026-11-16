@@ -20,7 +20,7 @@ export function roofs() {
   });
 }
 
-export async function setup(page, { boxes = [], outline } = {}) {
+export async function setup(page, { boxes = [], outline, osmElements = [] } = {}) {
   const errors = [];
   page.on("pageerror", e => errors.push(e.message));
   await page.addInitScript(boxes => {
@@ -36,7 +36,7 @@ export async function setup(page, { boxes = [], outline } = {}) {
     if (["server.arcgisonline.com", "tile.openstreetmap.org"].includes(url.hostname)) return route.fulfill({ body: tile, contentType: "image/png", headers: { "Access-Control-Allow-Origin": "*" } });
     if (url.hostname === "api.openstreetmap.org") {
       if (route.request().method() !== "GET") throw new Error("A browser test tried to write to OpenStreetMap.");
-      return route.fulfill({ json: { elements: [] } });
+      return route.fulfill({ json: { elements: osmElements } });
     }
     if (url.hostname.includes("overpass")) return route.fulfill({ json: { elements: [] } });
     if (url.pathname === "/api/ready" || url.pathname === "/api/contributions") return route.fulfill({ json: [] });

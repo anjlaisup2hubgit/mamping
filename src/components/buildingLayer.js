@@ -7,6 +7,9 @@ import { map } from "./mapView.js";
 import { toast } from "./toast.js";
 
 let layer = null, onTap = null, timer = null, pending = null, warned = false;
+let loadState = "loading";
+export const buildingLoadState = () => loadState;
+const changed = () => window.dispatchEvent(new Event("buildingschange"));
 
 export function startBuildingLayer(tapHandler) {
   onTap = tapHandler;
@@ -18,10 +21,10 @@ export function startBuildingLayer(tapHandler) {
 }
 
 export function styleFor(b) {
-  if (b.id === state.selectedId) return { color: "#E8470F", weight: 4, fillColor: "#E8470F", fillOpacity: 0.3 };
+  if (b.id === state.selectedId) return { color: "#174b3b", weight: 4, fillColor: "#87a788", fillOpacity: 0.5 };
   if (state.needsHeight) return b.ht || b.levels
-    ? { color: "#7a7a74", weight: 1, fillColor: "#9a9a94", fillOpacity: 0.08 }
-    : { color: "#1F6FEB", weight: 2, fillColor: "#1F6FEB", fillOpacity: 0.35 };
+    ? { color: "#174b3b", weight: 1.5, fillColor: "#87a788", fillOpacity: 0.4 }
+    : { color: "#bc7b24", weight: 2, fillColor: "#fff0cf", fillOpacity: 0.35 };
   const has = state.contribs.some(c => c.buildingId === b.id);
   return has
     ? { color: "#E8470F", weight: 2, fillColor: "#E8470F", fillOpacity: 0.2 }
@@ -45,13 +48,17 @@ let waiting = 0;
 export function showSentBuildings(items, ways = []) {
   items.forEach(({ corners, tags }, i) =>
     add({ id: ways[i]?.id ?? "waiting-" + ++waiting, coords: corners, center: mid(corners), kind: "yes", name: tags.name || null, ht: null, levels: null, addr: "" }));
+  changed();
 }
 
 async function run() {
+  loadState = "loading"; changed();
   try {
     for (const b of await fetchBuildingsIn(map.getBounds().pad(0.1))) add(b);
     warned = false;
-  } catch (e) { if (!warned) toast("Could not load buildings. Check your connection."); warned = true; } // say it once, not after every drag
+    loadState = "loaded";
+  } catch (e) { loadState = "failed"; if (!warned) toast("Could not load buildings. Check your connection."); warned = true; } // say it once, not after every drag
+  changed();
 }
 
 export function loadBuildings() {

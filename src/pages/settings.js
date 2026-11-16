@@ -4,11 +4,10 @@ import { osmAccount, bindOsmAccount } from "../components/osmAccount.js";
 import { currentBoxes } from "../components/missingLayer.js";
 import { icons } from "../components/icons.js";
 import { go } from "../components/router.js";
-import { state } from "../data/state.js";
-import { loadContribs } from "../data/contributions.js";
 import { weekCounts } from "../data/history.js";
 import { getSettings } from "../data/settings.js";
 import { pendingEdits, bindPendingEdits } from "../components/pendingEdits.js";
+import { allClips } from "../data/store.js";
 
 const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
@@ -19,20 +18,24 @@ const row = (to, icon, title, sub, id = "") =>
 function page() {
   const boxes = currentBoxes().length, { heights, buildings } = weekCounts();
   return `<div class="pad">${osmAccount()}${pendingEdits()}
-  <div class="card list" style="margin-top:16px">
+  <h3 class="sec">Your contributions</h3><div class="card list">
     ${row("videos", icons.video, "Recorded videos", "Loading…", "vidSub")}
     ${row("outlines", icons.scan, "Scanned outlines", boxes ? `${plural(boxes, "missing building")} to check` : "None yet")}
-    ${row("training", icons.layers, "Training pictures", "Check pictures saved for the AI")}
     ${row("edits", icons.list, "My edits", heights || buildings ? `This week: ${plural(heights, "height")}, ${plural(buildings, "building")}` : "Nothing added this week")}
+    </div><h3 class="sec">Mapping preferences</h3><div class="card list">
     ${row("scanSettings", icons.settings, "Scan options", getSettings().outline === "roof" ? "Roof shape outlines" : "Rectangle outlines")}
+    ${row("training", icons.layers, "Training pictures", "Check pictures saved for the AI")}
+    </div><h3 class="sec">Learn and get help</h3><div class="card list">
     ${row("fixGuide", icons.scan, "Fixing outlines", "Triangles, shortcuts and finger gestures")}
     ${row("help", icons.help, "How to use Mamping", "Filming tips and a quick tour")}</div></div>`;
 }
 
 // Fills in how many videos you have and how many still need the AI.
 async function countVideos(el) {
-  await loadContribs();
-  const mine = state.contribs.filter(c => c.blob || c.videoDeleted), waiting = mine.filter(c => c.blob).length;
+  let mine;
+  try { mine = (await allClips()).filter(c => (c.blob || c.videoDeleted) && !c.fromDrive); }
+  catch { const sub = el.querySelector("#vidSub"); if (sub) sub.textContent = "Device storage unavailable"; return; }
+  const waiting = mine.filter(c => c.blob).length;
   const sub = el.querySelector("#vidSub");
   if (sub) sub.textContent = mine.length ? plural(mine.length, "video") + (waiting ? ` · ${waiting} not checked by AI` : "") : "None yet";
 }

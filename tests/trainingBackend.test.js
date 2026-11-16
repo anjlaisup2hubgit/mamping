@@ -64,7 +64,7 @@ test("activation requires separate geographic evaluation and supports rollback",
     await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(path.join(dir, "best.pt"), "fixture weights");
     await fs.writeFile(path.join(dir, "best.onnx"), "fixture ONNX; actual export is tested separately");
-    return { version, score: .6, baselineScore: .5, artifacts: { weights: `models/${version}/best.pt`, onnx: `models/${version}/best.onnx` },
+    return { version, score: .6, baselineScore: .5, artifacts: { weights: path.join("models", version, "best.pt"), onnx: path.join("models", version, "best.onnx") },
       evaluation: { trainNames: ["area-a"], validationNames: ["area-b"], trainGroups: ["20:106"], validationGroups: ["21:106"] } };
   };
   const first = await candidate("first");

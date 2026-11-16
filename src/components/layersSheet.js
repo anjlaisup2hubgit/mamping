@@ -21,9 +21,9 @@ export function showLayers() {
   openSheet(`<h2>Map layers</h2>
     <div class="bases">${card("street", "Street map", TILE_URL)}${card("satellite", "Satellite", SATELLITE_TILE_URL)}</div>
     ${street ? `<button class="opt" id="bToggle">Building outlines <b>${buildingsVisible() ? "On" : "Off"}</b></button>
-    <button class="opt" id="nhToggle"><span>Show buildings missing a height <span class="mid" style="display:block;font-size:13px">Shown in blue, so you know what to film next</span></span><b>${state.needsHeight ? "On" : "Off"}</b></button>`
+    <button class="opt" id="nhToggle"><span>Highlight missing details <span class="mid" style="display:block;font-size:13px">Amber outlines need a height or floor count; green outlines have details</span></span><b>${state.needsHeight ? "On" : "Off"}</b></button>`
     : `<p class="mid" style="margin:0">Building outlines show on the street map only.</p>`}`);
-  document.querySelectorAll("[data-base]").forEach(b => { b.onclick = () => { setBaseLayer(b.dataset.base); showLayers(); }; });
+  document.querySelectorAll("#bsheet [data-base]").forEach(b => { b.onclick = () => { setBaseLayer(b.dataset.base); showLayers(); }; });
   if (!street) return;
   $("#bToggle").onclick = () => { setBuildingsVisible(!buildingsVisible()); showLayers(); };
   // the filter is useless with outlines hidden, so turning it on also shows them
