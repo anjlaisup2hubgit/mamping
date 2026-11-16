@@ -176,7 +176,7 @@ export function fitEditingView(coords, glide = false) {
     Math.max(0, size.y - availableHeight + Math.min(128, availableHeight - 40)));
   const snap = map.options.zoomSnap;
   map.options.zoomSnap = 0; // Whole zoom levels can make short-screen handles overlap unnecessarily.
-  const zoom = Math.min(MAX_ZOOM, map.getBoundsZoom(bounds, false, padding)); // small roofs fill the free space so their edges are easy to see
+  const zoom = Math.min(21, map.getBoundsZoom(bounds, false, padding)); // close enough to see edges; any closer and the photo is too blurry to edit
   const roof = map.project(bounds.getCenter(), zoom);
   const desired = L.point((left + right) / 2 - rect.left, (top + bottom) / 2 - rect.top + 6);
   const centre = map.unproject(roof.subtract(desired.subtract(size.divideBy(2))), zoom);
