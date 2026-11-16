@@ -27,13 +27,8 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
       await expect(page.locator("#panelToggle")).toHaveAttribute("aria-expanded", "false");
       await expect(page.locator("#navCam")).toBeHidden();
       await expect(page.locator("#q")).toBeVisible();
-      await page.locator("#zoomIn").click();
-      await page.locator("#zoomOut").click();
       await page.locator("#panelToggle").click();
       await expect(page.locator("#navCam")).toBeVisible();
-    } else {
-      await page.locator("#zoomIn").click();
-      await page.locator("#zoomOut").click();
     }
     await page.locator('[data-base="satellite"]').click();
     await expect(page.locator('[data-base="satellite"]')).toHaveAttribute("aria-pressed", "true");

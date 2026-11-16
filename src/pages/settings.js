@@ -27,7 +27,7 @@ function page() {
     ${row("training", icons.layers, "Training pictures", "Check pictures saved for the AI")}
     </div><h3 class="sec">Learn and get help</h3><div class="card list">
     ${row("fixGuide", icons.scan, "Fixing outlines", "Triangles, shortcuts and finger gestures")}
-    ${row("help", icons.help, "How to use Mamping", "Filming tips and a quick tour")}</div></div>`;
+    ${row("help", icons.book, "Guide", "Filming tips and a quick tour")}</div></div>`;
 }
 
 // Fills in how many videos you have and how many still need the AI.

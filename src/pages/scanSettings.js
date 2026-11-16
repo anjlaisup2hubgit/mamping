@@ -8,7 +8,7 @@ export const scanSettings = {
   open(el) {
     const draw = () => {
       el.classList.add("hasWorkspaceNav");
-      el.innerHTML = header("Scan options") + `<div class="pad scroll">${aiSettings()}</div>` + bottomNav("scanSettings");
+      el.innerHTML = header("Scan options") + bottomNav("scanSettings") + `<div class="pad scroll">${aiSettings()}</div>`;
       bindNav(el);
       bindBack(el, "settings");
       bindAiSettings(el);

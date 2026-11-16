@@ -18,7 +18,7 @@ export async function go(name, arg) {
   current.open(el, arg);
   if (["edits", "videos", "help", "settings", "outlines", "fixGuide"].includes(name)) {
     el.classList.add("hasWorkspaceNav");
-    el.insertAdjacentHTML("beforeend", bottomNav(name));
+    el.querySelector(".head").insertAdjacentHTML("afterend", bottomNav(name));
     bindNav(el);
   }
 }
