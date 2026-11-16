@@ -5,24 +5,25 @@ body[data-page=map] #map{inset:0;background:#e3f0fd}
 .masthead>*{pointer-events:auto}
 .searchSlot{flex:0 1 50%;min-width:0;max-width:260px;position:relative;z-index:1}
 .searchSlot .search{position:relative;display:flex;flex-direction:column;left:auto;bottom:auto;transform:none;width:100%}
-.masthead .searchSlot .search input{height:52px;min-height:52px;border:1px solid #fff;border-radius:999px;padding:10px 18px 10px 48px;font-size:16px;background:var(--glass);box-shadow:var(--float);backdrop-filter:blur(14px);color:#14305c}
+.masthead .searchSlot .search input{height:40px;min-height:40px;border:1px solid #fff;border-radius:999px;padding:10px 18px 10px 48px;font-size:16px;background:var(--glass);box-shadow:var(--float);backdrop-filter:blur(14px);color:#14305c}
 .searchSlot .results{position:absolute;top:100%;width:100%;margin:8px 0 0;box-shadow:var(--float);max-height:40dvh;border-radius:20px;background:#fff}
 .results button{font-size:13px;min-height:44px}
-.searchIcon{position:absolute;top:15px;left:18px;z-index:1;pointer-events:none;width:22px;height:22px}
+.searchIcon{position:absolute;top:10px;left:16px;z-index:1;pointer-events:none;width:20px;height:20px}
 .searchIcon svg{width:100%;height:100%;fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round}
 .profileSlot{display:flex}
-.profileButton,.masthead .account{position:static;width:54px;height:54px;display:flex;align-items:center;justify-content:center;border:3px solid #fff;border-radius:50%;padding:0;background:linear-gradient(#e6f1ff,#9ccbf8);color:#14305c;font:600 22px var(--display);box-shadow:0 0 0 3px #6cb6ff,var(--float)}
-.profileButton svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round}
-.mapToolbar{position:absolute;top:calc(var(--map-top) + 14px);left:16px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px;border:1px solid #fff;border-radius:28px;background:var(--glass);box-shadow:var(--float);backdrop-filter:blur(14px);z-index:700}
-.mapToolbar button{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:0;border-radius:50%;background:transparent;color:#14305c;padding:0}
-.mapToolbar svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.6}
-.baseToggle{display:flex;flex-direction:column;gap:6px;padding:0 0 6px;border-bottom:1px solid #d5e5f8}
-.baseToggle button{border-radius:12px;overflow:hidden;border:2px solid #fff;box-shadow:0 1px 4px #14305c22}
+.profileButton,.masthead .account{position:static;width:42px;height:42px;display:flex;align-items:center;justify-content:center;border:2px solid #fff;border-radius:50%;padding:0;background:linear-gradient(#e6f1ff,#9ccbf8);color:#14305c;font:600 18px var(--display);box-shadow:0 0 0 2px #6cb6ff,var(--float)}
+.profileButton svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round}
+.mapToolbar{position:absolute;top:calc(var(--map-top) + 14px);left:16px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;border:1px solid #fff;border-radius:22px;background:var(--glass);box-shadow:var(--float);backdrop-filter:blur(14px);z-index:700}
+.mapToolbar button{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:0;border-radius:50%;background:transparent;color:#14305c;padding:0}
+.mapToolbar svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.6}
+.baseToggle{display:flex;flex-direction:column;gap:4px;padding:0 0 4px;border-bottom:1px solid #d5e5f8}
+.mapToolbar .mapLocate{height:44px}
+.mapToolbar .baseToggle button{height:54px;border-radius:14px;overflow:hidden;border:2px solid #fff;box-shadow:0 1px 4px #14305c22}
 .baseToggle img{width:100%;height:100%;object-fit:cover;border-radius:10px;background:#d5e5f8}
 .baseToggle button.on{border-color:#2f7df0;box-shadow:0 0 0 2px #6cb6ff}
 .lrow .onOff{color:var(--acc);font-family:var(--display)}
-.findMissing{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + 26px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:8px;min-height:48px;padding:0 22px;border:2px solid #fff;border-radius:999px;background:var(--sun);color:#14305c;font:500 16px var(--display);box-shadow:var(--float);z-index:700}
-.findMissing svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7}
+.findMissing{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + 26px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:8px;min-height:38px;padding:0 16px;border:2px solid #fff;border-radius:999px;background:var(--sun);color:#14305c;font:500 15px var(--display);box-shadow:var(--float);z-index:700}
+.findMissing svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7}
 .findMissing.busy svg{animation:pulse 1s ease-in-out infinite}
 body[data-page=map] .leaflet-bottom.leaflet-right{top:auto;bottom:0}
 .leaflet-control-attribution{background:#ffffffb0;color:var(--mid)}

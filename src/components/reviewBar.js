@@ -14,7 +14,7 @@ import { validatePolygon } from "../data/geometry.js";
 import { validateBuildingTags } from "../data/buildingTags.js";
 import { undoShape } from "./cornerEditor.js";
 import { tidy, undoTidy, canUndoTidy } from "./tidyBoxes.js";
-import { currentBoxes, removeBoxes, restoreBoxes, restyle, saveBoxes, fixBox, unfocus, drawYourself, scanWithAi, saveForTraining, showSure, hideSure } from "./missingLayer.js";
+import { currentBoxes, removeBoxes, restoreBoxes, restyle, saveBoxes, fixBox, unfocus, drawYourself, scanWithAi, findMissing, saveForTraining, showSure, hideSure } from "./missingLayer.js";
 
 const MODES = { keep: "Review", fix: "Edit", tidy: "Tidy", remove: "Remove" };
 const drawBtn = `<button class="big ghost" id="drawSelf" style="min-height:48px">AI missed one? Draw it yourself</button>`;
@@ -22,8 +22,13 @@ const short = from => from.split(" ")[0]; // "Microsoft ML Buildings" -> "Micros
 const sourceOf = list => [...new Set(list.map(b => b.from).filter(Boolean)), "Esri World Imagery"].join("; ");
 let mode = "keep", chips = null, dragReady = false, selecting = false, undo = []; // undo = the boxes the last remove took off
 
-// A box on the map was tapped.
-export function tapBox(b) {
+let picked = new Set(); // boxes chosen with shift+click
+const pick = b => { b.picked = !b.picked; if (b.picked) picked.add(b); else picked.delete(b); };
+const clearPicked = () => { picked.forEach(b => { b.picked = false; }); picked = new Set(); restyle(); };
+
+// A box on the map was tapped. shift = Shift was held: add it to (or take it out of) the selection.
+export function tapBox(b, shift = false) {
+  if (shift) { pick(b); restyle(); return showReview(); }
   if (!chips) return showReview(); // the first tap only opens the review, it changes nothing
   if (selecting) return; // in Select, the drag already did it
   if (mode === "fix") return fixBox(b);
@@ -32,6 +37,16 @@ export function tapBox(b) {
 }
 
 export const isReviewing = () => !!chips;
+
+// The Edits button: opens the editing tools for the found buildings, or asks how to start if there are none yet.
+export function startEditing() {
+  if (currentBoxes().length) return showReview();
+  openSheet(`<div><h2>Edit buildings</h2><p class="mid" style="margin:4px 0 0">Let the AI find missing roofs, or draw one yourself.</p></div>
+    <button class="primary big" id="startFind" style="min-height:44px">Find missing</button>
+    <button class="big ghost" id="startDraw" style="min-height:44px">Draw outline</button>`);
+  $("#startFind").onclick = () => { closeSheet(); findMissing(); };
+  $("#startDraw").onclick = drawYourself;
+}
 
 // Fix-bar "Remove": takes one box off the map; "Undo remove" brings it back.
 export function dropOne(b) { undo = [b]; removeBoxes([b]); showReview(); }
@@ -62,6 +77,7 @@ export function stopReview() {
   if (chips) chips.remove();
   chips = null;
   mode = "keep";
+  clearPicked();
   setSelecting(false);
   hideSure();
   unfocus();
@@ -141,18 +157,31 @@ export function showReview() {
   unfocus();
   showChips();
   const kept = boxes.filter(b => b.keep && b.reviewed), unreviewed = boxes.filter(b => b.keep && !b.reviewed), ready = boxes.some(b => b.from);
-  openSheet(`<span class="rcount editorReviewCounts"><b>${unreviewed.length}</b> unreviewed · <b class="kept">${kept.length}</b> checked · <b>${boxes.filter(b => !b.keep).length}</b> dropped</span>
+  picked = new Set([...picked].filter(b => boxes.includes(b))); // removed boxes leave the selection
+  const sel = [...picked];
+  openSheet(`${sel.length ? `<div class="rwide pickedRow"><b>${sel.length} selected</b>
+      <button class="ghost pill" id="pSquare">Square</button><button class="ghost pill" id="pCheck">Check</button>
+      <button class="ghost pill" id="pRemove">Remove</button><button class="ghost pill" id="pClear">Clear</button></div>` : ""}
+    <span class="rcount editorReviewCounts"><b>${unreviewed.length}</b> unreviewed · <b class="kept">${kept.length}</b> checked · <b>${boxes.filter(b => !b.keep).length}</b> dropped</span>
     <button class="ghost pill" id="reviewNext">${unreviewed.length ? "Review next" : "Review buildings"}</button>
     ${undo.length ? `<button class="ghost pill" id="undoRm">Undo remove</button>` : ""}
-    ${canUndoTidy() ? `<button class="ghost pill" id="undoTidy">Undo tidy</button>` : ""}
+    ${canUndoTidy() ? `<button class="ghost pill" id="undoTidy">Undo square</button>` : `<button class="ghost pill" id="squareAll">Square all</button>`}
+    <button class="ghost pill" id="drawSelf">Draw outline</button>
     <button class="ghost pill" id="moreB" aria-expanded="false">More</button>
     <button class="primary pill" id="addKept"${kept.length ? "" : " disabled"}>Add ${kept.length} checked</button>
     <div id="confirmWrap" class="rwide" hidden><p class="reviewSummary">Send ${kept.length} checked building${kept.length === 1 ? "" : "s"}; ${unreviewed.length} unreviewed remain here.</p>${osmConfirm()}</div>
-    <div id="moreMenu" class="moreMenu rwide" hidden>${ready ? `<button class="big ghost" id="aiScan" style="min-height:48px">Scan with our AI instead</button>` : ""}${drawBtn}
+    <div id="moreMenu" class="moreMenu rwide" hidden>${ready ? `<button class="big ghost" id="aiScan" style="min-height:48px">Scan with our AI instead</button>` : ""}
       <button class="big ghost" id="tidyChecked" style="min-height:48px"${kept.length ? "" : " disabled"}>Tidy checked outlines (with undo)</button>
       <button class="big ghost" id="saveTrain" style="min-height:48px">Save checked ones for AI training</button></div>`, true);
   $("#reviewNext").onclick = () => fixBox(unreviewed[0] || boxes.find(b => b.keep) || boxes[0]);
   if ($("#undoTidy")) $("#undoTidy").onclick = () => { undoTidy(); showReview(); };
+  if (sel.length) { // one action for every shift+clicked box, then the selection clears
+    $("#pSquare").onclick = () => { clearPicked(); tidyThen(sel); };
+    $("#pCheck").onclick = () => { clearPicked(); mode = "keep"; apply(sel); };
+    $("#pRemove").onclick = () => { clearPicked(); undo = sel; removeBoxes(sel); showReview(); };
+    $("#pClear").onclick = () => { clearPicked(); showReview(); };
+  }
+  if ($("#squareAll")) $("#squareAll").onclick = () => tidyThen(boxes.filter(b => b.keep)); // every kept outline at once
   $("#tidyChecked").onclick = () => tidyThen(kept);
   $("#bsheet .x").onclick = () => { closeSheet(); stopReview(); };
   if ($("#undoRm")) $("#undoRm").onclick = () => { restoreBoxes(undo); undo = []; showReview(); };

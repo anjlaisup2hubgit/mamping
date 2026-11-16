@@ -4,11 +4,11 @@ import { state } from "../data/state.js";
 import { mid } from "../data/geo.js";
 import { loadRoads, roadsNow, roadReach } from "../data/roads.js";
 import { wallAngle, rectFrom2, rectFrom3 } from "../data/rectangle.js";
+import { sizeText } from "../data/shapeMoves.js";
 import { pickStreet } from "./streetPicker.js";
 import { $ } from "./dom.js";
 import { map, currentBase, setBaseLayer } from "./mapView.js";
 import { openSheet, closeSheet } from "./sheet.js";
-import { toast } from "./toast.js";
 
 let pts = [], drawn = null, onDone = null;
 
@@ -22,14 +22,29 @@ function shape() {
   return pts;
 }
 
+// What to do next, in a few words, for each number of taps.
+function hint() {
+  const n = pts.length, size = n > 1 ? ` · ${sizeText(shape())}` : "";
+  if (n === 0) return ["Tap a roof corner", "Zoom in so the roof fills the screen."];
+  if (n === 1) return ["Tap the opposite corner", "Diagonally across the roof."];
+  if (n === 2) return [`Rectangle${size}`, "Done, or tap a 3rd corner to tilt it."];
+  if (n === 3) return [`Tilted rectangle${size}`, "Done, or keep tapping every corner."];
+  return [`${n} corners${size}`, "Done once you have gone all the way round."];
+}
+
 function redraw() {
   drawn.clearLayers();
   const out = shape();
-  L.polygon(out, { color: "#E8470F", weight: 3, fillColor: "#E8470F", fillOpacity: 0.25 }).addTo(drawn); // closes the shape so you see the finished outline
+  if (out.length) L.polygon(out, { color: "#E8470F", weight: 3, fillColor: "#E8470F", fillOpacity: 0.25 }).addTo(drawn); // closes the shape so you see the finished outline
   out.forEach(p => L.circleMarker(p, { radius: 5, color: "#222", weight: 2, fillColor: "#fff", fillOpacity: 1 }).addTo(drawn)); // white = filled in for you
   pts.forEach(p => L.circleMarker(p, { radius: 7, color: "#fff", weight: 3, fillColor: "#E8470F", fillOpacity: 1 }).addTo(drawn)); // orange = you tapped
+  const [title, next] = hint();
+  $("#drTitle").textContent = title;
+  $("#drNext").textContent = next;
+  $("#drBack").disabled = !pts.length;
+  $("#drDone").disabled = pts.length < 2;
 }
-const addPoint = e => { pts.push([e.latlng.lat, e.latlng.lng]); redraw(); };
+const addPoint = e => { if (state.picking) return; pts.push([e.latlng.lat, e.latlng.lng]); redraw(); };
 
 export function stopDrawing() {
   map.off("click", addPoint);
@@ -37,10 +52,11 @@ export function stopDrawing() {
   drawn = null;
   state.drawing = false;
   map.getContainer().classList.remove("drawing");
+  document.body.classList.remove("drawingOutline");
+  $("#bsheet").classList.remove("drawSheet");
 }
 
 function finish() {
-  if (pts.length < 2) return toast("Tap at least 2 corners.");
   const corners = shape();
   stopDrawing();
   closeSheet();
@@ -52,18 +68,22 @@ export function startDrawing(done) {
   stopDrawing();
   pts = []; onDone = done;
   if (currentBase() !== "satellite") setBaseLayer("satellite"); // roofs are easiest to see from above
+  if (map.getZoom() < 19) map.setZoom(Math.min(19, map.getMaxZoom())); // corners are hard to hit on tiny roofs
   drawn = L.layerGroup().addTo(map);
   state.drawing = true;
   map.getContainer().classList.add("drawing");
-  map.on("click", addPoint);
+  document.body.classList.add("drawingOutline"); // hides the search and map buttons so the whole roof can be tapped
   const c = map.getCenter();
   loadRoads(c.lat, c.lng).then(() => { if (drawn && pts.length === 2) redraw(); }); // no roads: walls follow buildings or north
-  openSheet(`<div><h2>Draw a building</h2><p class="mid" style="margin:4px 0 0">Tap 2 opposite corners for a rectangle, 3 for a tilted one (two along a wall, one on the far wall), or every corner, going round in order.</p></div>
-    <div class="row"><button class="big ghost" id="drStreet" style="min-height:48px">Pick street</button><button class="big ghost" id="drBack" style="min-height:48px">Undo corner</button><button class="big primary" id="drDone" style="min-height:48px">Done</button></div>`);
-  $("#drStreet").onclick = () => { map.off("click", addPoint); pickStreet(() => { map.on("click", addPoint); redraw(); }); }; // the street tap must not add a corner
+  openSheet(`<div class="drHint"><b id="drTitle"></b><span id="drNext"></span></div>
+    <div class="drTools"><button class="ghost" id="drBack">↶ Undo</button><button class="ghost" id="drStreet">Street</button><button class="primary" id="drDone">✓ Done</button></div>`);
+  $("#bsheet").classList.add("drawSheet");
+  $("#drStreet").onclick = () => pickStreet(() => { if (drawn) redraw(); }); // while picking, the street tap does not add a corner
   $("#drBack").onclick = () => { pts.pop(); redraw(); };
   $("#drDone").onclick = finish;
   $("#bsheet .x").addEventListener("click", stopDrawing); // closing the panel cancels drawing
+  map.on("click", addPoint);
+  redraw();
 }
 
 document.addEventListener("keydown", e => { if (e.key === "Escape" && state.drawing) stopDrawing(); });

@@ -148,7 +148,7 @@ export function fitEditingView(coords) {
   let bottom = Math.min(rect.bottom, (view?.offsetTop || 0) + (view?.height || innerHeight)) - 16;
   const sheet = document.querySelector("#bsheet.editorSheet.on")?.getBoundingClientRect();
   if (sheet) {
-    if (innerWidth >= 700) right = Math.min(right, sheet.left - 16);
+    if (innerWidth >= 700) { right = Math.min(right, sheet.left - 16); left = Math.max(left, right - 480); } // keep the roof close to the panel's buttons
     else bottom = Math.min(bottom, sheet.top - 12);
   }
   const progress = document.querySelector(".scanProgress")?.getBoundingClientRect();
@@ -160,7 +160,7 @@ export function fitEditingView(coords) {
     Math.max(0, size.y - availableHeight + Math.min(128, availableHeight - 40)));
   const snap = map.options.zoomSnap;
   map.options.zoomSnap = 0; // Whole zoom levels can make short-screen handles overlap unnecessarily.
-  const zoom = Math.min(map.getZoom(), map.getBoundsZoom(bounds, false, padding));
+  const zoom = Math.min(20.5, map.getBoundsZoom(bounds, false, padding)); // zoom in close, but not so far the photo turns to mush
   const roof = map.project(bounds.getCenter(), zoom);
   const desired = L.point((left + right) / 2 - rect.left, (top + bottom) / 2 - rect.top + 6);
   const centre = map.unproject(roof.subtract(desired.subtract(size.divideBy(2))), zoom);

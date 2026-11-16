@@ -2,7 +2,7 @@
 // (Microsoft's and Google's AI, instant and free), and if there are none, by asking our AI to read satellite pictures.
 import { state } from "../data/state.js";
 import { mid, inside, dist } from "../data/geo.js";
-import { map } from "./mapView.js";
+import { map, currentBase, setBaseLayer } from "./mapView.js";
 import { refreshStyles } from "./buildingLayer.js";
 import { showSuggestion } from "./suggestSheet.js";
 import { tapBox, doubleTapBox } from "./reviewBar.js";
@@ -36,7 +36,8 @@ const CHECKED = { ...STYLE, color: "#2E9E5B", fillColor: "#2E9E5B" };
 const PICKED = { className: "box", color: "#FFD166", weight: 1.5, dashArray: null, fillColor: "#FFD166", fillOpacity: 0.08 }; // the one being looked at
 const DROPPED = { className: "box", color: "#fff", weight: 1.5, dashArray: "4 4", fillColor: "#fff", fillOpacity: 0 }; // double tapped: not a roof
 let focused = null, tip = null;
-const styleOf = o => o === focused ? PICKED : !o.keep ? DROPPED : o.reviewed ? CHECKED : STYLE;
+const SELECTED = { ...PICKED, weight: 3, fillOpacity: 0.35 }; // shift+clicked, waiting for one action on all of them
+const styleOf = o => o === focused ? PICKED : o.picked ? SELECTED : !o.keep ? DROPPED : o.reviewed ? CHECKED : STYLE;
 export const restyle = () => boxes.forEach(o => o.shape && o.shape.setStyle(styleOf(o)));
 
 // The small label on a tapped box saying how sure the AI is that it is a roof.
@@ -54,12 +55,13 @@ const leaveFix = () => { hideSure(); if (focused && !state.drawing && !state.pic
 function drawBox(b) {
   if (!layer) { layer = L.layerGroup().addTo(map); map.on("click", leaveFix); }
   b.shape = L.polygon(b.coords, styleOf(b)).addTo(layer)
-    .on("click", e => { if (state.drawing) return; L.DomEvent.stopPropagation(e); tapBox(b); })
+    .on("click", e => { if (state.drawing) return; L.DomEvent.stopPropagation(e); tapBox(b, e.originalEvent.shiftKey); })
     .on("dblclick", e => { if (state.drawing) return; L.DomEvent.stopPropagation(e); doubleTapBox(b); }); // stopped, so the map does not zoom
 }
 
 // "Fix shape": the box turns yellow with corner handles, and its own panel opens.
 export function fixBox(b) {
+  if (currentBase() !== "satellite") setBaseLayer("satellite"); // roofs are easiest to fit on the photo
   state.selectedId = null;
   refreshStyles();
   focusBox(b);

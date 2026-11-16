@@ -1,0 +1,11 @@
+/* Drawing a building: only the map and one small card at the bottom, so every roof can be tapped. */
+body.drawingOutline .masthead,body.drawingOutline .mapToolbar,body.drawingOutline .modeChips,body.drawingOutline .findMissing,body.drawingOutline .workspaceNav{display:none}
+#bsheet.drawSheet{left:50%;right:auto;transform:translateX(-50%);width:min(420px,calc(100% - 24px));bottom:max(12px,env(safe-area-inset-bottom));padding:14px 14px 12px;gap:10px;border-radius:24px;max-height:none}
+.drHint{display:flex;flex-direction:column;gap:2px;padding-right:36px}
+.drHint b{font:600 17px var(--display);color:#14305c}
+.drHint span{font-size:13px;color:var(--mid)}
+.drTools{display:flex;gap:8px}
+.drTools button{flex:1;min-height:48px;border-radius:999px;font:500 15px var(--display)}
+.drTools #drDone{flex:1.4}
+.drTools button:disabled{opacity:.4;pointer-events:none}
+#bsheet.drawSheet .x{top:10px;right:10px}
