@@ -12,6 +12,8 @@ import { loadRoads, roadsNow, roadReach } from "../data/roads.js";
 import { showBubble, hideBubble } from "./zoomBubble.js";
 import { toast } from "./toast.js";
 import { watchGestures, stopGestures } from "./fixGestures.js";
+import { snapToEdges } from "../data/edgeSnap.js";
+import { roofPhoto } from "../data/roofPhoto.js";
 
 let dots = [], current = null, past = [], future = [], onChange = null, lastTap = { i: -1, at: 0 }, watcher = null;
 
@@ -160,6 +162,21 @@ export async function lineUpShape() {
   remember();
   show(lineUp(current.coords, wallAngle(current.center, roadsNow(), [], roadReach())));
   done();
+}
+
+// Slides each wall onto the roof edge in the satellite photo. Can be undone.
+export async function snapShape() {
+  if (!current) return;
+  const building = current;
+  let colourAt;
+  try { colourAt = await roofPhoto(building.center); } catch (e) { return toast("Could not load the satellite photo."); }
+  if (current !== building) return;
+  const { coords, moved } = snapToEdges(current.coords, colourAt);
+  if (!moved) return toast("No clearer roof edge nearby.");
+  remember();
+  show(coords);
+  done();
+  toast(`Moved ${moved} wall${moved === 1 ? "" : "s"} onto the roof edge.`);
 }
 
 // Goes back one change. Returns false if there is nothing to undo.

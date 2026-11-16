@@ -7,6 +7,7 @@ export const editIcons = {
   redo: svg('<path d="M15 7l4.5 4.5L15 16"/><path d="M19 11.5h-9a5 5 0 000 10h2"/>'),
   checkNext: svg('<path d="M3.5 12.5l4 4 8-9"/><path d="M15 16.5h5.5M18 14l2.5 2.5L18 19"/>'),
   lineUp: svg('<path d="M3 20h18"/><rect x="6" y="7" width="10" height="9" rx="1"/><path d="M11 3v3M9.5 4.5L11 3l1.5 1.5"/>'),
+  snap: svg('<rect x="7" y="7" width="10" height="10" rx="1"/><path d="M3 7h2M3 17h2M19 7h2M19 17h2M7 3v2M17 3v2M7 19v2M17 19v2"/>'),
   street: svg('<path d="M8 21L10 3M16 21L14 3"/><path d="M12 6v2.5M12 12v2.5M12 18v2"/>'),
   turnLeft: svg('<path d="M4 4v5h5"/><path d="M4.5 9A8 8 0 1112 20"/>'),
   turnRight: svg('<path d="M20 4v5h-5"/><path d="M19.5 9A8 8 0 1012 20"/>'),

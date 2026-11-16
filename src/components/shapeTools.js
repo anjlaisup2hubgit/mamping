@@ -13,7 +13,7 @@ import { sizeText } from "../data/shapeMoves.js";
 const tool = (act, title, icon, key) => `<button data-act="${act}" aria-label="${title}" data-tip="${key ? `${title} (${key})` : title}">${icon}<span>${title}</span></button>`;
 const railHtml = `<div class="railGrip" title="Drag to move · double-click to put back">${i.grip}</div>
   ${tool("select", "Select", i.select)}<hr>
-  ${tool("rect", "Square", i.square, "Q")}${tool("line", "Line up", i.lineUp, "A")}${tool("street", "Street", i.street, "S")}
+  ${tool("rect", "Square", i.square, "Q")}${tool("line", "Line up", i.lineUp, "A")}${tool("street", "Street", i.street, "S")}${tool("snap", "Snap to roof", i.snap, "E")}
   ${tool("turnL", "Turn left", i.turnLeft, "Shift+R")}${tool("turnR", "Turn right", i.turnRight, "R")}${tool("copy", "Copy", i.copy, "Ctrl+D")}
   <hr>${tool("undo", "Undo", i.undo, "Ctrl+Z")}${tool("redo", "Redo", i.redo, "Ctrl+Y")}`;
 const switchHtml = `<button data-act="prev" aria-label="Previous building">${i.prev}</button>

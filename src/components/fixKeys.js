@@ -8,7 +8,7 @@ import { toggleHelp } from "./keyHelp.js";
 import { closeSheet } from "./sheet.js";
 import { state } from "../data/state.js";
 
-const LETTERS = { q: "rect", a: "line", s: "street", c: "copy" };
+const LETTERS = { q: "rect", a: "line", s: "street", e: "snap", c: "copy" };
 const ARROWS = { ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
 
 window.addEventListener("keydown", e => {

@@ -1,5 +1,5 @@
 // Every action for the box being fixed, in one place. The buttons (shapeTools.js) and the keys (fixKeys.js) both call doFix(name).
-import { squareShape, lineUpShape, undoShape, redoShape, turnBy } from "./cornerEditor.js";
+import { squareShape, lineUpShape, snapShape, undoShape, redoShape, turnBy } from "./cornerEditor.js";
 import { focusedBox, boxPosition, fixAt, addBox, unfocus, restyle, saveBoxes } from "./missingLayer.js";
 import { dropOne } from "./reviewBar.js";
 import { startCopying } from "./copyShape.js";
@@ -15,6 +15,7 @@ export function doFix(name, again = false) {
   const { i } = boxPosition();
   if (name === "rect") squareShape();
   else if (name === "line") lineUpShape();
+  else if (name === "snap") snapShape();
   else if (name === "street") pickStreet(lineUpShape);
   else if (name === "turnL") turnBy(1, again);
   else if (name === "turnR") turnBy(-1, again);
