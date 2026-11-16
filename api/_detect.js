@@ -2,7 +2,7 @@
 import { spawn } from "node:child_process";
 import { at, localOnly } from "./_trainingFiles.js";
 import { pythonPath, capabilities } from "./_trainingRuntime.js";
-import { modelRegistry, usableModel } from "./models.js";
+import { modelRegistry, usableModel } from "./_models.js";
 import { forwardTraining } from "./_trainingProxy.js";
 
 let line = Promise.resolve();
@@ -46,3 +46,4 @@ export default async function handler(req, res) {
     if (!res.writableEnded) res.json({ ...result, model: { version: model.version, score: model.score } });
   } catch (e) { if (!res.writableEnded) res.status(503).json({ error: e.message, code: "TRAINED_DETECTOR_FAILED" }); }
 }
+

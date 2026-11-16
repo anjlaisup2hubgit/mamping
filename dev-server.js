@@ -13,8 +13,7 @@ http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
 
   if (url.pathname.startsWith("/api/")) {
-    const file = path.resolve("api", url.pathname.slice(5) + ".js");
-    if (!fs.existsSync(file) || path.basename(file).startsWith("_")) { res.statusCode = 404; return res.end(); }
+    const file = path.resolve("api", "[route].js");
     let raw = "";
     for await (const chunk of req) raw += chunk;
     try { req.body = raw ? JSON.parse(raw) : undefined; } catch { req.body = raw; }

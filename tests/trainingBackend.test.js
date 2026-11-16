@@ -8,7 +8,7 @@ import { modules } from "./helpers/modules.js";
 async function setup(t, entry, available = true) {
   const folder = await fs.mkdtemp(path.join(os.tmpdir(), "mamping-api-test-"));
   t.after(() => fs.rm(folder, { recursive: true, force: true }));
-  const { exports } = await modules(new URL(`../api/${entry}.js`, import.meta.url), {
+  const { exports } = await modules(new URL(`../api/_${entry}.js`, import.meta.url), {
     globals: { process: { env: { TRAINING_DATA_DIR: folder }, pid: process.pid }, Buffer, URL, AbortController },
     mocks: { [new URL("../api/_trainingRuntime.js", import.meta.url).href]: {
       capabilities: async () => ({ available, localOnly: true, missing: available ? [] : ["Python training packages"], error: available ? undefined : "Install the training tools." }),

@@ -80,7 +80,7 @@ test("cancelled and timed-out requests are distinguished", async () => {
 
 async function outline(askJSON, body = { image: "picture" }, hooks = {}) {
   const context = createContext({ AbortController, AbortSignal });
-  const code = await readFile(new URL("../api/outline.js", import.meta.url), "utf8");
+  const code = await readFile(new URL("../api/_outline.js", import.meta.url), "utf8");
   const module = new SourceTextModule(code, { context });
   await module.link(() => new SyntheticModule(["askJSON", "okImages"], function () {
     this.setExport("askJSON", askJSON);

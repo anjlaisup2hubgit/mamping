@@ -87,3 +87,7 @@ mapping/
 │   └── _claude.js                    Shared code for talking to the smart helper.
 └── design/         Pictures of how each screen should look.
 ```
+
+## Deployment
+
+Vercel deploys `api/[route].js` as one function for all existing `/api/...` URLs. The underscore-prefixed API files are imported handlers, so they do not consume separate function slots on the Hobby plan. The local development server uses the same router; the persistent training worker imports its handlers directly.

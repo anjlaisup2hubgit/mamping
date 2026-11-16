@@ -1,11 +1,11 @@
 // Persistent training service for a hosted Mamping site. Keep its data directory on a durable volume.
 import http from "node:http";
 import { timingSafeEqual } from "node:crypto";
-import train from "./api/train.js";
-import training from "./api/training.js";
-import models from "./api/models.js";
-import detect from "./api/detect.js";
-import image from "./api/training-image.js";
+import train from "./api/_train.js";
+import training from "./api/_training.js";
+import models from "./api/_models.js";
+import detect from "./api/_detect.js";
+import image from "./api/_training-image.js";
 
 const token = process.env.TRAINING_WORKER_TOKEN;
 if (!token) throw new Error("Set TRAINING_WORKER_TOKEN securely before starting the training worker.");
