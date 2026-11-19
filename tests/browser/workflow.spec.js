@@ -16,7 +16,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 568 
     const coordinates = () => page.evaluate(async () => (await import("/src/components/missingLayer.js")).currentBoxes()[0].coords);
     const original = await coordinates();
     await page.locator(".editorAdvanced summary").click();
-    await page.locator('[data-act="turnR"]').click();
+    await page.keyboard.press("r");
     expect(await coordinates()).not.toEqual(original);
     await page.locator('[data-act="next"]').click();
     await page.locator('[data-act="prev"]').click();
@@ -39,8 +39,8 @@ test("unreviewed suggestions cannot be batch-published and restored scans reques
   await page.evaluate(async () => (await import("/src/components/reviewBar.js")).showReview());
   await expect(page.locator("#addKept")).toBeDisabled();
   await expect(page.locator(".rcount")).toContainText("2 unreviewed");
-  await page.locator("#moreB").click();
-  await page.locator("#aiScan").click();
+  await page.evaluate(async () => (await import("/src/components/shapeTools.js")).showIdleTools());
+  await page.locator('.editRail [data-act="scan"]').click();
   await expect(page.locator("#scanArea")).toBeVisible();
   expect(errors).toEqual([]);
 });

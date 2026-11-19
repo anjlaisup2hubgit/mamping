@@ -46,6 +46,8 @@ function redraw() {
 }
 const addPoint = e => { if (state.picking) return; pts.push([e.latlng.lat, e.latlng.lng]); redraw(); };
 
+export const cornersTapped = () => pts.length;
+
 export function stopDrawing() {
   map.off("click", addPoint);
   if (drawn) drawn.remove();

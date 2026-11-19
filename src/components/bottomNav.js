@@ -12,5 +12,6 @@ export function bindNav(el) {
   // Edits stays on the map and opens the editing tools there; My edits is in Settings.
   // reviewBar is loaded on tap, because loading it with this file starts the editor files in the wrong order.
   const edit = () => go("map").then(() => import("./reviewBar.js")).then(m => m.startEditing());
-  el.querySelectorAll("[data-to]").forEach(b => { b.onclick = () => b.dataset.to === "edits" ? edit() : go(b.dataset.to); });
+  // Only the bottom bar's Edits opens the editor; Settings' "My edits" row (also data-to="edits") opens the My edits page.
+  el.querySelectorAll("[data-to]").forEach(b => { b.onclick = () => b.dataset.to === "edits" && b.closest(".workspaceNav") ? edit() : go(b.dataset.to); });
 }

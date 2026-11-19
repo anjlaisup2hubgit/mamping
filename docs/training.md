@@ -18,9 +18,9 @@ The app checks these tools and displays missing prerequisites. Keep TLS verifica
 
 ## Build a complete dataset
 
-1. Choose an area on the map, scan it, and check/edit the proposed buildings.
-2. Use **More → Save checked ones for AI training**, or save scenes directly from the area picker. Original imagery is saved with combined existing and reviewed missing roofs; empty scenes can also be saved.
-3. Open **Settings → Training pictures**. Label every visible roof, remove false boxes, and use Adjust/Draw/Pan, resize handles, zoom and undo as needed. Edits autosave as drafts; **Keep and next** confirms that the entire scene is reviewed.
+1. Choose an area on the map and scan it.
+2. Check or remove every outline and draw any missed roofs, then tap **Send for training**. Original imagery is saved with combined existing and checked roofs, already marked as reviewed.
+3. To fix a sent picture later, open **Settings → Training pictures**. Label every visible roof, remove false boxes, and use Adjust/Draw/Pan, resize handles, zoom and undo as needed. Edits autosave as drafts; **Keep and next** confirms that the entire scene is reviewed.
 4. Collect positive examples from at least two geographic groups about 1 km apart. Nearby scenes stay together in either training or evaluation. Small datasets are useful for checking the workflow, not for making accuracy claims.
 
 Changed pictures or labels become **Needs review** again. Revision checks prevent an older tab overwriting newer labels. A failed server save leaves a recoverable browser draft and an error message; retry or explicitly recover a conflicting draft before keeping it.

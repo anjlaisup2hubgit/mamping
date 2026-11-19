@@ -112,11 +112,12 @@ function labelsForTraining(ticked = currentBoxes().filter(b => b.keep && b.revie
 }
 
 // Sends the scanned pictures with their checked roofs as finished training pictures (no second review needed).
-export async function saveForTraining(ticked) {
+// auto = called after every outline was checked and sent, so it asks nothing and works quietly.
+export async function saveForTraining(ticked, auto = false) {
   const pictures = readScanSession();
-  if (!pictures.length) return toast("Choose an area first so the original pictures can be saved.");
-  if (!confirm("Is EVERY roof in these pictures marked and checked, including ones the AI missed? Send them for training?")) return;
-  toast("Sending pictures and roofs for training…");
-  try { const n = await saveTrainingSet(pictures, labelsForTraining(ticked), "kept"); toast(`Sent ${n} picture(s) for training.`); }
+  if (!pictures.length) return auto || toast("Choose an area first so the original pictures can be saved.");
+  if (!auto && !confirm("Is EVERY roof in these pictures marked and checked, including ones the AI missed? Send them for training?")) return;
+  if (!auto) toast("Sending pictures and roofs for training…");
+  try { const n = await saveTrainingSet(pictures, labelsForTraining(ticked), "kept"); if (!auto) toast(`Sent ${n} picture(s) for training.`); }
   catch (e) { toast(e.detail || "Could not save training pictures. Check the training service."); }
 }

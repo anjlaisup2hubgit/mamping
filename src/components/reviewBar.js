@@ -5,7 +5,6 @@ import { $ } from "./dom.js";
 import { map } from "./mapView.js";
 import { openSheet, closeSheet } from "./sheet.js";
 import { toast } from "./toast.js";
-import { osmConfirm } from "./osmConfirm.js";
 import { sendChecked } from "./sendChecked.js";
 import { inside } from "../data/geo.js";
 import { validatePolygon } from "../data/geometry.js";
@@ -13,7 +12,8 @@ import { validateBuildingTags } from "../data/buildingTags.js";
 import { undoShape } from "./cornerEditor.js";
 import { showIdleTools } from "./shapeTools.js";
 import { tidy, undoTidy, canUndoTidy } from "./tidyBoxes.js";
-import { currentBoxes, removeBoxes, restoreBoxes, restyle, saveBoxes, fixBox, focusedBox, unfocus, drawYourself, scanWithAi, findMissing, saveForTraining, showSure, hideSure } from "./missingLayer.js";
+import { stopDrawing } from "./drawBuilding.js";
+import { currentBoxes, removeBoxes, restoreBoxes, restyle, saveBoxes, fixBox, focusedBox, unfocus, drawYourself, hideSure } from "./missingLayer.js";
 
 const drawBtn = `<button class="big ghost" id="drawSelf" style="min-height:48px">AI missed one? Draw it yourself</button>`;
 let mode = "fix", chips = null, dragReady = false, selecting = false, undo = []; // undo = the boxes the last remove took off
@@ -34,14 +34,10 @@ export function tapBox(b, shift = false) {
 
 export const isReviewing = () => !!chips;
 
-// The Edits button: opens the editing tools for the found buildings, or asks how to start if there are none yet.
+// The Edits button: opens edit mode ready to draw an outline. AI scan is on the tool rail, and the arrows go through found buildings.
 export function startEditing() {
-  if (currentBoxes().length) { showReview(); return showIdleTools(); }
-  openSheet(`<div><h2>Edit buildings</h2><p class="mid" style="margin:4px 0 0">Let the AI find missing roofs, or draw one yourself.</p></div>
-    <button class="primary big" id="startFind" style="min-height:44px">Find missing</button>
-    <button class="big ghost" id="startDraw" style="min-height:44px">Draw outline</button>`);
-  $("#startFind").onclick = () => { closeSheet(); findMissing(); };
-  $("#startDraw").onclick = drawYourself;
+  showIdleTools();
+  drawYourself();
 }
 
 // Fix-bar "Remove": takes one box off the map; "Undo remove" brings it back.
@@ -135,13 +131,14 @@ export function showNoneFound() {
   $("#drawSelf").onclick = drawYourself;
 }
 
-// The slim bar: counts, Review next, Add (once some are ready), and a More menu for the rest.
+// The slim bar: counts, and Send once some are ready. The arrows at the top go through the buildings.
 export function showReview() {
   const boxes = currentBoxes();
   if (!boxes.length) { stopReview(); return closeSheet(); }
+  stopDrawing();
   unfocus();
   showChips();
-  const kept = boxes.filter(b => b.keep && b.reviewed), unreviewed = boxes.filter(b => b.keep && !b.reviewed), ready = boxes.some(b => b.from);
+  const kept = boxes.filter(b => b.keep && b.reviewed), unreviewed = boxes.filter(b => b.keep && !b.reviewed);
   picked = new Set([...picked].filter(b => boxes.includes(b))); // removed boxes leave the selection
   const sel = [...picked];
   openSheet(`${sel.length ? `<div class="rwide pickedRow"><b>${sel.length} selected</b>
@@ -150,15 +147,7 @@ export function showReview() {
     <span class="rcount editorReviewCounts"><b>${unreviewed.length}</b> to check · <b class="kept">${kept.length}</b> ready</span>
     ${undo.length ? `<button class="ghost pill" id="undoRm">Undo remove</button>` : ""}
     ${canUndoTidy() ? `<button class="ghost pill" id="undoTidy">Undo square</button>` : ""}
-    <button class="${kept.length ? "ghost" : "primary"} pill" id="reviewNext">${unreviewed.length ? "Review next" : "Review"}</button>
-    ${kept.length ? `<button class="primary pill" id="addKept">Send ${kept.length} to OpenStreetMap</button>` : ""}
-    <button class="ghost pill" id="saveTrain">Send for training</button>
-    <button class="ghost pill" id="moreB" aria-expanded="false">More</button>
-    <div id="confirmWrap" class="rwide" hidden><p class="reviewSummary">Send ${kept.length} checked building${kept.length === 1 ? "" : "s"}; ${unreviewed.length} unreviewed remain here.</p>${osmConfirm()}</div>
-    <div id="moreMenu" class="moreMenu rwide" hidden>${canUndoTidy() ? "" : `<button class="big ghost" id="squareAll">Square all outlines</button>`}
-      <button class="big ghost" id="drawSelf">Draw an outline yourself</button>${ready ? `<button class="big ghost" id="aiScan">Scan with our AI instead</button>` : ""}
-      <button class="big ghost" id="tidyChecked"${kept.length ? "" : " disabled"}>Tidy checked outlines (with undo)</button></div>`, true);
-  $("#reviewNext").onclick = () => fixBox(unreviewed[0] || boxes.find(b => b.keep) || boxes[0]);
+    ${kept.length ? `<button class="primary pill" id="addKept">Send ${kept.length} to OpenStreetMap</button>` : ""}`, true);
   if ($("#undoTidy")) $("#undoTidy").onclick = () => { undoTidy(); showReview(); };
   if (sel.length) { // one action for every selected box, then the selection clears
     $("#pSquare").onclick = () => { clearPicked(); tidyThen(sel); };
@@ -166,15 +155,9 @@ export function showReview() {
     $("#pRemove").onclick = () => { clearPicked(); undo = sel; removeBoxes(sel); showReview(); };
     $("#pClear").onclick = () => { clearPicked(); showReview(); };
   }
-  if ($("#squareAll")) $("#squareAll").onclick = () => tidyThen(boxes.filter(b => b.keep)); // every kept outline at once
-  $("#tidyChecked").onclick = () => tidyThen(kept);
   $("#bsheet .x").onclick = () => { closeSheet(); stopReview(); };
   if ($("#undoRm")) $("#undoRm").onclick = () => { restoreBoxes(undo); undo = []; showReview(); };
-  $("#moreB").onclick = () => { const m = $("#moreMenu"); m.hidden = !m.hidden; $("#moreB").setAttribute("aria-expanded", !m.hidden); };
-  if ($("#aiScan")) $("#aiScan").onclick = scanWithAi;
-  $("#drawSelf").onclick = drawYourself;
-  $("#saveTrain").onclick = () => unreviewed.length ? toast(`Check or remove the ${unreviewed.length} unchecked outline${unreviewed.length === 1 ? "" : "s"} first.`) : saveForTraining(kept);
   if ($("#addKept")) $("#addKept").onclick = async () => {
-    if (await sendChecked(kept, $("#confirmWrap"), $("#addKept"))) { undo = []; showReview(); }
+    if (await sendChecked(kept, $("#addKept"))) { undo = []; showReview(); }
   };
 }

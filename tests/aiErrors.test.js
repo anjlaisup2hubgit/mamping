@@ -119,11 +119,17 @@ test("disconnecting the browser cancels the upstream scan and removes its listen
 
 test("one malformed roof does not remove the valid roofs", async () => {
   const bad = [null, { ...roof, confidence: 2 }, { ...roof, points: [[0, 0], [1, 1], [2, 2]] },
-    { ...roof, points: [[10, 20], [800, 20], [30, 40]] },
+    { ...roof, points: [[10, 20], [1200, 20], [30, 40]] },
     { ...roof, points: [[10, 20], [Infinity, 20], [30, 40]] }, { ...roof, points: [[1, 2]] }];
   const response = await outline(async () => ({ buildings: [roof, ...bad] }));
   assert.equal(response.statusCode, 200);
-  assert.deepEqual(response.body, { buildings: [roof], discarded: bad.length });
+  assert.deepEqual(response.body, { buildings: [{ ...roof, points: [[15.4, 7.7], [15.4, 23], [30.7, 23], [30.7, 7.7]] }], discarded: bad.length });
+});
+
+test("Gemini's [y, x] 0-1000 corners become 768-pixel [x, y] corners", async () => {
+  const corners = [[0, 500], [0, 1000], [1000, 1000], [1000, 500]]; // the right half of the picture
+  const response = await outline(async () => ({ buildings: [{ points: corners, confidence: 0.9 }] }));
+  assert.deepEqual(response.body.buildings[0].points, [[384, 0], [768, 0], [768, 768], [384, 768]]);
 });
 
 test("missing lists and wholly malformed model results fail clearly, while an empty list is valid", async () => {

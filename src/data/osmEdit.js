@@ -10,7 +10,7 @@ export async function call(method, path, body) {
   const r = await fetch(`${OSM_API}/api/0.6/${path}`, {
     method, body, headers: { Authorization: "Bearer " + getToken(), "Content-Type": "text/xml" }
   });
-  if (!r.ok) throw new Error("OpenStreetMap said " + r.status);
+  if (!r.ok) throw new Error(`OpenStreetMap said ${r.status}: ${(await r.text().catch(() => "")).trim().slice(0, 200)}`);
   return r.text();
 }
 

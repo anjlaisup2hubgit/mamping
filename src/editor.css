@@ -1,7 +1,7 @@
 /* Edit mode, laid out like a photo editor: building switcher top left, tool rail on the right, actions along the bottom. */
 body.editingOutline .modeChips,body.editingOutline .nav{display:none}
 .editRail,.editSwitch{display:none}
-body.editingOutline .editRail,body.editingOutline .editSwitch{display:flex}
+body.editingOutline .editRail,body.editingOutline .editSwitch,body.editMode .editRail,body.editMode .editSwitch{display:flex}
 .editRail svg,.editSwitch svg,.editActions svg{width:22px;height:22px;flex:none}
 .editRail svg{width:20px;height:20px}
 .editSwitch svg{width:18px;height:18px}
@@ -24,16 +24,16 @@ body.editingOutline .editRail,body.editingOutline .editSwitch{display:flex}
 .editRail button:hover span{color:#2f7df0}
 .editRail hr{width:70%;border:0;border-top:1px solid #d5e5f8;margin:2px auto}
 
-#bsheet.editorSheet{display:none;left:50%;right:auto;transform:translateX(-50%);bottom:calc(16px + var(--keyboard-bottom,0px) + env(safe-area-inset-bottom));width:max-content;max-width:calc(100% - 112px);max-height:calc(var(--editor-height,100dvh) * .45);padding:6px;border-radius:28px;overflow-x:hidden;overflow-y:auto}
+#bsheet.editorSheet{display:none;left:50%;right:auto;transform:translateX(-50%);bottom:calc(16px + var(--keyboard-bottom,0px) + env(safe-area-inset-bottom));width:max-content;max-width:calc(100% - 112px);max-height:calc(var(--editor-height,100dvh) * .45);padding:8px;border-radius:30px;overflow-x:hidden;overflow-y:auto}
 #bsheet.editorSheet.on{display:flex}
 #bsheet.editorSheet>.x{display:none}
-.outlineInspector{display:flex;flex-direction:column;gap:8px;min-width:0}
-.editActions{display:flex;align-items:center;gap:4px}
+.outlineInspector{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1}
+.editActions{display:flex;align-items:center;gap:6px;width:100%} /* fills the bar, no empty strip on the right */
 .editActions button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:0 12px;border-radius:999px;font:500 14px var(--display);white-space:nowrap}
 .editActions .ghost{background:transparent;border:0;color:#14305c}
 .editActions .ghost:hover{background:#eef5ff}
-.editActions #toOsm{border:1px solid #2f7df0;color:#2f7df0}
-.editActions #edKeep{flex:1}
+.editActions #toOsm{flex:none;padding:0 18px;border:1px solid #2f7df0;color:#2f7df0} /* never squeezed by Check and next */
+.editActions #edKeep{flex:1;min-width:0}
 .editActions #edDetails[aria-expanded=true]{background:#eef5ff;color:#2f7df0}
 .editMore{display:flex;flex-direction:column;gap:8px;padding:6px 8px 4px;border-bottom:1px solid var(--line)}
 .editMore[hidden]{display:none}
@@ -53,11 +53,11 @@ body.editingOutline .toast{top:auto;bottom:96px;pointer-events:none}
  .editRail{right:8px}
  .editSwitch{left:8px}
  #bsheet.editorSheet{left:8px;transform:none;width:auto;right:8px;max-width:none;bottom:calc(8px + var(--keyboard-bottom,0px) + env(safe-area-inset-bottom))}
- .editActions button{padding:0 10px}
- .editActions .ghost span,#toOsm span{display:none}
+ .editActions{gap:4px}
+ .editActions button{padding:0 8px}
+ .editActions #toOsm{padding:0 14px}
+ .editActions .ghost:not(#toOsm) span{display:none} /* Send keeps its count, so you know how many go */
 }
-.sendConfirm{padding:6px 10px 2px}
-.sendConfirm[hidden]{display:none}
 /* Select: only the rail's Select button shows while picking buildings. */
 body.selectingMany .editRail{display:flex}
 body.selectingMany .editRail button:not([data-act="select"]),body.selectingMany .editRail hr{display:none}

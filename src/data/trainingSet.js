@@ -14,15 +14,15 @@ function labelLine(coords, toPixel) {
   return `0 ${((x0 + x1) / 2).toFixed(6)} ${((y0 + y1) / 2).toFixed(6)} ${(x1 - x0).toFixed(6)} ${(y1 - y0).toFixed(6)}`;
 }
 
-// Save whole scenes, including empty scenes; every picture still needs complete-scene review.
-export async function saveTrainingSet(squares, boxes) {
+// Save whole scenes, including empty scenes. status "kept" marks them as already checked; leave it out to review them in Training pictures.
+export async function saveTrainingSet(squares, boxes, status) {
   let saved = 0;
   for (const p of squares) {
     const mine = boxes.filter(b => inSquare(b.center, p));
     const view = await getSatelliteView(...p.centre);
     const labels = [...new Set(mine.map(b => labelLine(b.coords, view.toPixel)))].join("\n");
     await writeTraining({ name: `${p.centre[0].toFixed(6)}_${p.centre[1].toFixed(6)}`, image: view.image, labels,
-      centre: p.centre, bounds: [p.nw, p.se] });
+      centre: p.centre, bounds: [p.nw, p.se], status });
     saved++;
   }
   return saved;

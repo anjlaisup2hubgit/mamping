@@ -5,9 +5,9 @@ import { mid, inside, dist } from "../data/geo.js";
 import { map, currentBase, setBaseLayer, glideTo } from "./mapView.js";
 import { refreshStyles } from "./buildingLayer.js";
 import { showSuggestion } from "./suggestSheet.js";
-import { tapBox } from "./reviewBar.js";
+import { tapBox, startEditing } from "./reviewBar.js";
 import { editCorners, stopEditing } from "./cornerEditor.js";
-import { startDrawing } from "./drawBuilding.js";
+import { startDrawing, stopDrawing, cornersTapped } from "./drawBuilding.js";
 import { toast } from "./toast.js";
 import { preloadPhotos } from "./photoPreload.js";
 import { loadScan, saveScan } from "../data/savedScan.js";
@@ -55,12 +55,13 @@ const leaveFix = () => { hideSure(); if (focused && !state.drawing && !state.pic
 function drawBox(b) {
   if (!layer) { layer = L.layerGroup().addTo(map); map.on("click", leaveFix); }
   b.shape = L.polygon(b.coords, styleOf(b)).addTo(layer)
-    .on("click", e => { if (state.drawing) return; L.DomEvent.stopPropagation(e); tapBox(b, e.originalEvent.shiftKey); })
+    .on("click", e => { if (state.drawing && cornersTapped()) return; L.DomEvent.stopPropagation(e); tapBox(b, e.originalEvent.shiftKey); }) // before the first corner, a tap opens this outline
     .on("dblclick", e => { if (state.drawing) return; L.DomEvent.stopPropagation(e); }); // stopped, so the map does not zoom
 }
 
 // "Fix shape": the box turns yellow with corner handles, and its own panel opens.
 export function fixBox(b) {
+  stopDrawing();
   if (currentBase() !== "satellite") setBaseLayer("satellite"); // roofs are easiest to fit on the photo
   state.selectedId = null;
   refreshStyles();
@@ -82,6 +83,7 @@ export const boxPosition = () => ({ i: boxes.indexOf(focused), n: boxes.length }
 // Fixes the box at position i (wraps round at both ends) and zooms in on it.
 export function fixAt(i) {
   if (!boxes.length) return;
+  trail = []; // a fresh trip round every building
   goTo(boxes[((i % boxes.length) + boxes.length) % boxes.length]);
 }
 function goTo(b) {
@@ -95,12 +97,13 @@ const nearestTo = b => boxes.filter(o => o !== b)
   .sort((x, y) => dist(b.center[0], b.center[1], x.center[0], x.center[1]) - dist(b.center[0], b.center[1], y.center[0], y.center[1]));
 
 // "Next": the closest building you have not checked or passed yet; "previous" goes back the way you came.
+// Once every building has been visited, it goes back to edit mode.
 let trail = [];
 export function fixNearest(from = focused) {
   if (!from) return;
-  const near = nearestTo(from), unseen = near.filter(o => !trail.includes(o));
-  const b = unseen.find(o => !o.reviewed) || unseen[0] || near[0];
-  if (!b) return;
+  const unseen = nearestTo(from).filter(o => !trail.includes(o));
+  const b = unseen.find(o => !o.reviewed) || unseen[0];
+  if (!b) { trail = []; unfocus(); return startEditing(); }
   trail.push(from);
   goTo(b);
 }

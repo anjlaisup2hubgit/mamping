@@ -91,10 +91,11 @@ test("location control centres the map and building details show real facts", as
   await page.locator("#locateMe").click();
   await expect.poll(() => page.evaluate(async () => (await import("/src/components/mapView.js")).map.getZoom())).toBe(18);
   await page.evaluate(async () => (await import("/src/components/buildingSheet.js")).showBuilding(101));
-  await expect(page.locator(".buildingFacts strong")).toHaveText(["12 m", "3"]);
+  await expect(page.locator("#bh")).toHaveValue("12");
+  await expect(page.locator("#bf")).toHaveValue("3");
   await expect(page.locator(".buildingPreview svg")).toBeVisible();
   await expect(page.locator("#captureDetails")).toBeVisible();
-  await page.getByRole("button", { name: "Close panel", exact: true }).click();
+  await page.keyboard.press("Escape"); // the panel has no close button; a map tap or Esc closes it
   await expect(page.locator("#bsheet")).toBeHidden();
   expect(errors).toEqual([]);
 });

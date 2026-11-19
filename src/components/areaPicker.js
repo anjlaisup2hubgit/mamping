@@ -32,8 +32,7 @@ const mappedCount = n => L.divIcon({ className: "", html: `<div class="sqcount">
 const FREE = { className: "sq", color: "#fff", weight: 1, dashArray: "4 4", fillColor: "#fff", fillOpacity: 0.05 };
 
 // onScan(bounds, squares) runs with the picked squares and a box around them. maxPictures = the most one scan reads.
-// onSave(squares) saves the picked squares for AI training.
-export function pickArea(onScan, maxPictures, onSave) {
+export function pickArea(onScan, maxPictures) {
   stopPicking();
   state.picking = true;
   document.body.classList.add("picking"); // also hides the bottom buttons behind the bar
@@ -53,9 +52,8 @@ export function pickArea(onScan, maxPictures, onSave) {
       L.rectangle([p.nw, p.se], on ? PICKED : mapped >= MAPPED_FROM ? MAPPED : FREE).on("click", e => { L.DomEvent.stopPropagation(e); tap(p); }).addTo(layer);
     });
     [...picked.values()].forEach((p, i) => L.marker(p.nw, { icon: number(i + 1), interactive: false }).addTo(layer));
-    const n = picked.size, btn = $("#scanArea"), save = $("#saveArea");
-    if (btn) { btn.disabled = !n || n > maxPictures; btn.textContent = n > maxPictures ? `Scan (up to ${maxPictures})` : n ? `Scan ${n} picture${n > 1 ? "s" : ""}` : "Tap pictures to scan"; }
-    if (save) save.disabled = !n;
+    const n = picked.size, btn = $("#scanArea");
+    if (btn) { btn.disabled = !n || n > maxPictures; btn.textContent = n > maxPictures ? `Use AI to scan (up to ${maxPictures})` : n ? `Use AI to scan ${n} picture${n > 1 ? "s" : ""}` : "Tap pictures to scan"; }
   };
   const update = () => { paint(); loadBuildings().then(paint); }; // paint again once this part of the map has its buildings
   const tap = p => {
@@ -67,14 +65,13 @@ export function pickArea(onScan, maxPictures, onSave) {
   redraw = update;
   map.on("moveend", redraw);
 
-  openSheet(`<button class="primary pill" id="scanArea"></button><button class="ghost pill" id="saveArea">Save for training</button>`, true);
+  openSheet(`<button class="primary pill" id="scanArea" style="flex:1"></button>`, true); // the button fills the bar
   update();
   $("#scanArea").onclick = () => {
     const chosen = [...picked.values()];
     const box = L.latLngBounds(chosen.flatMap(p => [p.nw, p.se]));
     stopPicking(); closeSheet(); onScan(box, chosen);
   };
-  $("#saveArea").onclick = () => { const chosen = [...picked.values()]; stopPicking(); closeSheet(); onSave(chosen); };
   $("#bsheet .x").addEventListener("click", stopPicking); // closing the panel cancels
 }
 

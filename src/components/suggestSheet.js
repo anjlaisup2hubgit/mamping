@@ -3,7 +3,6 @@ import { sendContribution } from "../data/api.js";
 import { $, esc } from "./dom.js";
 import { openSheet, closeSheet } from "./sheet.js";
 import { toast } from "./toast.js";
-import { osmConfirm } from "./osmConfirm.js";
 import { currentBoxes, saveBoxes, restyle, unfocus } from "./missingLayer.js";
 import { sendChecked } from "./sendChecked.js";
 import { validatePolygon } from "../data/geometry.js";
@@ -45,11 +44,10 @@ export function showSuggestion(b) {
       ${detailsFields(esc(b.tags.height || ""), esc(b.tags["building:levels"] || ""))}</div>
       <p class="inspectorHelp">${esc(from)} Drag a corner to fit the roof, a white dot to add a corner, or the middle handle to move it. Press ? for keyboard shortcuts.</p>
       <button class="ghost pill" id="subO">Share outline with Mamping</button></div>
-    <div class="sendConfirm" id="sendConfirm" hidden>${osmConfirm()}</div>
     <div class="editActions"><button class="ghost" id="edDetails" aria-expanded="false">${i.details}<span>Details</span></button>
       <button class="ghost" id="edRemove" aria-label="Remove">${i.remove}<span>Remove</span></button>
       <button class="primary" id="edKeep">${i.checkNext}<span>Check and next</span></button>
-      <button class="ghost" id="toOsm">${i.send}<span>Send ${currentBoxes().filter(o => o.keep && o.reviewed).length} to OSM</span></button></div>
+      <button class="ghost" id="toOsm" data-tip="Send every checked building to OpenStreetMap">${i.send}<span>Send ${currentBoxes().filter(o => o.keep && o.reviewed).length}</span></button></div>
   </section>`, true);
   $("#bsheet").classList.add("editorSheet");
   mountShapeTools();
@@ -64,10 +62,7 @@ export function showSuggestion(b) {
   $("#toOsm").onclick = async () => { // sends every checked building, not just this one
     const invalid = $("#bsheet input:invalid");
     if (invalid) return invalid.reportValidity();
-    const wasHidden = $("#sendConfirm").hidden;
-    const sent = await sendChecked(currentBoxes().filter(o => o.keep && o.reviewed), $("#sendConfirm"), $("#toOsm"));
-    if (wasHidden) placeEditor();
-    if (sent) closeSheet();
+    if (await sendChecked(currentBoxes().filter(o => o.keep && o.reviewed), $("#toOsm"))) closeSheet();
   };
   $("#subO").onclick = async () => {
     const problem = validatePolygon(b.coords);

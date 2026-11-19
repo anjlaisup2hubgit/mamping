@@ -54,8 +54,6 @@ function show(coords) { // redraws the outline while a handle is being dragged
   current.coords = coords;
   current.center = mid(coords);
   current.reviewed = false;
-  const checked = document.querySelector("#osmOk");
-  if (checked) checked.checked = false;
   current.shape.setLatLngs(coords);
   if (watcher) watcher(current);
 }
