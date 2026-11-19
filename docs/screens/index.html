@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mamping Screen Tour</title>
+<style>
+:root { --bg:#f5f7fb; --card:#fff; --ink:#14213d; --mid:#5b6478; --line:#dfe4ee; --acc:#2f7cf6; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#10141c; --card:#1a2030; --ink:#e8ecf4; --mid:#a3acc0; --line:#2b3346; --acc:#6aa2ff; } }
+:root[data-theme="dark"] { --bg:#10141c; --card:#1a2030; --ink:#e8ecf4; --mid:#a3acc0; --line:#2b3346; --acc:#6aa2ff; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+main { max-width:1200px; margin:0 auto; padding:24px 16px 64px; }
+h1 { margin:0 0 4px; font-size:28px; }
+.lead { color:var(--mid); margin:0 0 24px; max-width:720px; }
+.dot { display:inline-block; width:18px; height:18px; border-radius:50%; background:rgba(110,110,110,.35); border:2px solid rgba(70,70,70,.45); vertical-align:-4px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:20px; }
+.card { margin:0; background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+.card img { display:block; width:100%; height:auto; border-bottom:1px solid var(--line); }
+figcaption { padding:10px 12px 12px; display:grid; grid-template-columns:auto 1fr; gap:2px 8px; font-size:14px; }
+.num { grid-row:span 2; background:var(--acc); color:#fff; border-radius:8px; min-width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-weight:700; }
+.how { color:var(--mid); }
+section { margin-top:40px; max-width:820px; }
+section li { margin-bottom:8px; }
+code { font-size:13px; }
+</style></head>
+<body><main>
+<h1>Mamping screen tour</h1>
+<p class="lead">Every screen and popup in order, at phone size (390 × 844). The gray circle <span class="dot"></span> marks the button pressed next. Under each picture: how you got there. Captured on 52 steps with a local copy of the app; nothing was sent to OpenStreetMap.</p>
+<div class="grid">
+<figure class="card" id="s1">
+  <a href="01-map.png"><img src="01-map.png" alt="Map (home)" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">1</span><b>Map (home)</b><span class="how">Open the app</span></figcaption>
+</figure>
+<figure class="card" id="s2">
+  <a href="02-search-results.png"><img src="02-search-results.png" alt="Search results" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">2</span><b>Search results</b><span class="how">Typed a place in the search box</span></figcaption>
+</figure>
+<figure class="card" id="s3">
+  <a href="03-map-after-search.png"><img src="03-map-after-search.png" alt="Map moved to the place" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">3</span><b>Map moved to the place</b><span class="how">Tapped a search result</span></figcaption>
+</figure>
+<figure class="card" id="s4">
+  <a href="04-map-located.png"><img src="04-map-located.png" alt="Map centred on you" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">4</span><b>Map centred on you</b><span class="how">Tapped the location button</span></figcaption>
+</figure>
+<figure class="card" id="s5">
+  <a href="05-building-sheet.png"><img src="05-building-sheet.png" alt="Building details panel" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">5</span><b>Building details panel</b><span class="how">Tapped a building on the map</span></figcaption>
+</figure>
+<figure class="card" id="s6">
+  <a href="06-building-typed.png"><img src="06-building-typed.png" alt="Typed a missing detail: tick box and Save to OpenStreetMap appear" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">6</span><b>Typed a missing detail: tick box and Save to OpenStreetMap appear</b><span class="how">Typed a height in the empty Height box (Save was not pressed)</span></figcaption>
+</figure>
+<figure class="card" id="s7">
+  <a href="07-map-closed-panel.png"><img src="07-map-closed-panel.png" alt="Map again" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">7</span><b>Map again</b><span class="how">Tapped an empty spot on the map to close the panel</span></figcaption>
+</figure>
+<figure class="card" id="s8">
+  <a href="08-satellite.png"><img src="08-satellite.png" alt="Satellite map" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">8</span><b>Satellite map</b><span class="how">Tapped the Satellite picture button</span></figcaption>
+</figure>
+<figure class="card" id="s9">
+  <a href="09-pick-area.png"><img src="09-pick-area.png" alt="Choose pictures to scan" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">9</span><b>Choose pictures to scan</b><span class="how">Tapped Find missing</span></figcaption>
+</figure>
+<figure class="card" id="s10">
+  <a href="10-area-picked.png"><img src="10-area-picked.png" alt="Picture picked" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">10</span><b>Picture picked</b><span class="how">Tapped a square on the map</span></figcaption>
+</figure>
+<figure class="card" id="s11">
+  <a href="11-scan-results.png"><img src="11-scan-results.png" alt="Scan results" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">11</span><b>Scan results</b><span class="how">Tapped Scan 1 picture</span></figcaption>
+</figure>
+<figure class="card" id="s12">
+  <a href="12-results-bar.png"><img src="12-results-bar.png" alt="Results bar: how many to check and how many are ready" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">12</span><b>Results bar: how many to check and how many are ready</b><span class="how">Tapped Dismiss on the scan message</span></figcaption>
+</figure>
+<figure class="card" id="s13">
+  <a href="13-edit-mode.png"><img src="13-edit-mode.png" alt="Edit mode: ready to draw an outline" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">13</span><b>Edit mode: ready to draw an outline</b><span class="how">Tapped the pencil (Edits) button</span></figcaption>
+</figure>
+<figure class="card" id="s14">
+  <a href="14-draw-corner-1.png"><img src="14-draw-corner-1.png" alt="First corner placed" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">14</span><b>First corner placed</b><span class="how">Tapped a roof corner</span></figcaption>
+</figure>
+<figure class="card" id="s15">
+  <a href="15-draw-rectangle.png"><img src="15-draw-rectangle.png" alt="Rectangle drawn" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">15</span><b>Rectangle drawn</b><span class="how">Tapped the opposite corner</span></figcaption>
+</figure>
+<figure class="card" id="s16">
+  <a href="16-drawn-inspector.png"><img src="16-drawn-inspector.png" alt="New outline in the inspector with edit tools" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">16</span><b>New outline in the inspector with edit tools</b><span class="how">Tapped Done</span></figcaption>
+</figure>
+<figure class="card" id="s17">
+  <a href="17-inspector-details.png"><img src="17-inspector-details.png" alt="Building details open" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">17</span><b>Building details open</b><span class="how">Tapped Details</span></figcaption>
+</figure>
+<figure class="card" id="s18">
+  <a href="18-next-building.png"><img src="18-next-building.png" alt="Next building (the drawn one is checked)" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">18</span><b>Next building (the drawn one is checked)</b><span class="how">Tapped Check and next</span></figcaption>
+</figure>
+<figure class="card" id="s19">
+  <a href="19-arrow-next.png"><img src="19-arrow-next.png" alt="Arrows go through the found buildings" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">19</span><b>Arrows go through the found buildings</b><span class="how">Tapped the next arrow at the top</span></figcaption>
+</figure>
+<figure class="card" id="s20">
+  <a href="20-send-needs-login.png"><img src="20-send-needs-login.png" alt="Send stopped: connect OpenStreetMap first" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">20</span><b>Send stopped: connect OpenStreetMap first</b><span class="how">Tapped Send (signed out, so nothing is sent)</span></figcaption>
+</figure>
+<figure class="card" id="s21">
+  <a href="21-keyboard-help.png"><img src="21-keyboard-help.png" alt="Keyboard shortcuts list" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">21</span><b>Keyboard shortcuts list</b><span class="how">Pressed the ? key</span></figcaption>
+</figure>
+<figure class="card" id="s22">
+  <a href="22-select-mode.png"><img src="22-select-mode.png" alt="Select many outlines" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">22</span><b>Select many outlines</b><span class="how">Tapped Select on the tool rail</span></figcaption>
+</figure>
+<figure class="card" id="s23">
+  <a href="23-edit-closed.png"><img src="23-edit-closed.png" alt="Map with outlines" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">23</span><b>Map with outlines</b><span class="how">Tapped Select again, then ✕ to stop editing</span></figcaption>
+</figure>
+<figure class="card" id="s24">
+  <a href="24-camera-tips.png"><img src="24-camera-tips.png" alt="Filming tips" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">24</span><b>Filming tips</b><span class="how">Tapped the camera button</span></figcaption>
+</figure>
+<figure class="card" id="s25">
+  <a href="25-camera.png"><img src="25-camera.png" alt="Camera (waiting for GPS)" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">25</span><b>Camera (waiting for GPS)</b><span class="how">Tapped Got it</span></figcaption>
+</figure>
+<figure class="card" id="s26">
+  <a href="26-camera-driving.png"><img src="26-camera-driving.png" alt="Camera in Driving mode" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">26</span><b>Camera in Driving mode</b><span class="how">Tapped Walking to switch mode</span></figcaption>
+</figure>
+<figure class="card" id="s27">
+  <a href="27-camera-walking.png"><img src="27-camera-walking.png" alt="Camera back in Walking mode" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">27</span><b>Camera back in Walking mode</b><span class="how">Tapped Driving to switch back</span></figcaption>
+</figure>
+<figure class="card" id="s28">
+  <a href="28-camera-recording.png"><img src="28-camera-recording.png" alt="Recording" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">28</span><b>Recording</b><span class="how">Tapped the record button</span></figcaption>
+</figure>
+<figure class="card" id="s29">
+  <a href="29-video-saved.png"><img src="29-video-saved.png" alt="Video saved" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">29</span><b>Video saved</b><span class="how">Tapped stop</span></figcaption>
+</figure>
+<figure class="card" id="s30">
+  <a href="30-reading-video.png"><img src="30-reading-video.png" alt="Reading your video" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">30</span><b>Reading your video</b><span class="how">Tapped Send to map</span></figcaption>
+</figure>
+<figure class="card" id="s31">
+  <a href="31-review.png"><img src="31-review.png" alt="Review building details" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">31</span><b>Review building details</b><span class="how">Waited for the video to be read</span></figcaption>
+</figure>
+<figure class="card" id="s32">
+  <a href="32-kept-offline.png"><img src="32-kept-offline.png" alt="Saved on this phone" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">32</span><b>Saved on this phone</b><span class="how">Tapped Keep offline</span></figcaption>
+</figure>
+<figure class="card" id="s33">
+  <a href="33-map-after-review.png"><img src="33-map-after-review.png" alt="Map after saving" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">33</span><b>Map after saving</b><span class="how">Tapped an empty spot on the map to close the panel</span></figcaption>
+</figure>
+<figure class="card" id="s34">
+  <a href="34-videos.png"><img src="34-videos.png" alt="Video library" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">34</span><b>Video library</b><span class="how">Tapped the video button</span></figcaption>
+</figure>
+<figure class="card" id="s35">
+  <a href="35-videos-private.png"><img src="35-videos-private.png" alt="Videos: Private filter" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">35</span><b>Videos: Private filter</b><span class="how">Tapped Private</span></figcaption>
+</figure>
+<figure class="card" id="s36">
+  <a href="36-settings.png"><img src="36-settings.png" alt="Settings (signed out)" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">36</span><b>Settings (signed out)</b><span class="how">Tapped the settings button</span></figcaption>
+</figure>
+<figure class="card" id="s37">
+  <a href="37-settings-outlines-row.png"><img src="37-settings-outlines-row.png" alt="Settings: Your contributions" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">37</span><b>Settings: Your contributions</b><span class="how">Log in opens the OpenStreetMap site, so it was not pressed</span></figcaption>
+</figure>
+<figure class="card" id="s38">
+  <a href="38-scanned-outlines.png"><img src="38-scanned-outlines.png" alt="Scanned outlines" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">38</span><b>Scanned outlines</b><span class="how">Tapped Scanned outlines</span></figcaption>
+</figure>
+<figure class="card" id="s39">
+  <a href="39-settings-my-edits-row.png"><img src="39-settings-my-edits-row.png" alt="Settings" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">39</span><b>Settings</b><span class="how">Tapped Back</span></figcaption>
+</figure>
+<figure class="card" id="s40">
+  <a href="40-my-edits.png"><img src="40-my-edits.png" alt="My contributions" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">40</span><b>My contributions</b><span class="how">Tapped My edits</span></figcaption>
+</figure>
+<figure class="card" id="s41">
+  <a href="41-settings-scan-options-row.png"><img src="41-settings-scan-options-row.png" alt="Settings" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">41</span><b>Settings</b><span class="how">Tapped Back</span></figcaption>
+</figure>
+<figure class="card" id="s42">
+  <a href="42-scan-options.png"><img src="42-scan-options.png" alt="Scan options" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">42</span><b>Scan options</b><span class="how">Tapped Scan options</span></figcaption>
+</figure>
+<figure class="card" id="s43">
+  <a href="43-settings-training-row.png"><img src="43-settings-training-row.png" alt="Settings" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">43</span><b>Settings</b><span class="how">Tapped Back</span></figcaption>
+</figure>
+<figure class="card" id="s44">
+  <a href="44-training.png"><img src="44-training.png" alt="Training pictures" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">44</span><b>Training pictures</b><span class="how">Tapped Training pictures</span></figcaption>
+</figure>
+<figure class="card" id="s45">
+  <a href="45-settings-fixing-outlines-row.png"><img src="45-settings-fixing-outlines-row.png" alt="Settings" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">45</span><b>Settings</b><span class="how">Tapped Back</span></figcaption>
+</figure>
+<figure class="card" id="s46">
+  <a href="46-fixing-outlines.png"><img src="46-fixing-outlines.png" alt="Fixing outlines guide" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">46</span><b>Fixing outlines guide</b><span class="how">Tapped Fixing outlines</span></figcaption>
+</figure>
+<figure class="card" id="s47">
+  <a href="47-settings-guide-row.png"><img src="47-settings-guide-row.png" alt="Settings" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">47</span><b>Settings</b><span class="how">Tapped Back</span></figcaption>
+</figure>
+<figure class="card" id="s48">
+  <a href="48-guide.png"><img src="48-guide.png" alt="Guide" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">48</span><b>Guide</b><span class="how">Tapped Guide</span></figcaption>
+</figure>
+<figure class="card" id="s49">
+  <a href="49-settings-toggle.png"><img src="49-settings-toggle.png" alt="Settings: map preferences" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">49</span><b>Settings: map preferences</b><span class="how">Tapped Back</span></figcaption>
+</figure>
+<figure class="card" id="s50">
+  <a href="50-settings-toggled.png"><img src="50-settings-toggled.png" alt="Highlight missing details turned on" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">50</span><b>Highlight missing details turned on</b><span class="how">Tapped Highlight missing details</span></figcaption>
+</figure>
+<figure class="card" id="s51">
+  <a href="51-map-signed-in.png"><img src="51-map-signed-in.png" alt="Map when logged in" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">51</span><b>Map when logged in</b><span class="how">Opened the app with an OpenStreetMap account (demo)</span></figcaption>
+</figure>
+<figure class="card" id="s52">
+  <a href="52-settings-signed-in.png"><img src="52-settings-signed-in.png" alt="Settings with Pending edits (end of tour)" loading="lazy" width="390" height="844"></a>
+  <figcaption><span class="num">52</span><b>Settings with Pending edits (end of tour)</b><span class="how">Tapped the account letter. Retry is circled but was not pressed: it would send to OpenStreetMap</span></figcaption>
+</figure>
+</div>
+<section><h2>Not shown or not pressed</h2><ul><li><b>Log in</b> opens the real OpenStreetMap sign-in page, so it was not pressed. The signed-in pictures use a demo account saved in the browser.</li><li><b>Anything that sends</b> was not finished: Send to OpenStreetMap (signed out, so the app refuses), Save to OpenStreetMap in the building panel, Upload now, Add details to OpenStreetMap, Share outline with Mamping, Send for training, AI scan on the tool rail, Retry, Already on map, Retry account sync, Undo in My edits, Train AI and Log out.</li><li><b>Browser “are you sure?” boxes</b> (Teach the AI, Retry on an interrupted edit, Already on map, Assign or Import older drafts, Recover old labels) are drawn by the browser and do not show in screenshots.</li><li><b>Drive results</b> needs a real drive with pictures taken every 15 m, so it was not reached.</li><li><b>Training labels</b> needs pictures on the training server; the page is shown empty.</li><li><b>Single shape tools</b> (Tidy all, Square, Line up, Street, Snap, Turn, Copy, Undo/Redo, dragging corners) are on the tool rail in the pictures but were not pressed one by one.</li><li><b>The video AI</b> call was blocked, so the review page shows “AI is unavailable. Using your location instead.”</li></ul></section>
+
+</main></body></html>

@@ -1,0 +1,262 @@
+[
+  {
+    "file": "01-map.png",
+    "title": "Map (home)",
+    "how": "Open the app"
+  },
+  {
+    "file": "02-search-results.png",
+    "title": "Search results",
+    "how": "Typed a place in the search box"
+  },
+  {
+    "file": "03-map-after-search.png",
+    "title": "Map moved to the place",
+    "how": "Tapped a search result"
+  },
+  {
+    "file": "04-map-located.png",
+    "title": "Map centred on you",
+    "how": "Tapped the location button"
+  },
+  {
+    "file": "05-building-sheet.png",
+    "title": "Building details panel",
+    "how": "Tapped a building on the map"
+  },
+  {
+    "file": "06-building-typed.png",
+    "title": "Typed a missing detail: tick box and Save to OpenStreetMap appear",
+    "how": "Typed a height in the empty Height box (Save was not pressed)"
+  },
+  {
+    "file": "07-map-closed-panel.png",
+    "title": "Map again",
+    "how": "Tapped an empty spot on the map to close the panel"
+  },
+  {
+    "file": "08-satellite.png",
+    "title": "Satellite map",
+    "how": "Tapped the Satellite picture button"
+  },
+  {
+    "file": "09-pick-area.png",
+    "title": "Choose pictures to scan",
+    "how": "Tapped Find missing"
+  },
+  {
+    "file": "10-area-picked.png",
+    "title": "Picture picked",
+    "how": "Tapped a square on the map"
+  },
+  {
+    "file": "11-scan-results.png",
+    "title": "Scan results",
+    "how": "Tapped Scan 1 picture"
+  },
+  {
+    "file": "12-results-bar.png",
+    "title": "Results bar: how many to check and how many are ready",
+    "how": "Tapped Dismiss on the scan message"
+  },
+  {
+    "file": "13-edit-mode.png",
+    "title": "Edit mode: ready to draw an outline",
+    "how": "Tapped the pencil (Edits) button"
+  },
+  {
+    "file": "14-draw-corner-1.png",
+    "title": "First corner placed",
+    "how": "Tapped a roof corner"
+  },
+  {
+    "file": "15-draw-rectangle.png",
+    "title": "Rectangle drawn",
+    "how": "Tapped the opposite corner"
+  },
+  {
+    "file": "16-drawn-inspector.png",
+    "title": "New outline in the inspector with edit tools",
+    "how": "Tapped Done"
+  },
+  {
+    "file": "17-inspector-details.png",
+    "title": "Building details open",
+    "how": "Tapped Details"
+  },
+  {
+    "file": "18-next-building.png",
+    "title": "Next building (the drawn one is checked)",
+    "how": "Tapped Check and next"
+  },
+  {
+    "file": "19-arrow-next.png",
+    "title": "Arrows go through the found buildings",
+    "how": "Tapped the next arrow at the top"
+  },
+  {
+    "file": "20-send-needs-login.png",
+    "title": "Send stopped: connect OpenStreetMap first",
+    "how": "Tapped Send (signed out, so nothing is sent)"
+  },
+  {
+    "file": "21-keyboard-help.png",
+    "title": "Keyboard shortcuts list",
+    "how": "Pressed the ? key"
+  },
+  {
+    "file": "22-select-mode.png",
+    "title": "Select many outlines",
+    "how": "Tapped Select on the tool rail"
+  },
+  {
+    "file": "23-edit-closed.png",
+    "title": "Map with outlines",
+    "how": "Tapped Select again, then ✕ to stop editing"
+  },
+  {
+    "file": "24-camera-tips.png",
+    "title": "Filming tips",
+    "how": "Tapped the camera button"
+  },
+  {
+    "file": "25-camera.png",
+    "title": "Camera (waiting for GPS)",
+    "how": "Tapped Got it"
+  },
+  {
+    "file": "26-camera-driving.png",
+    "title": "Camera in Driving mode",
+    "how": "Tapped Walking to switch mode"
+  },
+  {
+    "file": "27-camera-walking.png",
+    "title": "Camera back in Walking mode",
+    "how": "Tapped Driving to switch back"
+  },
+  {
+    "file": "28-camera-recording.png",
+    "title": "Recording",
+    "how": "Tapped the record button"
+  },
+  {
+    "file": "29-video-saved.png",
+    "title": "Video saved",
+    "how": "Tapped stop"
+  },
+  {
+    "file": "30-reading-video.png",
+    "title": "Reading your video",
+    "how": "Tapped Send to map"
+  },
+  {
+    "file": "31-review.png",
+    "title": "Review building details",
+    "how": "Waited for the video to be read"
+  },
+  {
+    "file": "32-kept-offline.png",
+    "title": "Saved on this phone",
+    "how": "Tapped Keep offline"
+  },
+  {
+    "file": "33-map-after-review.png",
+    "title": "Map after saving",
+    "how": "Tapped an empty spot on the map to close the panel"
+  },
+  {
+    "file": "34-videos.png",
+    "title": "Video library",
+    "how": "Tapped the video button"
+  },
+  {
+    "file": "35-videos-private.png",
+    "title": "Videos: Private filter",
+    "how": "Tapped Private"
+  },
+  {
+    "file": "36-settings.png",
+    "title": "Settings (signed out)",
+    "how": "Tapped the settings button"
+  },
+  {
+    "file": "37-settings-outlines-row.png",
+    "title": "Settings: Your contributions",
+    "how": "Log in opens the OpenStreetMap site, so it was not pressed"
+  },
+  {
+    "file": "38-scanned-outlines.png",
+    "title": "Scanned outlines",
+    "how": "Tapped Scanned outlines"
+  },
+  {
+    "file": "39-settings-my-edits-row.png",
+    "title": "Settings",
+    "how": "Tapped Back"
+  },
+  {
+    "file": "40-my-edits.png",
+    "title": "My contributions",
+    "how": "Tapped My edits"
+  },
+  {
+    "file": "41-settings-scan-options-row.png",
+    "title": "Settings",
+    "how": "Tapped Back"
+  },
+  {
+    "file": "42-scan-options.png",
+    "title": "Scan options",
+    "how": "Tapped Scan options"
+  },
+  {
+    "file": "43-settings-training-row.png",
+    "title": "Settings",
+    "how": "Tapped Back"
+  },
+  {
+    "file": "44-training.png",
+    "title": "Training pictures",
+    "how": "Tapped Training pictures"
+  },
+  {
+    "file": "45-settings-fixing-outlines-row.png",
+    "title": "Settings",
+    "how": "Tapped Back"
+  },
+  {
+    "file": "46-fixing-outlines.png",
+    "title": "Fixing outlines guide",
+    "how": "Tapped Fixing outlines"
+  },
+  {
+    "file": "47-settings-guide-row.png",
+    "title": "Settings",
+    "how": "Tapped Back"
+  },
+  {
+    "file": "48-guide.png",
+    "title": "Guide",
+    "how": "Tapped Guide"
+  },
+  {
+    "file": "49-settings-toggle.png",
+    "title": "Settings: map preferences",
+    "how": "Tapped Back"
+  },
+  {
+    "file": "50-settings-toggled.png",
+    "title": "Highlight missing details turned on",
+    "how": "Tapped Highlight missing details"
+  },
+  {
+    "file": "51-map-signed-in.png",
+    "title": "Map when logged in",
+    "how": "Opened the app with an OpenStreetMap account (demo)"
+  },
+  {
+    "file": "52-settings-signed-in.png",
+    "title": "Settings with Pending edits (end of tour)",
+    "how": "Tapped the account letter. Retry is circled but was not pressed: it would send to OpenStreetMap"
+  }
+]
